@@ -10,7 +10,8 @@ Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and
 2013 TAs: Stephanie Gagnon, Lauren Howe, Michael Waskom, Alyssa Fu, Kevin Mickey, Eric Miller
 
 
-## Manipulating Dataframes
+Manipulating Dataframes
+-----------------------
 
 To begin, we'll load in a simple data file that we'll use in 252, and store it as a [dataframe](http://www.r-tutor.com/r-introduction/data-frame) named "d2".
 
@@ -36,9 +37,10 @@ d2[participant_num,]
 This shows us that participant 5 is 25 years old, and has an optimism score of 6.
 
 
-## Integer vs. Factor
+Integer vs. Factor
+------------------
 
-Now, we might want to treat some variables as qualitative, nominal **factors** rather than continuous, numeric **integers**. In R, we must specify which variables to treat as factors if the **levels** (unique values) of the variable are composed of numbers instead of strings. 
+Now, we might want to treat some variables as qualitative, nominal **factors** rather than continuous, numeric **integers**. In R, we must specify which variables to treat as factors if the **levels** (i.e., unique values) of the variable are composed of numbers instead of strings. Note that if the variable (e.g., "Subid") *levels* start with a letter (e.g., "subject1", "subject2") R will automatically interpret the variable as a *factor*. If the variable levels start with a number (e.g., "1", "2"), R with automatically interpret the variable as an *integer*. If you want the variable interpreted differently, you have to tell R.
 
 For instance, the variable "age" is continuous, but "agecat" is not. However, since the **levels** of "agecat" are indicated with numbers, we must tell R to treat "agecat" as a factor:
 
@@ -52,13 +54,17 @@ Now we can look at the structure of the d2 dataframe again, to make sure agecat 
 str(d2)
 ```
 
-We can also plot age as a function of age category:
+We can also plot age as a function of age category. Here we'll tell R to make the plot **with** the d2 dataframe. This saves on typing "d2$" in front of each variable name.
 ```{r fig.width=7, fig.height=6}
-with(d2,plot(age~agecat))
+with(d2,plot(age ~ agecat))
+#with(d2,plot(agecat, age)) # these 2 lines do the same thing!
 ```
 
+Note, you can run plot in the format **plot(Y ~ X)**, as well as **plot(X, Y)**. These will produce the same plot.
 
-## Creating factors from continuous variables
+
+Creating factors from continuous variables
+------------------------------------------
 
 Suppose the variable "agecat" wasn't given to us, but we still wanted to group participants into categories based on their respective ages. Given the "age" variable, we can create a new categorical variable (i.e., **factor**) by specifying breaks at specific intervals:
 
@@ -74,7 +80,8 @@ Specifically, these break points result in 5 age categories, 0:28, 29:38, 39:48,
 with(d2,plot(age~agecat0))
 ```
 
-## Basic Plotting
+Basic Plotting
+--------------
 
 Now that we have our data, we can use plots to visualize things like the distribution of certain variables. Let's start out by plotting a histogram of the ages. We can set the color of the bars with the option "col", and set the main title with the option "main":
 
@@ -82,27 +89,32 @@ Now that we have our data, we can use plots to visualize things like the distrib
 hist(d2$age, col='orange', main = 'Distribution of age')
 ```
 
-Next, let's view a scatter plot of optimism by age. We'll also add in a line to get a sense of the general trend of the data; here, we'll plot a non-parametric best-filling curve in red using the ["lowess"](http://rss.acs.unt.edu/Rdoc/library/gplots/html/lowess.html) function.
+Next, let's view a scatter plot of optimism by age. Before when we used the plot() function, we were plotting a **factor** variable on the x-axis. As a result, R generated boxplots. However, if the x-axis variable is **continuous** (i.e., numeric), plot() will generate a scatterplot.
+
+We'll also add in a line to get a sense of the general trend of the data; here, we'll plot a non-parametric best-filling curve in red using the ["lowess"](http://rss.acs.unt.edu/Rdoc/library/gplots/html/lowess.html) function.
 
 ```{r fig.width=7, fig.height=6}
 plot(d2$age, d2$optmism, main = 'Optimism vs Age')
 lines(lowess(d2$age, d2$optmism), lty = 2, col='red')
 ```
 
-## Linear Regression
+Linear Regression
+------------------
 
-To examine the best-fitting linear relationship between quantiative variables (e.g., X and Y), we can use the function **lm()**. For instance, we might want to investigate the relationship between age and optimism, depicted in the plot above. As age increases, how does optimism change?
+To examine the best-fitting linear relationship between quantiative variables (e.g., X and Y), we can use the function [lm()](http://www.statmethods.net/stats/regression.html). **lm()** is useful in fitting linear models. To use **lm()** you must provide a fomula, like **Y ~ X**. In this case, X is your independent variable (IV), and Y is your dependent variable (DV). That is, as X changes, what happens to Y? How much of the variance in Y is explained by variance in X?
+
+For instance, we might want to investigate the relationship between age (X) and optimism (Y), depicted in the plot above. As age increases, how does optimism change?
 
 ```{r lm_ageVSoptmism_d2}
-rs2 = lm(optmism ~ age, data = d2)
-print(summary(rs2))
+rs2 = lm(optmism ~ age, data = d2) # this is the same as lm(d2$optmism ~ d2$age)
+print(summary(rs2)) # given the model we just fit with lm(), give us the summary
 ```
 
 Based off of this output, we can see that age is a significant predictor of optimism; the variance in age explains approximately 10% of the variance in optimism.
 
-We can also plot the regression line, fit by least squares regression, on top of the scatterplot. While we're doing this, let's also change the names of the x- and y-axis labels:
+We can also plot the regression line, fit by least squares regression, on top of the scatterplot. Here, we use the function **abline()**, and give it the model we just fit above with lm(). While we're doing this, let's also change the names of the x- and y-axis labels:
 ```{r fig.width=7, fig.height=6}
-plot(d2$age, d2$optmism, main = 'Optimism vs Age', xlab='Age', ylab='Optimism')
+plot(d2$optmism ~ d2$age, main = 'Optimism vs Age', xlab='Age', ylab='Optimism')
 abline(rs2, col='red')
 ```
 
@@ -111,15 +123,18 @@ We can also visualize diagnostic plots of the residuals from the lm() output, wh
 plot(rs2)
 ```
 
-## Reading data from online repositories
+Reading data from online repositories
+--------------------------------------
 
-R also allows us to read data that's stored in online repositoies. We can provide the website URL, and R will read in the table:
+R allows us to read data that's stored in a file on your computer or from a URL online. We can provide the website URL, and R will read in the table:
 
 ```{r flu_load}
-flu.table <- read.table('http://www-stat.stanford.edu/~jtaylo/courses/stats191/data/flu.table', header=T)
+flu.table <- read.table('http://www-stat.stanford.edu/~jtaylo/courses/stats191/data/flu.table', header=TRUE)
 
 str(flu.table)  	# description of dataframe
 ```
+
+Note that when you're reading in a **table**, you have to tell R that you want the first row in the file to be the header (i.e., the names of the variables) with the option "header=TRUE". If you have a **csv** R will treat the first row as a header by default.
 
 Here, we have a numeric matrix of data, with 50 observations for 3 variables. To get an idea of the pairwise relationships between all these variables, we can visualize all these plots with the pairs() function:
 
@@ -134,14 +149,15 @@ plot(flu.table$Health.Aware, flu.table$Shot, main = 'Prob(Shot) vs Awareness',
 lines(lowess(flu.table$Health.Aware, flu.table$Shot), lty = 2, col='red')  # 
 ```
 
-## More example data
+More example data
+-----------------
 
 What is the effect of a right-to-work law (RTWL = 0 or 1) on the cost-of-living (COL) of an 'average' family, controlling for unionization rate, population, popn density, property taxes, per capita income? Data from 38 cities. (RTWL's, e.g., Taft-Hartley Amendments (1947), tended to reduce the power of unions over workers; did they make life easier or harder for workers?)
 
 ```{r rtw_load}
-rtw.table <- read.table("http://www.ilr.cornell.edu/~hadi/RABE4/Data4/P005.txt", header=T, sep='\t')
+rtw.table <- read.table("http://www.ilr.cornell.edu/~hadi/RABE4/Data4/P005.txt", header=T, sep='\t') # the separation between columns is a tab (\t), instead of a comma, etc.
 
-str(rtw.table)  	# description of dataframe
+str(rtw.table)
 ```
 
 Let's plot a boxplot of the cost of living (COL) by whether or not there is a right-to-work law in place:
@@ -149,7 +165,8 @@ Let's plot a boxplot of the cost of living (COL) by whether or not there is a ri
 boxplot(rtw.table$COL ~ rtw.table$RTWL, col='orange', pch=23, bg='red',main='COL vs RTWL')	# any relation between COL and RTWL? 
 ```
 
-## Attaching Dataframes
+Attaching Dataframes
+--------------------
 
 Sometimes it can get annoying typing in the name of the dataframe each time you want to specify a variable. If you're going to be working with one dataframe for a while, it can be helpful to **attach** the dataframe while you're working, and then **detach** it when you're done. When a dataframe is attached, you can just type in the name of the variable, and R will know to look in the attached dataframe.
 
@@ -165,16 +182,18 @@ Make sure you remember to detach the dataframe when you're done, otherwise R can
 detach(rtw.table)
 ```
 
-## Regression: simple and multiple
+Regression: simple and multiple
+-------------------------------
+
 Now let's re-attach the rtw.table dataframe, and examine the relationship between unemployment rate ('Urate') and cost of living ('COL') using the lm() function.
 
 ```{r lm_rtw}
 attach(rtw.table)
 
 rs3 = lm(COL ~ URate)	# Simple regression of one quantitative variable on another
-print(summary(rs3))
+summary(rs3)
 ```
-Here, the output suggests that there is no significant relationship between unemployment rate and cost of living.
+Here, the output suggests that there is not a significant relationship between unemployment rate and cost of living. We can see this by looking under the "Coefficients", for URate t=1.67, p = 0.103. In the text at the bottom, F(1,36)=2.803, p=0.1028.
 
 We can also plot the residuals to get a better idea of possible outliers, etc.
 ```{r fig.width=7, fig.height=6}
@@ -182,7 +201,7 @@ plot(rs3)
 ```
 
 ### Removing outliers
-These last diagnostic plots suggest that observations 6 and 34 are outliers. What would the plot look like if these outliers were removed?  
+These last diagnostic plots suggest that observations 6 and 34 are outliers. What would the plot look like if these outliers were removed? To do this, we can give R a **negative vector** by typing "-c(6, 34)", and then we can tell R to take all the values *minus* the values in the vector from the variable. By saying **URate[-c(6,34)]** we're telling R to take all the rows in Urate with the exception of 6 and 34.
 
 ```{r fig.width=7, fig.height=6}
 plot(URate[-c(6,34)], COL[-c(6,34)], pch = 23, bg = 'red', main = 'COL vs URate')
@@ -197,7 +216,10 @@ print(summary(rs4))
 Here we can see that there is not much difference in the lowess curve, but when those outliers were removed, the effect of unemployment rate on cost of living is marginally significant.
 
 ### Multivariate analysis
-Now, one might ask if the right to work law affects cost of living, when controlling for other variables. This is an example of multivariate analysis. To examine this question, we can enter multiple predictors into the lm() function:
+
+Sometimes we want to know how **multiple** variables influence our DV. Using lm() we can provide multiple IVs using the format lm(Y ~ X1 + X2 + X3). We'll cover this in class soon, but basically this model will tell us the *unique* variance in Y that is explained by each IV, *when controlling for the other variables*. 
+
+Now, one might ask if the right to work law affects cost of living, when controlling for other variables, such as income. This is an example of multivariate analysis. To examine this question, we can enter multiple predictors into the lm() function:
 
 ```{r rtw_mult_lm}
 rs4 = lm(COL ~ RTWL + URate + Income + PD)
@@ -211,17 +233,20 @@ Remember to detach the dataframe when you're done working!
 detach(rtw.table)
 ```
 
-## Plotting Data from Repeated Measures Designs: An intro to ggplot2 & reshape2
+Plotting Data from Repeated Measures Designs: An intro to ggplot2 & reshape2
+----------------------------------------------------------------------------
 
 [ggplot2](http://ggplot2.org/) is a plotting library for R. It is an easy way to create beautiful plots. There are a *ton* of different options, so feel free to explore these w/Google as a guide. [Here](http://www.cookbook-r.com/Graphs/) is just one of many helpful websites.
 
 ### Installing packages
-To get started, let's install a couple basic packages, including ggplot2 and reshape2. [Reshape2](http://stats.stackexchange.com/questions/7439/how-to-change-data-between-wide-and-long-formats-in-r) will allow us to reshape dataframes, e.g., going from short-form (where each participant is in 1 row, with multiple columns for different measurements) to long-form (where each observation is in a different row).
+R has a lot of great [packages](http://cran.r-project.org/web/packages/available_packages_by_name.html) contributed by other people who use R. These packages can be really helpful, especially for plotting, and running more complicated analyses.
+
+Let's install a couple useful packages, including **ggplot2** and **reshape2**. [Reshape2](http://stats.stackexchange.com/questions/7439/how-to-change-data-between-wide-and-long-formats-in-r) will allow us to reshape dataframes, e.g., going from short-form (where each participant is in 1 row, with multiple columns for different measurements) to long-form (where each observation is in a different row). 
 ```{r install_ggplot2}
 install.packages("ggplot2")
 install.packages("reshape2")
 ```
-If you have trouble with the CRAN mirror, you might need to install using the GUI, by clicking on Tools, and then Install Packages.
+If you have trouble with the CRAN mirror, you might need to install using the GUI, by clicking on Tools, and then Install Packages. 
 
 ### Loading packages
 You only need to install these packages once, but you'll need to load them in everytime you start R using the library() function:
@@ -287,3 +312,9 @@ qp2 <- qplot(num, score, geom="line", colour = id, facets = . ~ attn, data=dl) +
 print(qp2)
 ```
 
+Go ahead here, and try changing options around:
+```{r fig.width=16, fig.height=6}
+qp3 <- qplot(num, score, facets = cond.id ~ attn, data=dl) + 
+             geom_smooth(method=lm,se=FALSE) + theme_bw()
+print(qp3)
+```
