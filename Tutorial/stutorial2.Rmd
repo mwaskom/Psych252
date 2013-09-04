@@ -1,0 +1,289 @@
+Psych 252: R Tutorial Module 2
+========================================================
+
+Based on notes by Paul Thibodeau (2009) and revisions by the Psych 252 instructors in 2010 and 2011
+
+Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas
+
+Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Stephanie Gagnon.
+
+2013 TAs: Stephanie Gagnon, Lauren Howe, Michael Waskom, Alyssa Fu, Kevin Mickey, Eric Miller
+
+
+## Manipulating Dataframes
+
+To begin, we'll load in a simple data file that we'll use in 252, and store it as a [dataframe](http://www.r-tutor.com/r-introduction/data-frame) named "d2".
+
+```{r load d2}
+d2 = read.csv('fieldsimul1.csv')
+```
+
+Let's explore this data a bit to see what we'll be working with:
+
+```{r explore_d2}
+str(d2)
+head(d2)
+summary(d2)
+```
+
+Here we can see that this **dataframe** is composed of 7 **variables** that each has 200 observations. In this case, each observation represents a different participant, and the 7 variables tell us information about that participant. As an example, let's look at all the information for participant 5 by looking at the 5th row of d2:
+
+```{r observeRow_d2}
+participant_num = 5
+d2[participant_num,]
+```
+
+This shows us that participant 5 is 25 years old, and has an optimism score of 6.
+
+
+## Integer vs. Factor
+
+Now, we might want to treat some variables as qualitative, nominal **factors** rather than continuous, numeric **integers**. In R, we must specify which variables to treat as factors if the **levels** (unique values) of the variable are composed of numbers instead of strings. 
+
+For instance, the variable "age" is continuous, but "agecat" is not. However, since the **levels** of "agecat" are indicated with numbers, we must tell R to treat "agecat" as a factor:
+
+```{r agecat_asfactor_d2}
+d2$agecat = factor(d2$agecat)
+```
+
+Now we can look at the structure of the d2 dataframe again, to make sure agecat is now a factor:
+
+```{r agecat_checkfactor_d2}
+str(d2)
+```
+
+We can also plot age as a function of age category:
+```{r fig.width=7, fig.height=6}
+with(d2,plot(age~agecat))
+```
+
+
+## Creating factors from continuous variables
+
+Suppose the variable "agecat" wasn't given to us, but we still wanted to group participants into categories based on their respective ages. Given the "age" variable, we can create a new categorical variable (i.e., **factor**) by specifying breaks at specific intervals:
+
+```{r agecat0_d2}
+d2$agecat0 = findInterval(d2$age, c(29,39,49,65))
+d2$agecat0 = factor(d2$agecat0)
+head(d2)
+```
+
+Specifically, these break points result in 5 age categories, 0:28, 29:38, 39:48, 49:64, and 64 and up. We can also visualize these groups:
+
+```{r fig.width=7, fig.height=6}
+with(d2,plot(age~agecat0))
+```
+
+## Basic Plotting
+
+Now that we have our data, we can use plots to visualize things like the distribution of certain variables. Let's start out by plotting a histogram of the ages. We can set the color of the bars with the option "col", and set the main title with the option "main":
+
+```{r fig.width=7, fig.height=6}
+hist(d2$age, col='orange', main = 'Distribution of age')
+```
+
+Next, let's view a scatter plot of optimism by age. We'll also add in a line to get a sense of the general trend of the data; here, we'll plot a non-parametric best-filling curve in red using the ["lowess"](http://rss.acs.unt.edu/Rdoc/library/gplots/html/lowess.html) function.
+
+```{r fig.width=7, fig.height=6}
+plot(d2$age, d2$optmism, main = 'Optimism vs Age')
+lines(lowess(d2$age, d2$optmism), lty = 2, col='red')
+```
+
+## Linear Regression
+
+To examine the best-fitting linear relationship between quantiative variables (e.g., X and Y), we can use the function **lm()**. For instance, we might want to investigate the relationship between age and optimism, depicted in the plot above. As age increases, how does optimism change?
+
+```{r lm_ageVSoptmism_d2}
+rs2 = lm(optmism ~ age, data = d2)
+print(summary(rs2))
+```
+
+Based off of this output, we can see that age is a significant predictor of optimism; the variance in age explains approximately 10% of the variance in optimism.
+
+We can also plot the regression line, fit by least squares regression, on top of the scatterplot. While we're doing this, let's also change the names of the x- and y-axis labels:
+```{r fig.width=7, fig.height=6}
+plot(d2$age, d2$optmism, main = 'Optimism vs Age', xlab='Age', ylab='Optimism')
+abline(rs2, col='red')
+```
+
+We can also visualize diagnostic plots of the residuals from the lm() output, which  can be helpful in showing if assumptions of normality, etc, are met, or to identify outliers:
+```{r fig.width=7, fig.height=6}
+plot(rs2)
+```
+
+## Reading data from online repositories
+
+R also allows us to read data that's stored in online repositoies. We can provide the website URL, and R will read in the table:
+
+```{r flu_load}
+flu.table <- read.table('http://www-stat.stanford.edu/~jtaylo/courses/stats191/data/flu.table', header=T)
+
+str(flu.table)  	# description of dataframe
+```
+
+Here, we have a numeric matrix of data, with 50 observations for 3 variables. To get an idea of the pairwise relationships between all these variables, we can visualize all these plots with the pairs() function:
+
+```{r fig.width=7, fig.height=6}
+pairs(flu.table,cex.labels=2, pch=23, bg='orange', cex=2)
+```
+
+It looks like the probability of receiving a shot might be related to the amount of health awareness. Let's view a scatterplot of just these two variables, and overlay a red non-parametric best-fitting curve showing how the Probability(Shot = 1) varies with health awareness:
+```{r fig.width=7, fig.height=6}
+plot(flu.table$Health.Aware, flu.table$Shot, main = 'Prob(Shot) vs Awareness',
+     xlab = 'Health Awareness', ylab = 'Shot Probability')
+lines(lowess(flu.table$Health.Aware, flu.table$Shot), lty = 2, col='red')  # 
+```
+
+## More example data
+
+What is the effect of a right-to-work law (RTWL = 0 or 1) on the cost-of-living (COL) of an 'average' family, controlling for unionization rate, population, popn density, property taxes, per capita income? Data from 38 cities. (RTWL's, e.g., Taft-Hartley Amendments (1947), tended to reduce the power of unions over workers; did they make life easier or harder for workers?)
+
+```{r rtw_load}
+rtw.table <- read.table("http://www.ilr.cornell.edu/~hadi/RABE4/Data4/P005.txt", header=T, sep='\t')
+
+str(rtw.table)  	# description of dataframe
+```
+
+Let's plot a boxplot of the cost of living (COL) by whether or not there is a right-to-work law in place:
+```{r fig.width=7, fig.height=6}
+boxplot(rtw.table$COL ~ rtw.table$RTWL, col='orange', pch=23, bg='red',main='COL vs RTWL')	# any relation between COL and RTWL? 
+```
+
+## Attaching Dataframes
+
+Sometimes it can get annoying typing in the name of the dataframe each time you want to specify a variable. If you're going to be working with one dataframe for a while, it can be helpful to **attach** the dataframe while you're working, and then **detach** it when you're done. When a dataframe is attached, you can just type in the name of the variable, and R will know to look in the attached dataframe.
+
+```{r attach_rtw}
+attach(rtw.table)
+
+plot(URate, COL, pch = 23, bg = 'red', main = 'COL vs URate')
+lines(lowess(URate, COL), lty = 2, col='red')	# a non-parametric best-fitting curve
+```
+
+Make sure you remember to detach the dataframe when you're done, otherwise R can get confused if you work with a different dataframe with similar variables!
+```{r detach_rtw}
+detach(rtw.table)
+```
+
+## Regression: simple and multiple
+Now let's re-attach the rtw.table dataframe, and examine the relationship between unemployment rate ('Urate') and cost of living ('COL') using the lm() function.
+
+```{r lm_rtw}
+attach(rtw.table)
+
+rs3 = lm(COL ~ URate)	# Simple regression of one quantitative variable on another
+print(summary(rs3))
+```
+Here, the output suggests that there is no significant relationship between unemployment rate and cost of living.
+
+We can also plot the residuals to get a better idea of possible outliers, etc.
+```{r fig.width=7, fig.height=6}
+plot(rs3)
+```
+
+### Removing outliers
+These last diagnostic plots suggest that observations 6 and 34 are outliers. What would the plot look like if these outliers were removed?  
+
+```{r fig.width=7, fig.height=6}
+plot(URate[-c(6,34)], COL[-c(6,34)], pch = 23, bg = 'red', main = 'COL vs URate')
+lines(lowess(URate[-c(6,34)], COL[-c(6,34)]), lty = 2, col='red')  # a non-parametric best-fitting curve
+```
+
+```{r lm_rtw_nooutliers}
+rs4 = lm(COL[-c(6,34)] ~ URate[-c(6,34)])  # Simple regression of one quantitative variable on another
+print(summary(rs4))
+```
+
+Here we can see that there is not much difference in the lowess curve, but when those outliers were removed, the effect of unemployment rate on cost of living is marginally significant.
+
+### Multivariate analysis
+Now, one might ask if the right to work law affects cost of living, when controlling for other variables. This is an example of multivariate analysis. To examine this question, we can enter multiple predictors into the lm() function:
+
+```{r rtw_mult_lm}
+rs4 = lm(COL ~ RTWL + URate + Income + PD)
+summary(rs4)
+```
+Here we can see that the right to work law affects cost of living when controlling for the other factors. The presence of a right to work low corresponds with a lower cost of living. Further, when controlling for Income, PD, and the right to work law, unemployment rate also explains a signficant amount of unique variance in cost of living; more specifically, as unemployment rate increases, cost of living decreases.
+
+
+Remember to detach the dataframe when you're done working!
+```{r detach_rtw_2}
+detach(rtw.table)
+```
+
+## Plotting Data from Repeated Measures Designs: An intro to ggplot2 & reshape2
+
+[ggplot2](http://ggplot2.org/) is a plotting library for R. It is an easy way to create beautiful plots. There are a *ton* of different options, so feel free to explore these w/Google as a guide. [Here](http://www.cookbook-r.com/Graphs/) is just one of many helpful websites.
+
+### Installing packages
+To get started, let's install a couple basic packages, including ggplot2 and reshape2. [Reshape2](http://stats.stackexchange.com/questions/7439/how-to-change-data-between-wide-and-long-formats-in-r) will allow us to reshape dataframes, e.g., going from short-form (where each participant is in 1 row, with multiple columns for different measurements) to long-form (where each observation is in a different row).
+```{r install_ggplot2}
+install.packages("ggplot2")
+install.packages("reshape2")
+```
+If you have trouble with the CRAN mirror, you might need to install using the GUI, by clicking on Tools, and then Install Packages.
+
+### Loading packages
+You only need to install these packages once, but you'll need to load them in everytime you start R using the library() function:
+```{r loadlibs_ggplot}
+library(ggplot2)
+library(reshape2)
+```
+
+### Reshaping dataframes
+Let's load in some data that has both *between*- and *within*-subject factors. Here attention ('attnr') is a between-subject factor, where subjects were placed into either a "divided" or "focused" attention group. Number ('num') is a within-subject factor, where each subject completed all three levels (num1, num2, num3). Subjects ('subidr') is a random effects factor.
+```{r load_kv0}
+d <- read.csv('kv0.csv')  
+head(d)	
+str(d)
+```
+
+As you can see, this dataframe is in short-form, meaning that the within-subject observations are displayed in separate columns, and each subject occupies a single row. 
+
+To convert this dataframe to long-form, we can use the melt() function from the reshape2 package. Our 'id.vars' are those variables that we want to be the same for each subject, and the 'measure.vars' are those that are repeated measures on each subject:
+```{r reshape_d}
+dl <- melt(d, id.vars = c("subidr","attnr"), measure.vars = c("num1","num2","num3"))
+
+colnames(dl) <- c("id", "attn", "num", "score") # rename the new columns
+head(dl)
+str(dl)
+```
+
+Basically, we now have a long dataframe with 3 rows for each subject.
+
+### Setting up variables
+Since the levels of 'num' were created from the original column names (i.e., num1, num2, num3), R interprets the 'num' variable as a factor. However, we want to treat num as a quantitative variable, and need to force num to be numeric. We also want the subject id ('id') to be a factor:
+```{r forcevars_dl}
+dl$num <- as.numeric(dl$num)  # forcing a factor to numeric gives you numbers
+dl$id <- factor(dl$id)			# defines 'id' as a factor	
+```
+
+
+Qplot is the ggplot analogue of plot. To use it, we need to rescale 'id' to 1:10 within each level of attn, since the subject id ('id') is 11:20 when attn is 'focused'. So we need to select only these values of 'id', and transform them to 1:10. This requires creating a new variable, cond.id, in the dataframe, dl.
+```{r rescaleid_dl}
+dl$cond.id <- as.numeric(dl$id)  	# first, convert 'id' from a factor to a numeric variable, 'cond.id'
+
+dl$cond.id[dl$attn=="focused"] = dl$cond.id[dl$attn=="focused"] - 10	# 11:20 becomes 1:10
+```
+
+### Qplot
+For this plot, we want to examine the relationship between the number variable ('num') and the subjects' scores. We'll also look at each subject's data separately (id 1-10 for each attn condition) using the "facet" option. With facets, facets = Y ~ X' means you want the 'score vs num' plots to be arrayed vertically (y-axis) by levels of Y, and horizontally (x-axis) by levels of X. Also, 'facets = Y ~ .' will array 'frames' vertically by Y-levels and, in each frame, plot 'score vs num' at each level of X. Similarly, 'facets = . ~ X' will array 'frames' horizontally by X-levels and, in each frame, plot 'score vs num' at each level of Y.
+
+Additionally, we'll overlay the data with a least-squares fit to the points:
+```{r fig.width=16, fig.height=6}
+qp1 <- qplot(num, score, facets = attn ~ cond.id, data=dl) + 
+  geom_smooth(method="lm",se=F) + 
+	theme_bw()
+#ggsave('output3a.pdf', plot = qp1) # save figure
+print(qp1)
+```
+
+Breaking down by subject, within each level of attn, is also doable with qplot (the x-axis labeling is poor though). The option geom="line" joins the points by lines and suppresses the points:
+
+```{r fig.width=16, fig.height=6}
+qp2 <- qplot(num, score, geom="line", colour = id, facets = . ~ attn, data=dl) + 
+  theme_bw()
+#ggsave('output3b.pdf', plot = qp2)
+print(qp2)
+```
+
