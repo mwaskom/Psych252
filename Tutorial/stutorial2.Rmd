@@ -126,7 +126,7 @@ plot(rs2)
 Reading data from online repositories
 --------------------------------------
 
-R allows us to read data that's stored a file on your computer or from a URL online. We can provide the website URL, and R will read in the table:
+R allows us to read data that's stored in a file on your computer or from a URL online. We can provide the website URL, and R will read in the table:
 
 ```{r flu_load}
 flu.table <- read.table('http://www-stat.stanford.edu/~jtaylo/courses/stats191/data/flu.table', header=TRUE)
