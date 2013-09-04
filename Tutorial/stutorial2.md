@@ -666,24 +666,9 @@ print(qp2)
 Go ahead here, and try changing options around:
 
 ```r
-qp3 <- qplot(attn, score, geom = "line", colour = id, facets = . ~ num, data = dl) + 
-    theme_bw()
+qp3 <- qplot(num, score, facets = cond.id ~ attn, data = dl) + geom_smooth(method = lm, 
+    se = FALSE) + theme_bw()
 print(qp3)
-```
-
-```
-## geom_path: Each group consist of only one observation. Do you need to
-## adjust the group aesthetic?
-```
-
-```
-## geom_path: Each group consist of only one observation. Do you need to
-## adjust the group aesthetic?
-```
-
-```
-## geom_path: Each group consist of only one observation. Do you need to
-## adjust the group aesthetic?
 ```
 
 ![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
