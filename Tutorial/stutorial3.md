@@ -10,23 +10,24 @@ Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and
 2013 TAs: Stephanie Gagnon, Lauren Howe, Michael Waskom, Alyssa Fu, Kevin Mickey, Eric Miller
 
 
-t-tests in R
-------------
+Performing t-tests in R
+-----------------------
 
-t-tests allow us to test a **null hypothesis (H0)** that the population mean is equal to a specified value. For instance, if we are interested in whether two populations are different, we can test the H0 that the mean of population 1 is equal to the mean of population 2.
+The *t-test* allow us to test a **null hypothesis ($H_0$)** about population means. For instance, if we are interested in whether two populations are different, we can test the $H_0$ that the mean of population 1 is equal to the mean of population 2.
 
-As an example, we'll return to some data from Tutorial 2. This data has information about whether or not cities have right to work laws (RTWL), and their cost of living (COL). Here, we might be interested in whether the right to work law has an influence on cost of living. In this case, our null hypothesis (H0) is that the mean COL is the same in cities with RTWL = 0 as in those with RTWL = 1.
+As an example, we'll return to some data from Tutorial 2. This data has information about whether or not cities have right to work laws (RTWL), and their cost of living (COL). Here, we might be interested in whether the right to work law has an influence on cost of living. In this case, our null hypothesis ($H_0$) is that the mean COL is the same in cities with RTWL = 0 as in those with RTWL = 1.
 
 In this case, it is important to note that the 2 populations of cities are *independent* of each other. That is, the cities with no RTWL are different from the cities that have a RTWL.
 
-To test our H0, we'll compute a "standardized difference", or **t statistic**, between the *sample mean* COL of the cities with RTWL=0 and the sample mean COL of the cities with RTWL=1. Once we compute this t, we can decide if it's "large" (e.g., -2 > t > 2) to determine if we can reject our H0. For now, you don't have to worry much about these details; we'll cover it in the first few classes!
+To test our $H_0$, we'll compute a "standardized difference", or **t statistic**, between the *sample mean* COL of the cities with RTWL=0 and the sample mean COL of the cities with RTWL=1. Once we compute this t, we can decide if it's "large" (e.g., -2 > t > 2) to determine if we can reject our $H_0$. For now, you don't have to worry much about these details; we'll cover them in the first few classes!
 
 ### Exploring the data
+
 Let's start by reading in our data:
 
+
 ```r
-d0 = read.table("http://www.ilr.cornell.edu/~hadi/RABE4/Data4/P005.txt", header = T, 
-    sep = "\t")
+d0 = read.csv("http://www.ilr.cornell.edu/~hadi/RABE4/Data4/P005.txt", sep = "\t")
 str(d0)
 ```
 
@@ -59,26 +60,30 @@ head(d0)
 
 Now we'll plot the data to see the relationship between RTWL and COL:
 
+
 ```r
 boxplot(COL ~ RTWL, col = "yellow", pch = 23, xlab = "RTWL", ylab = "COL", main = "COL vs RTWL", 
     data = d0)
 ```
 
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1.png) 
+![plot of chunk plot_col_on_rtwl](figure/plot_col_on_rtwl.png) 
 
 
 ### Short-form data for t.test()
-Before we can run a t-test, we have to make some changes to the data. From looking at the data above, we can see that the dataframe d0 is in *long-form*; each variable is in a different column. This format is fine for boxplot() and lm(), but older functions like t.test() need the data in *short-form* with COL for cities with RTWL = 0 in one column, and COL for cities with RTWL = 1 in a 2nd column.
 
-We'll make 2 variables by selecting **subsets** of the COL data, *conditional* on whether or not the cities have a RTWL. In R, the *brackets* "[ ]"" let us select rows of a variable conditional on another variable. Here, we'll select the rows of COL where RTWL is equal to 0, or 1:
+Before we can run a t-test, we have to make some changes to the data. From looking at the data above, we can see that the dataframe d0 is in *long-form*; each variable is in a different column. This format is fine for `boxplot()` and `lm()`, but older functions like `t.test()` need the data in *short-form* with COL for cities with RTWL = 0 in one column, and COL for cities with RTWL = 1 in a 2nd column.
+
+We'll make 2 variables by selecting **subsets** of the COL data, *conditional* on whether or not the cities have a RTWL. In R, the *brackets* (`[ ]`) let us select rows of a variable conditional on another variable. Here, we'll select the rows of COL where RTWL is equal to 0, or 1:
+
 
 ```r
-COL0 = d0$COL[d0$RTWL == 0]  # COL when RTWL = 0
-COL1 = d0$COL[d0$RTWL == 1]  # COL when RTWL = 1
+COL0 = d0$COL[d0$RTWL == 0]
+COL1 = d0$COL[d0$RTWL == 1]
 ```
 
 
 Now that the COL data is grouped into variables based on RTWL status, we can explore these variables quickly:
+
 
 ```r
 str(COL0)
@@ -96,9 +101,11 @@ str(COL1)
 ##  int [1:10] 169 143 99 294 174 194 120 117 206 126
 ```
 
+
 Here, we see that there are 28 cities with RTWL=0, and 10 cities with RTWL=1.
 
 ### Running an Independent Samples t-test
+
 Now that we have our data in the correct format, we can run a t-test testing the H0 that mean(COL0) = mean(COL1). Right now, we'll just assume that the two variances are equal.
 
 
@@ -111,11 +118,11 @@ res1
 ## 
 ## 	Two Sample t-test
 ## 
-## data:  COL0 and COL1 
+## data:  COL0 and COL1
 ## t = 3.199, df = 36, p-value = 0.002875
-## alternative hypothesis: true difference in means is not equal to 0 
+## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##   29.52 131.79 
+##   29.52 131.79
 ## sample estimates:
 ## mean of x mean of y 
 ##     244.9     164.2
@@ -123,7 +130,8 @@ res1
 
 
 ### Testing for equal variance
-Great! However, we automatically assumed that the variances were equal between the 2 groups of cities. We can use the **standard deviation** function sd() to approximate the variance for these 2 groups:
+
+Great! However, we automatically assumed that the variances were equal between the 2 groups of cities. We can use the **standard deviation** function `sd()` to approximate the variance for these 2 groups:
 
 
 ```r
@@ -136,7 +144,7 @@ c(sd0 = sd(COL0), sd1 = sd(COL1))
 ```
 
 
-These numbers are pretty different; however, the two groups had different numbers of cities. We can use the var.test() function to directly test the H0 that the variance between two samples is equal.
+These numbers are pretty different; however, the two groups had different numbers of cities. We can use the `var.test()` function to directly test the H0 that the variance between two samples is equal.
 
 
 ```r
@@ -147,11 +155,11 @@ var.test(COL0, COL1)
 ## 
 ## 	F test to compare two variances
 ## 
-## data:  COL0 and COL1 
+## data:  COL0 and COL1
 ## F = 1.544, num df = 27, denom df = 9, p-value = 0.5063
-## alternative hypothesis: true ratio of variances is not equal to 1 
+## alternative hypothesis: true ratio of variances is not equal to 1
 ## 95 percent confidence interval:
-##  0.4307 4.0618 
+##  0.4307 4.0618
 ## sample estimates:
 ## ratio of variances 
 ##              1.544
@@ -179,7 +187,7 @@ str(d0s)
 ```
 
 
-Since the two groups are **paired** (i.e., NOT independent), we must specify that in the t.test() by saying "paired=TRUE". Otherwise, our results will be incorrect.
+Since the two groups are **paired** (i.e., NOT independent), we must specify that in the `t.test()` by saying "`paired=TRUE`". Otherwise, our results will be incorrect.
 
 
 ```r
@@ -191,18 +199,19 @@ res2a
 ## 
 ## 	Paired t-test
 ## 
-## data:  d0s$col0 and d0s$col1 
+## data:  d0s$col0 and d0s$col1
 ## t = 3.065, df = 13, p-value = 0.009039
-## alternative hypothesis: true difference in means is not equal to 0 
+## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##   17.5 101.1 
+##   17.5 101.1
 ## sample estimates:
 ## mean of the differences 
 ##                   59.29
 ```
 
 
-If we made a mistake and forgot to specify "paired=TRUE", R would default to paired=FALSE, and our output would be incorrect:
+If we made a mistake and forgot to specify "`paired=TRUE`", R would default to `paired=FALSE`, and our output would be incorrect:
+
 
 ```r
 res2b = t.test(d0s$col0, d0s$col1, var.equal = TRUE)
@@ -213,15 +222,16 @@ res2b
 ## 
 ## 	Two Sample t-test
 ## 
-## data:  d0s$col0 and d0s$col1 
+## data:  d0s$col0 and d0s$col1
 ## t = 1.964, df = 26, p-value = 0.06031
-## alternative hypothesis: true difference in means is not equal to 0 
+## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##   -2.765 121.336 
+##   -2.765 121.336
 ## sample estimates:
 ## mean of x mean of y 
 ##     226.2     166.9
 ```
+
 
 Here, the difference is not quite significant! So it's important you tell R that the groups are paired when the two samples are dependent on one another!
 
@@ -241,7 +251,8 @@ col
 ```
 
 
-Then, we'll use the rep() function to make a long vector of 0s and 1s signifying RTWL status. Each vector should be 14 numbers long, since there were 14 cities total:
+Then, we'll use the `rep()` (short for "repeat") function to make a long vector of 0s and 1s signifying RTWL status. Each vector should be 14 numbers long, since there were 14 cities total:
+
 
 ```r
 rtwl = rep(c(0, 1), each = 14)
@@ -252,7 +263,9 @@ rtwl
 ##  [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 ```
 
+
 Now, we'll combine these variables to make a dataframe; there will be 2 variables, *(1)* the cost of living for the 14 cities before & after the RTWL was passed, and *(2)* the status of the RTWL:
+
 
 ```r
 d0l = data.frame(cbind(col = col, rtwl = rtwl))
@@ -292,26 +305,29 @@ d0l
 ```
 
 
-Now we can create a boxplot:
+Finally,  we can create a boxplot:
+
 
 ```r
 boxplot(col ~ rtwl, col = "lightgreen", pch = 23, xlab = "RTWL", ylab = "COL", 
     main = "COL vs RTWL, paired data", data = d0l)
 ```
 
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+![plot of chunk plot_col_on_rtwl_paired](figure/plot_col_on_rtwl_paired.png) 
 
 
 Additive & Interactive Models
 -----------------------------------
+
 Returning to the initial data, d0, we saw that COL depends on RTWL. Does it also depend on Income? To get a general idea, we can look at the data by plotting income and COL, as well as the linear line of best fit in red:
+
 
 ```r
 plot(COL ~ Income, data = d0)
 abline(lm(COL ~ Income, data = d0), col = "red")
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+![plot of chunk plot_col_on_income](figure/plot_col_on_income.png) 
 
 
 Now, we might be interested in the how the effect of RTWL on COL is related to Income level. In an **additive model** (e.g., `COL ~ RTWL + Income`), the effect of RTWL on COL is assumed to be the same at all levels of Income. Here, if income level were tightly correlated with whether or not cities have a RTWL, the unique variance explained by RTWL and Income level might be small. 
@@ -319,7 +335,8 @@ Now, we might be interested in the how the effect of RTWL on COL is related to I
 In contrast, in an **interactive model** (e.g., `COL ~ RTWL * Income`) the effect of RTWL on COL is **NOT** assumed to be the same at all levels of Income. Here, the RTWL could be positively correlated with COL at low incomes, but negatively correlated at high incomes.
 
 ### Treating income as a categorical variable
-For simplicity, we might want to look at income as a categorical **factor**, not a quantitative variable. So let us replace Income by a new factor, Incomecat = 'low' vs 'high'. We'll use an income of 4000 as the dividing point; those cities with incomes less than 4000 will fall into the "low" income category, and those with incomes at 4000 or above will fall into the "high" income category:
+
+For simplicity, we might want to look at income as a categorical **factor**, not a quantitative variable. So let us replace Income by a new factor, "Incomecat" which can be 'low' or 'high'. We'll use an income of 4000 as the dividing point; those cities with incomes less than 4000 will fall into the "low" income category, and those with incomes at 4000 or above will fall into the "high" income category:
 
 
 ```r
@@ -328,7 +345,8 @@ d0$Incomecat = factor(d0$Incomecat, labels = c("low", "high"))
 ```
 
 
-Now we'll print a cross-tabulation of RTWL and Incomecat to get an idea of how many cities fall into each group:
+Now we'll print a *cross-tabulation* of RTWL and Incomecat to get an idea of how many cities fall into each group:
+
 
 ```r
 table(d0$Incomecat, d0$RTWL)
@@ -341,9 +359,11 @@ table(d0$Incomecat, d0$RTWL)
 ##   high 24  2
 ```
 
+
 Note that there are only 2 cities with RTWL = 1 and Incomecat = high....so the following results are suspect. We'll continue though, just to demonstrate how to conduct these models.
 
 ### Additive model
+
 
 ```r
 res3 = lm(COL ~ RTWL + Incomecat, data = d0)
@@ -365,15 +385,16 @@ summary(res3)
 ## RTWL            -102.2       32.1   -3.18   0.0031 ** 
 ## Incomecathigh    -32.8       30.5   -1.08   0.2887    
 ## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Residual standard error: 68.3 on 35 degrees of freedom
-## Multiple R-squared: 0.246,	Adjusted R-squared: 0.203 
+## Multiple R-squared:  0.246,	Adjusted R-squared:  0.203 
 ## F-statistic: 5.72 on 2 and 35 DF,  p-value: 0.00709
 ```
 
 
 ### Interactive model
+
 
 ```r
 res4 = lm(COL ~ RTWL * Incomecat, data = d0)
@@ -396,22 +417,23 @@ summary(res4)
 ## Incomecathigh         -98.2       31.7   -3.10  0.00391 ** 
 ## RTWL:Incomecathigh    205.4       56.2    3.65  0.00086 ***
 ## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Residual standard error: 58.7 on 34 degrees of freedom
-## Multiple R-squared: 0.459,	Adjusted R-squared: 0.411 
+## Multiple R-squared:  0.459,	Adjusted R-squared:  0.411 
 ## F-statistic: 9.61 on 3 and 34 DF,  p-value: 9.72e-05
 ```
 
 
 Here we can see that the interaction is significant. To get a better idea for the data, we can use the `interaction.plot()` function to plot COL by RTWL and Income category:
 
+
 ```r
 with(d0, interaction.plot(RTWL, Incomecat, COL, fun = mean, xlab = "RTWL", ylab = "COL", 
     lwd = 2))
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+![plot of chunk plot_rtwl_income_col_interaction](figure/plot_rtwl_income_col_interaction.png) 
 
 
 By looking at this plot, we can see that when the income is high, the effect of RTWL on COL is small. However, when income is low, cost of living is lower if there is a right to work law.
@@ -420,23 +442,19 @@ By looking at this plot, we can see that when the income is high, the effect of 
 Exploring Repeated Measures Exercise Data
 -----------------------------------------
 
-Here, we'll start by loading in some packages:
+Here, we'll start by loading in the packages we introduced in lecture 2:
+
 
 ```r
 library(ggplot2)
-```
-
-```
-## Warning: package 'ggplot2' was built under R version 2.15.2
-```
-
-```r
 library(reshape2)
 ```
 
 
 ### Running a source file
-Next, we're going to run a source file `mc.plots1.r` to change around some plotting parameters, including loading in the 'grid' package. Calling `source()` runs all the code in the .R file:
+
+Next, we're going to run a source file `mc.plots1.r` to change around some plotting parameters, including loading in the 'grid' package. Calling `source()` runs all the code in the .R file.
+
 
 
 ```r
@@ -445,37 +463,15 @@ source("mc.plots1.r")
 
 ```
 ## 'opts' is deprecated. Use 'theme' instead. (Deprecated; last used in
-## version 0.9.1)
-```
-
-```
-## 'theme_blank' is deprecated. Use 'element_blank' instead. (Deprecated;
-## last used in version 0.9.1)
-```
-
-```
-## 'theme_blank' is deprecated. Use 'element_blank' instead. (Deprecated;
-## last used in version 0.9.1)
-```
-
-```
+## version 0.9.1) 'theme_blank' is deprecated. Use 'element_blank' instead.
+## (Deprecated; last used in version 0.9.1) 'theme_blank' is deprecated. Use
+## 'element_blank' instead. (Deprecated; last used in version 0.9.1)
 ## theme_segment is deprecated. Use 'element_line' instead. (Deprecated; last
-## used in version 0.9.1)
-```
-
-```
-## theme_segment is deprecated. Use 'element_line' instead. (Deprecated; last
-## used in version 0.9.1)
-```
-
-```
-## theme_text is deprecated. Use 'element_text' instead. (Deprecated; last
-## used in version 0.9.1)
-```
-
-```
-## theme_text is deprecated. Use 'element_text' instead. (Deprecated; last
-## used in version 0.9.1)
+## used in version 0.9.1) theme_segment is deprecated. Use 'element_line'
+## instead. (Deprecated; last used in version 0.9.1) theme_text is
+## deprecated. Use 'element_text' instead. (Deprecated; last used in version
+## 0.9.1) theme_text is deprecated. Use 'element_text' instead. (Deprecated;
+## last used in version 0.9.1)
 ```
 
 
@@ -546,17 +542,15 @@ qp3 = qplot(time, pulse, facets = diet ~ exertype, colour = id, geom = "line",
 print(qp3)
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
-
-```r
-# ggsave('output3c.pdf', plot = qp3)
-```
+![plot of chunk qplot_tim_on_pulse_facets](figure/qplot_tim_on_pulse_facets.png) 
 
 
 ### Bar graphs
+
 We might also want to visualize this data in bar graph form. To do this with ggplot, we'll use the `aggregate()` function to get means and standard errors from the data.
 
 First, we'll extract the mean pulses across subjects for each of the 6 groups at all three time points:
+
 
 ```r
 ms <- aggregate(pulse ~ time + diet + exertype, d2, mean)
@@ -586,7 +580,7 @@ ms
 ```
 
 
-Now we'll get the standard error of the mean. We'll do this using the function `se.mean()` defined in the script 'mc.plots1.r'. The function is elaborated below:
+Now, we'll get the standard error of the mean. We'll do this using the function `se.mean()` defined in the script 'mc.plots1.r'. The function is elaborated below:
 
 
 ```r
@@ -623,7 +617,7 @@ ms
 ```
 
 
-Finally, we'll plot the bar graph:
+Finally, we plot the bar graph:
 
 ```r
 qp4 <- qplot(time, pulse, facets = . ~ diet, ymin = pulse - err, ymax = pulse + 
@@ -632,9 +626,5 @@ qp4 <- qplot(time, pulse, facets = . ~ diet, ymin = pulse - err, ymax = pulse +
 print(qp4)
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
-
-```r
-# ggsave('output3d.pdf', plot = qp4)
-```
+![plot of chunk qlot_time_on_pulse_facet_bars](figure/qlot_time_on_pulse_facet_bars.png) 
 
