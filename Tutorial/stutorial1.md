@@ -735,7 +735,9 @@ Assigning some value to a variable creates a new object in the *workspace*, whic
 
 Let's load in one of the data files we'll be using as exercises for this class. Most of the data we'll be using is in *csv* format, which stands for "comma separated values." This is a plain-text format where commas divide columns and rows are placed on new lines. Because the data are stored as plain text, you can view (and edit) them in a basic text editor. The csv format is also advantageous relative to proprietary binary formats (like `.xlsx` or `.mat`) because pretty much any statistical application will contain routines to read and write these files.
 
-Next let's load in a simple data file that we use in 252:
+The example dataset is stored in the file `earlydeaths.csv`. In this dataset, each juvenile death in the County (*n* = 350) is labeled by the year it occurred (`time` = 1, 2 or 3; corresponding to 1990-91, 1992-93, 1994-95), and by the cause of death (`cause` = ‘maltreatment’ or ‘other’).  **Is the cause of death changing over time?**
+
+Now, let's load in the data:
 
 
 ```r

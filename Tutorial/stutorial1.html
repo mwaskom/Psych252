@@ -740,7 +740,9 @@ df
 
 <p>Let&#39;s load in one of the data files we&#39;ll be using as exercises for this class. Most of the data we&#39;ll be using is in <em>csv</em> format, which stands for &ldquo;comma separated values.&rdquo; This is a plain-text format where commas divide columns and rows are placed on new lines. Because the data are stored as plain text, you can view (and edit) them in a basic text editor. The csv format is also advantageous relative to proprietary binary formats (like <code>.xlsx</code> or <code>.mat</code>) because pretty much any statistical application will contain routines to read and write these files.</p>
 
-<p>Next let&#39;s load in a simple data file that we use in 252:</p>
+<p>The example dataset is stored in the file <code>earlydeaths.csv</code>. In this dataset, each juvenile death in the County (<em>n</em> = 350) is labeled by the year it occurred (<code>time</code> = 1, 2 or 3; corresponding to 1990-91, 1992-93, 1994-95), and by the cause of death (<code>cause</code> = ‘maltreatment’ or ‘other’).  <strong>Is the cause of death changing over time?</strong></p>
+
+<p>Now, let&#39;s load in the data:</p>
 
 <pre><code class="r">df_death = read.csv(&quot;earlydeaths.csv&quot;)
 </code></pre>
