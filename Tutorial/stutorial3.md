@@ -170,7 +170,7 @@ Here, we cannot reject the null because the two variances are not significantly 
 
 ### Running a Paired t-test
 
-Suppose the COL measurements for RTWL=0 and RTWL=0 had been taken from the *same* cities. That is, the COL when RTWL=0 is from *before* the law was passed; the COL when RTWL=1 is from *after* the law was passed. Now, the samples would NOT be independent. Instead, the COL when RTWL=1 in city A is *dependent* on COL when RTWL=0. In this case, the two samples are **paired**.
+Suppose the COL measurements for RTWL=0 and RTWL=0 had been taken from the *same* cities. That is, the COL when RTWL=0 is from *before* the law was passed; the COL when RTWL=1 is from *after* the law was passed. Now, the samples would NOT be independent. Instead, the COL when RTWL=1 in city A is *dependent* on COL when RTWL=0. In this case, the two samples are *paired*. **Is COL influenced by RTWL?**
 
 As an example, we have a study in which, for each city, COL is measured BEFORE the RTWL is passed, and 2 years AFTER the RTWL is passed:
 
@@ -477,7 +477,8 @@ source("mc.plots1.r")
 
 ### Exercise data
 
-Now, we'll load in some data about students who took place in a study where they were in groups that performed one of 3 different types of exercise (i.e., resting, walking, or running). Here, exercise type is a between-subjects variable. Also, students also had different types of diets; half the students in each exercise group had a low fat diet, and the other half did not. Moreover, each subject had their pulse recorded at 3 different time points.
+Now, we'll load in the data file `exer.csv`. Here, participants (*n* = 30) were randomly assigned to two different diets: low-fat (`diet` = 1) and not low-fat (`diet` = 2), and three different types of exercise: at rest (`exertype` = 1), walking leisurely (`exertype` = 2), and running (`exertype` = 3).  Their pulse rate (`pulse`) was measured at three different time points during their assigned exercise: at 1 minute (`time` = 1), 15 minutes (`time` = 2), and 30 minutes (`time` = 3).  This is a *repeated measures* design, with `time` as the *within-subject* (repeated) variable.  **How does pulse depend on time, diet and exertype?**
+
 
 
 ```r

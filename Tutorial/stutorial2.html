@@ -192,6 +192,8 @@ hljs.initHighlightingOnLoad();
 
 <p>To begin, we&#39;ll load in a simple data file that we&#39;ll use in 252, and store it as a <a href="http://www.r-tutor.com/r-introduction/data-frame">dataframe</a> named &ldquo;d2&rdquo;.</p>
 
+<p>This data file is called <code>fieldsimul1.csv</code>. Here, likely voters (<em>n</em> = 240) were surveyed, and report their age (<code>age</code>), and level of optimism (<code>optmism</code>), as well as other variables. <strong>Is age related to optimism?</strong></p>
+
 <pre><code class="r">d2 = read.csv(&quot;fieldsimul1.csv&quot;)
 </code></pre>
 
@@ -380,7 +382,9 @@ abline(rs2, col = &quot;red&quot;)
 
 <h2>Reading data from online repositories</h2>
 
-<p>R allows us to read data that&#39;s stored in a file on your computer or from a URL online. We can provide the website URL, and R will read in the table:</p>
+<p>R allows us to read data that&#39;s stored in a file on your computer or from a URL online. Here, we&#39;re going to look at data where each participant (<em>n</em> = 50) reports whether they took a flu shot (<code>Shot</code> = 1) or not (<code>Shot</code> = 0), their age (<code>Age</code>), and their health awareness level (<code>Health.Aware</code>).  Is Prob(<code>Shot</code> = 1) influenced by <code>Age</code>?  By <code>Health.Aware</code>?</p>
+
+<p>We can provide the website URL, and R will read in the table:</p>
 
 <pre><code class="r">flu.table &lt;- read.table(&quot;http://www-stat.stanford.edu/~jtaylo/courses/stats191/data/flu.table&quot;, 
     header = TRUE)
@@ -414,7 +418,7 @@ lines(lowess(flu.table$Health.Aware, flu.table$Shot), lty = 2, col = &quot;red&q
 
 <h2>More example data</h2>
 
-<p>What is the effect of a right-to-work law (RTWL = 0 or 1) on the cost-of-living (COL) of an &#39;average&#39; family, controlling for unionization rate, population, popn density, property taxes, per capita income? Data from 38 cities. (RTWL&#39;s, e.g., Taft-Hartley Amendments (1947), tended to reduce the power of unions over workers; did they make life easier or harder for workers?)</p>
+<p>Now, we&#39;ll load in some data on several cities (<em>n</em> = 38), including whether each city has a right-to-work law (<code>RTWL</code> = 1) or not (<code>RTWL</code> = 0), its cost-of-living (<code>COL</code>), population (<code>Pop</code>), population density (<code>PD)</code>, unemployment rate (<code>URate</code>), taxes (<code>Taxes</code>), and income (<code>Income</code>). <strong>Is COL influenced by RTWL?</strong>  [RTWL&#39;s, e.g., Taft-Hartley Amendments (1947), tended to reduce the power of unions over workers; did they make life easier or harder for workers?]  <strong>Does RTWL affect COL, after controlling for other possibly relevant variables?</strong></p>
 
 <p>These data are stored in a table where columns are separated by a tab (which is represented by the <code>\t</code> code. We&#39;ll tell <code>read.csv()</code> to be expecting tabs where it by default expects commas: </p>
 
@@ -590,10 +594,20 @@ summary(rs4)
 <pre><code class="r">install.packages(&quot;ggplot2&quot;)
 </code></pre>
 
+<pre><code>## Installing package into
+## &#39;/Applications/RStudio.app/Contents/Resources/R/library&#39; (as &#39;lib&#39; is
+## unspecified)
+</code></pre>
+
 <pre><code>## Error: trying to use CRAN without setting a mirror
 </code></pre>
 
 <pre><code class="r">install.packages(&quot;reshape2&quot;)
+</code></pre>
+
+<pre><code>## Installing package into
+## &#39;/Applications/RStudio.app/Contents/Resources/R/library&#39; (as &#39;lib&#39; is
+## unspecified)
 </code></pre>
 
 <pre><code>## Error: trying to use CRAN without setting a mirror
@@ -611,7 +625,7 @@ library(reshape2)
 
 <h3>Reshaping dataframes</h3>
 
-<p>Let&#39;s load in some data that has both <em>between</em>- and <em>within</em>-subject factors. Here attention (<code>attnr</code>) is a between-subject factor, where subjects were placed into either a &ldquo;divided&rdquo; or &ldquo;focused&rdquo; attention group. Number (<code>num</code>) is a within-subject factor, where each subject completed all three levels (<code>num1</code>, <code>num2</code>, <code>num3</code>). Subjects (<code>subidr</code>) is a random effects factor.</p>
+<p>Let&#39;s load in some data that has both <em>between</em>- and <em>within</em>-subject factors. This data file is called <code>kv0.csv</code>. Here, attention (<code>attnr</code>) is a <em>between-subjects</em> factor with 2 levels, <code>attnr</code> = &#39;divided&#39; or &#39;focused&#39;; and there are 10 subjects (<code>subidr</code>) at each level. Also, each subject solved anagrams at 3 levels of difficulty, indexed by the number of possible solutions (<code>num</code> = 1, 2, or 3; a <em>within-subjects</em> variable). Subject’s score at each level of <code>num</code> is noted.  This is a <em>repeated measures design</em>.  <strong>How does score depend on attn and num?</strong></p>
 
 <pre><code class="r">d &lt;- read.csv(&quot;kv0.csv&quot;)
 head(d)

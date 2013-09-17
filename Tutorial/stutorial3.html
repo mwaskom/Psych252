@@ -321,7 +321,7 @@ res1
 
 <h3>Running a Paired t-test</h3>
 
-<p>Suppose the COL measurements for RTWL=0 and RTWL=0 had been taken from the <em>same</em> cities. That is, the COL when RTWL=0 is from <em>before</em> the law was passed; the COL when RTWL=1 is from <em>after</em> the law was passed. Now, the samples would NOT be independent. Instead, the COL when RTWL=1 in city A is <em>dependent</em> on COL when RTWL=0. In this case, the two samples are <strong>paired</strong>.</p>
+<p>Suppose the COL measurements for RTWL=0 and RTWL=0 had been taken from the <em>same</em> cities. That is, the COL when RTWL=0 is from <em>before</em> the law was passed; the COL when RTWL=1 is from <em>after</em> the law was passed. Now, the samples would NOT be independent. Instead, the COL when RTWL=1 in city A is <em>dependent</em> on COL when RTWL=0. In this case, the two samples are <em>paired</em>. <strong>Is COL influenced by RTWL?</strong></p>
 
 <p>As an example, we have a study in which, for each city, COL is measured BEFORE the RTWL is passed, and 2 years AFTER the RTWL is passed:</p>
 
@@ -569,7 +569,7 @@ library(reshape2)
 
 <h3>Exercise data</h3>
 
-<p>Now, we&#39;ll load in some data about students who took place in a study where they were in groups that performed one of 3 different types of exercise (i.e., resting, walking, or running). Here, exercise type is a between-subjects variable. Also, students also had different types of diets; half the students in each exercise group had a low fat diet, and the other half did not. Moreover, each subject had their pulse recorded at 3 different time points.</p>
+<p>Now, we&#39;ll load in the data file <code>exer.csv</code>. Here, participants (<em>n</em> = 30) were randomly assigned to two different diets: low-fat (<code>diet</code> = 1) and not low-fat (<code>diet</code> = 2), and three different types of exercise: at rest (<code>exertype</code> = 1), walking leisurely (<code>exertype</code> = 2), and running (<code>exertype</code> = 3).  Their pulse rate (<code>pulse</code>) was measured at three different time points during their assigned exercise: at 1 minute (<code>time</code> = 1), 15 minutes (<code>time</code> = 2), and 30 minutes (<code>time</code> = 3).  This is a <em>repeated measures</em> design, with <code>time</code> as the <em>within-subject</em> (repeated) variable.  <strong>How does pulse depend on time, diet and exertype?</strong></p>
 
 <pre><code class="r">d2 &lt;- read.csv(&quot;exer.csv&quot;)
 str(d2)

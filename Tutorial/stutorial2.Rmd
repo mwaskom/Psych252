@@ -15,6 +15,8 @@ Manipulating Dataframes
 
 To begin, we'll load in a simple data file that we'll use in 252, and store it as a [dataframe](http://www.r-tutor.com/r-introduction/data-frame) named "d2".
 
+This data file is called `fieldsimul1.csv`. Here, likely voters (*n* = 240) were surveyed, and report their age (`age`), and level of optimism (`optmism`), as well as other variables. **Is age related to optimism?**
+
 ```{r load d2}
 d2 = read.csv('fieldsimul1.csv')
 ```
@@ -127,7 +129,9 @@ plot(rs2)
 Reading data from online repositories
 --------------------------------------
 
-R allows us to read data that's stored in a file on your computer or from a URL online. We can provide the website URL, and R will read in the table:
+R allows us to read data that's stored in a file on your computer or from a URL online. Here, we're going to look at data where each participant (*n* = 50) reports whether they took a flu shot (`Shot` = 1) or not (`Shot` = 0), their age (`Age`), and their health awareness level (`Health.Aware`).  Is Prob(`Shot` = 1) influenced by `Age`?  By `Health.Aware`?
+
+We can provide the website URL, and R will read in the table:
 
 ```{r flu_load}
 flu.table <- read.table('http://www-stat.stanford.edu/~jtaylo/courses/stats191/data/flu.table', header=TRUE)
@@ -154,7 +158,7 @@ lines(lowess(flu.table$Health.Aware, flu.table$Shot), lty = 2, col='red')  #
 More example data
 -----------------
 
-What is the effect of a right-to-work law (RTWL = 0 or 1) on the cost-of-living (COL) of an 'average' family, controlling for unionization rate, population, popn density, property taxes, per capita income? Data from 38 cities. (RTWL's, e.g., Taft-Hartley Amendments (1947), tended to reduce the power of unions over workers; did they make life easier or harder for workers?)
+Now, we'll load in some data on several cities (*n* = 38), including whether each city has a right-to-work law (`RTWL` = 1) or not (`RTWL` = 0), its cost-of-living (`COL`), population (`Pop`), population density (`PD)`, unemployment rate (`URate`), taxes (`Taxes`), and income (`Income`). **Is COL influenced by RTWL?**  [RTWL's, e.g., Taft-Hartley Amendments (1947), tended to reduce the power of unions over workers; did they make life easier or harder for workers?]  **Does RTWL affect COL, after controlling for other possibly relevant variables?**
 
 These data are stored in a table where columns are separated by a tab (which is represented by the `\t` code. We'll tell `read.csv()` to be expecting tabs where it by default expects commas: 
 
@@ -271,7 +275,8 @@ library(reshape2)
 
 ### Reshaping dataframes
 
-Let's load in some data that has both *between*- and *within*-subject factors. Here attention (`attnr`) is a between-subject factor, where subjects were placed into either a "divided" or "focused" attention group. Number (`num`) is a within-subject factor, where each subject completed all three levels (`num1`, `num2`, `num3`). Subjects (`subidr`) is a random effects factor.
+Let's load in some data that has both *between*- and *within*-subject factors. This data file is called `kv0.csv`. Here, attention (`attnr`) is a *between-subjects* factor with 2 levels, `attnr` = 'divided' or 'focused'; and there are 10 subjects (`subidr`) at each level. Also, each subject solved anagrams at 3 levels of difficulty, indexed by the number of possible solutions (`num` = 1, 2, or 3; a *within-subjects* variable). Subject’s score at each level of `num` is noted.  This is a *repeated measures design*.  **How does score depend on attn and num?**
+
 
 ```{r load_kv0}
 d <- read.csv('kv0.csv')  
