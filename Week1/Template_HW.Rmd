@@ -22,6 +22,6 @@ o1 = sample(x0, 1000, replace=T, prob = p0)
 
 Then, we plotted a histogram of x0 was along with the estimated probability density function.
 
-```{r fig.width=7, fig.height=6}
+```{r 9b_histogram, fig.width=7, fig.height=6}
 rs1 = hist(o1, prob=T, main='Sampling distrn of x0, 1000 Samples'); lines(density(o1, adjust=3))
 ```

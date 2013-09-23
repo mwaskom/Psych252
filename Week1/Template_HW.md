@@ -37,5 +37,5 @@ rs1 = hist(o1, prob = T, main = "Sampling distrn of x0, 1000 Samples")
 lines(density(o1, adjust = 3))
 ```
 
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1.png) 
+![plot of chunk 9b_histogram](figure/9b_histogram.png) 
 
