@@ -1,9 +1,12 @@
 **Jane Doe**, Homework 1, 9/23/13
-========================================
+=======================================
   
-9.A.) 
+Question 9
 -----------------------------------------
-First, we calculated the mean of the non-normal distribution D0. 
+
+### Q9 Part A
+
+First, we calculated the mean of the non-normal distribution `D0`. 
   
 
 ```r
@@ -17,11 +20,16 @@ print(mu0)
 ## [1] 2.66
 ```
 
-The mean of D0 is 2.66.
 
-9.B.) 
------------------------------------------
-Next, we drew a sample of 1000 observations from the skewed distribution x0.
+The mean of `D0` is 2.66.
+
+**Instructor's Note:** You could also write your narrative text as follows, which will ensure that the number you report is always in sync with the code you wrote. This is a bit more complex, but recommended:
+
+The mean of `D0` is 2.66.
+
+### Q9 Part B 
+
+Next, we drew a sample of 1000 observations from the skewed distribution `x0`.
   
 
 ```r
@@ -29,11 +37,11 @@ o1 = sample(x0, 1000, replace = T, prob = p0)
 ```
 
 
-Then, we plotted a histogram of x0 was along with the estimated probability density function.
+Then, we made a histogram of `x0` along with the estimated probability density function.
 
 
 ```r
-rs1 = hist(o1, prob = T, main = "Sampling distrn of x0, 1000 Samples")
+rs1 = hist(o1, prob = T, main = "Sampling distributionn of x0, 1000 Samples")
 lines(density(o1, adjust = 3))
 ```
 
