@@ -1,11 +1,18 @@
 R Markdown Basics
 =================
 
-To submit your homework, you'll create an RMarkdown (.Rmd) script and upload it to Coursework. This will allow the TAs to create an easy-to-read document to grade; more importantly, you will also get to practice *(1)* writing scripts, *(2)* keeping track of the analyses you run, and *(3)* organizing your output.
+### Intro
+To submit your homework, you'll create an RMarkdown (.Rmd) script and upload it to Coursework. This will allow the TAs to create an easy-to-read document to grade; more importantly, you will also get to practice *(1)* writing scripts, *(2)* keeping track of the analyses you run, and *(3)* organizing your output. 
+
+One thing that's nice about RMarkdown is that you can clearly differentiate **sections of code** from **commentary about what you are trying to do**. When you want to include sections of code, you mark them off by using the header and footer below.
+
+
+### Formatting homework questions
+In the document `Template_HW.R` we have worked through Question 9 Parts A&B so you get an idea of how to format your homework. Check that out!
+
 
 Below are some basics for using RMarkdown (also, check out [this website](http://www.rstudio.com/ide/docs/authoring/using_markdown) for more info!).
 
-One thing that's nice about RMarkdown is that you can clearly differentiate **sections of code** from **commentary about what you are trying to do**. When you want to include sections of code, you mark them off by using the header and footer below.
 
 Inserting an R Script
 ---------------------
@@ -71,6 +78,24 @@ plot(cars)
 
 When plotting, the chunk name is used as the name for the static image file that will be saved to your computer. In addition to the name of the chunk, when you are creating a plot you can pass keyword arguments with display options that control things like the size of the resulting image.
 
-After creating a .Rmd document, you can easily convert the script into HTML by hitting the **"Knit HTML"** button - try it out and see how nice it looks! Importantly, both the R output and the plots are embedded in the document right next to the narrative explanation of your analysis and the code that is actually performing it. This way, you can be more confident that you know how you produced any 
+After creating a .Rmd document, you can easily convert the script into HTML by hitting the **"Knit HTML"** button - try it out and see how nice it looks! Importantly, both the R output and the plots are embedded in the document right next to the narrative explanation of your analysis and the code that is actually performing it.
 
-In the document `Template_HW.R` we have worked through Question 9 Parts A&B so you get an idea of how to format your homework.
+
+Some formatting tips
+---------------------
+
+**Double astericks bold the text**, 
+*a single asterick italicizes*, 
+`back-ticks make the font look like code`
+
+
+Double underline (the equals sign) is the biggest header
+========================================================
+You should use this header for your Name, HW #, and Date
+
+A single underline is the next biggest header
+----------------------------------------------
+You should use this to label questions.
+
+### A triple hashtag is the smallest header
+Use this header for the parts of questions!
