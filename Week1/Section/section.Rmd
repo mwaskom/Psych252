@@ -1,0 +1,118 @@
+
+**Steph Gagnon**, Homework 1, 10/02/13
+=======================================
+  
+Question 1
+-----------------------------------------
+
+### Q1 b-i)
+  
+```{r 1b1_findingstats}
+deaths = c(11, 15, 15, 16, 25, 20)
+m_deaths = mean(deaths); print(m_deaths)
+var_deaths = var(deaths); print(var_deaths)
+
+sd_deaths = sd(deaths); print(sd_deaths)
+var_deaths2 = sd_deaths^2; print(var_deaths2)
+```
+
+For this sample.... the mean is `r m_deaths` deaths, the standard...
+
+
+### Q1, b-ii
+
+```{r 1bii_se}
+n = length(deaths)
+se_deaths = sd_deaths/sqrt(n); print(se_deaths)
+
+```
+
+
+### Q1, b-iii
+
+T = k * $\bar x$, where = 17. T=17k.
+
+
+### Q1, b-iv
+
+
+
+### Example distributions using linear transformation:
+```{r example_create_distributions}
+k = 1
+year1 <- data.frame(length = rnorm(1000, mean = m_deaths*k, se_deaths*k))
+k = 2
+year2 <- data.frame(length = rnorm(1000, mean = m_deaths*k, se_deaths*k))
+k = 3
+year3 <- data.frame(length = rnorm(1000, mean = m_deaths*k, se_deaths*k))
+```
+
+```{r plot distributions, fig.width=9, fig.height=6}
+#Now, combine your two dataframes into one.  First make a new column in each.
+year1$NumberYears <- '1 year'
+year2$NumberYears <- '2 years'
+year3$NumberYears <- '3 years'
+
+#and combine into your new data frame all_years
+all_years <- rbind(year1, year2, year3)
+
+library(ggplot2)
+#now make your histogram
+ggplot(all_years, aes(length, fill = NumberYears)) + geom_histogram(alpha = 0.5, colour = "darkgray", aes(y = ..density..), position = 'identity')
+```
+
+Question 2
+-------------------
+
+setwd("~/Class/Psych252/Week1/Section")
+### 2.a)
+
+**Load in data:**
+```{r 2a_earlydeaths_load}
+d0 = read.csv('earlydeaths.csv')
+str(d0)
+head(d0)
+summary(d0)
+
+
+levels(d0$cause)
+d0$cause = factor(d0$cause)
+
+levels(d0$cause)[1] = 'Maltreat'
+levels(d0$cause)[2] = 'Non-Maltreat'
+
+levels(d0$cause)
+str(d0)
+
+print(table(d0$cause, d0$time))
+
+?addmargins
+
+tx = addmargins(table(d0$cause, d0$time ))
+print(tx)  
+  
+
+
+
+rs1 = summary(table(d0$cause, d0$time))
+print(rs)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

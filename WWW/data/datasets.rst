@@ -1,7 +1,7 @@
 Course Datasets
 ===============
 
-Juvenile Deaths in Santa Clara County
+earlydeaths.csv (Juvenile Deaths in Santa Clara County)
 -------------------------------------
 
 :download:`earlydeaths.csv </datasets/earlydeaths.csv>`

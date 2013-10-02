@@ -41,7 +41,7 @@ Then, we made a histogram of `x0` along with the estimated probability density f
 
 
 ```r
-rs1 = hist(o1, prob = T, main = "Sampling distributionn of x0, 1000 Samples")
+rs1 = hist(o1, prob = T, main = "Sampling distribution of x0, 1000 Samples")
 lines(density(o1, adjust = 3))
 ```
 
