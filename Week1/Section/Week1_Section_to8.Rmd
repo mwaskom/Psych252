@@ -1,0 +1,258 @@
+Section, Week 1
+=======================================
+  
+Question 1
+-----------------------------------------
+
+### 1.b-i)
+**Calculate stats for maltreatment deaths:**
+```{r 1bi_maltreat_stats}
+deaths = c(11, 15, 15, 16, 25, 20)
+m_deaths = mean(deaths)
+s_deaths = sd(deaths)
+var_deaths = var(deaths)
+var_deaths_v2 = s_deaths^2
+```
+Over the period from 1990-1995, was a **mean** of `r m_deaths` juvenile deaths per year caused by maltreatment. The **variance** in these maltreatment deaths was `r var_deaths`. The **standard deviation** of the same maltreatment deaths was `r s_deaths`.
+
+### 1.b-ii)
+**Calculate standard error of the mean:**
+```{r 1bii_maltreat_se}
+n = length(deaths)
+se_deaths = s_deaths/(sqrt(n))
+```
+For a sample of `r n`, the **standard error** of $latex {\bar x}$ = `r se_deaths`.
+
+### 1.b-iii)
+The algebraic equation for the estimated number (`T`) of maltreatment deaths in the period of `k` years is: 
+
+T = `r m_deaths` * k
+
+As `k` increases, the total (T) increases linearly as a function of the mean number of deaths (i.e., `r m_deaths`).
+
+### 1.b-iv)
+The standard deviation of the statistic (T) = `k *` sd(X). In this case, sd(X) is equal to the **standard error** of the sample mean ($latex {\bar x}$), calculated in **1b-ii**; thus sd(T) = `k *` `r se_deaths`. 
+
+### Example distributions using linear transformation:
+```{r example_create_distributions}
+k = 1
+year1 <- data.frame(length = rnorm(1000, mean = m_deaths*k, se_deaths*k))
+k = 2
+year2 <- data.frame(length = rnorm(1000, mean = m_deaths*k, se_deaths*k))
+k = 3
+year3 <- data.frame(length = rnorm(1000, mean = m_deaths*k, se_deaths*k))
+```
+
+```{r plot distributions, fig.width=9, fig.height=6}
+#Now, combine your two dataframes into one.  First make a new column in each.
+year1$NumberYears <- '1 year'
+year2$NumberYears <- '2 years'
+year3$NumberYears <- '3 years'
+
+#and combine into your new data frame all_years
+all_years <- rbind(year1, year2, year3)
+
+library(ggplot2)
+#now make your histogram
+ggplot(all_years, aes(length, fill = NumberYears)) + geom_histogram(alpha = 0.5, colour = "darkgray", aes(y = ..density..), position = 'identity')
+```
+
+Question 2
+-----------------------------------------
+
+### 2.a)
+Here we will use the data in `earlydeaths.csv` to generate a **cross-tabulation**. This will indicate if there is a relationship between the variables `time` and `cause` (cause of death), which we will formally test in **2b**.
+
+**Load in data:**
+```{r 2a_earlydeaths_load}
+# load in data
+d0 = read.csv('earlydeaths.csv')
+str(d0)
+summary(d0)
+```
+
+**Change levels of `cause` to match the cross-tab in homework:**
+```{r 2a_earlydeaths_editlevel}
+levels(d0$cause)
+levels(d0$cause)[1] = 'Maltreat'
+levels(d0$cause)[2] = 'Non-Maltr'
+levels(d0$cause)
+```
+
+**Generate cross-tabulation of `time` by `cause`:**
+```{r 2a_earlydeaths_crosstab}
+# Print the table
+print(table(d0$cause, d0$time))
+
+# Print table with margins, like in hw
+tx = addmargins(table(d0$cause, d0$time, dnn=c('Cause','Time')))
+print(tx)
+```
+
+
+### 2.b)
+```{r 2a_earlydeaths_chisq}
+# Print the table summary (i.e., chi-squared contingency test)
+rs1 = summary(table(d0$cause, d0$time))
+print(rs1)
+
+# access variables from this output "object"
+chisq = rs1$statistic
+df = rs1$parameter
+pval = rs1$p.value
+```
+
+To test the null hypothesis that there is no relationship between the cause of juvenile deaths (`cause`) and time (`time`), we conducted a **chi-squared contingency test**. Results indicate that there is not a significant relationship between the cause of deaths and time, $latex {\chi^2}$(`r df`) = `r chisq`, *p* = `r pval`. In other words, the time trend in the number of deaths is similar regardless of the cause of death.
+
+**n.b., you can write stats output in the following ways:**
+$latex {\chi^2}$(`r df`) = `r chisq`, *p* = `r pval`;
+X^2 (2) = 0.43, *p* = 0.81.
+
+If you decide to use latex, [this site](http://www.calvin.edu/~rpruim/courses/m343/F12/RStudio/LatexExamples.html) is a helpful resource!
+
+Question 8
+-----------------------------------------
+### 8.a)
+**Create variable storing population size for age ranges:**
+```{r 8a_createvar}
+census_pop = c(72.3, 46.5, 43.2, 42.5, 41.9, 35)
+```
+
+**Calculate size of sub-population >18 years old:**
+```{r 8a_18overpop}
+pop_Over18 = sum(census_pop) - census_pop[1]
+```
+The size of the sub-population of likely voters is `r pop_Over18`.
+
+**Calculate proportion of likely voters by age category:**
+```{r 8a_p_likelyvoter_byage}
+p_likelyvoters = census_pop[2:6]/pop_Over18
+```
+The proportions of likely voters for the age categories over 18 are: `r p_likelyvoters`.
+
+### 8.b)
+**Load in data from fieldsimul1.csv:**
+```{r 8b_load_fieldsimul1}
+d1 = read.csv('fieldsimul1.csv')
+str(d1)
+summary(d1)
+```
+
+**Recode age into categorical variable using 5 age categories:**
+```{r 8b_agecat0}
+d1$agecat0 = findInterval(d1$age, c(30,40,50,66))
+d1$agecat0 = d1$agecat0 + 1     # group 1 starts at 1
+d1$agecat0 = factor(d1$agecat0) # convert to categorical var
+head(d1)
+```
+
+### 8.c)
+
+```{r 8c_chisq}
+rs4 = chisq.test(table(d1$agecat0), p = p_likelyvoters, simulate.p.value = FALSE)
+print(rs4)
+
+# Note this format also gives the same results:
+rs4_v2 = chisq.test(table(d1$agecat0), p = census_pop[2:6], rescale.p = TRUE, simulate.p.value = FALSE)
+print(rs4_v2)
+```
+
+Explain results....
+
+```{r 8c_plot_proportions, fig.width = 7, fig.height=5}
+p_observed = table(d1$agecat0)/length(d1$agecat0)
+p_expected = p_likelyvoters
+
+df_cat =rbind(p_observed, p_expected)
+barplot(df_cat, col=c("darkblue","red"), xlab = ('Age Category'),
+ylab = 'Proportion', legend = rownames(df_cat), beside=TRUE)
+```
+
+### 8.d)
+```{r 8d_levels_recall_party}
+d1$party = factor(d1$party)
+levels(d1$party) = c('Dem', 'Rep', 'Other')
+
+d1$recall = factor(d1$recall)
+levels(d1$recall) = c('Yes', 'No', 'Unsure')
+
+head(d1)
+```
+
+```{r 8d_crosstab_recall_party}
+table(d1$recall, d1$party)
+
+# Print table with margins
+tx = addmargins(table(d1$recall, d1$party, dnn=c('Recall','Party')))
+print(tx)
+
+# Run chi-squared test
+rs5 = chisq.test(table(d1$recall, d1$party))
+print(rs5)
+```
+
+Explain results...
+
+```{r 8d_crosstab_minus_unsure}
+d3 = d1[d1$recall != 'Unsure',]
+str(d3) # note the 3 levels of recall still!
+d3$recall = factor(d3$recall)
+
+rs6 = chisq.test(table(d3$recall, d3$party))
+print(rs6)
+```
+
+Explain results...
+
+## 8.e)
+**Re-code recall as quantitative variable:**
+```{r 8e_recall_quantitative}
+d1$recallq = as.numeric(d1$recall)
+d1$recallq = 1*as.numeric(d1$recallq==1) + (-1)*as.numeric(d1$recallq==2) + 0*as.numeric(d1$recallq==3)
+
+summary(d1)
+```
+
+## 8.f)
+```{r 8f_plot_recallq-vs-agecat0_byparty, fig.width=9, fig.height=7}
+interaction.plot(d1$agecat0, d1$party, d1$recallq,
+                 xlab = 'Age Category', ylab = 'Recall')
+```
+
+## 8.g)
+```{r 8g_lm_recallq_by_agecat-and-party}
+str(d1)
+
+# additive model
+rs_add = lm(recallq ~ agecat0 + party, data = d1)
+summary(rs_add)
+
+# interactive model
+rs_inter = lm(recallq ~ agecat0 * party, data = d1)
+summary(rs_inter)
+
+# quadratic trend of age?
+d1$agecat0 = as.numeric(d1$agecat0)
+str(d1)
+
+# additive model w/quadratic effect of age category
+rs_add_polyage = lm(recallq ~ poly(agecat0, 2) + party, data = d1)
+summary(rs_add_polyage)
+
+# interactive model w/quadratic effect of age category
+rs_inter_polyage = lm(recallq ~ poly(agecat0, 2) * party, data = d1)
+summary(rs_inter_polyage)
+```
+
+
+
+Explain output...
+
+
+
+small_sample = sample(D0, 7, replace=T, prob = p0)
+muSS = mean(small_sample)
+sdSS = sd(small_sample)
+hist(small_sample)
+print(muSS)
+print(sdSS)
