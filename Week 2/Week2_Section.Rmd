@@ -1,0 +1,279 @@
+Section Week 2 
+========================================================
+
+*1. Standard Deviation vs. Standard Error*
+*2. Centering data and Standardizing data vs. "Normalizing" Data*
+*3. T-tests and the null hypothesis*
+
+## Standard Deviation vs. Standard Error
+
+Standard Deviation
+
+```{r calculating standard deviation}
+## entering data -- let's say that we want to calculate the average temperature for palo alto.  so on 6 days we observe the temperature
+
+d <- c(80, 76, 81, 72, 68, 76) 
+
+## calculating mean
+m <- mean(d)
+print(m)
+
+## calculating number of observations
+n <- length(d)
+print(n)
+
+## calculating standard deviation
+sqrt(var(d))
+
+# or
+
+s <- sd(d)
+print(s)
+```
+
+Standard error
+
+```{r calculating standard error}
+se <- s/ n^.5
+print(se)
+```
+
+Now we can use the standard error of the mean to calculate a confidence interval for the mean!
+
+```{r confidence intervals}
+## calculating 95% confidence interval
+ci95 <- se * 1.96  ## why 1.96? Critical value for 95% CI
+print(ci95)
+
+## adding and subtracting it from mean
+m - ci95
+m + ci95
+```
+
+So the confidence interval for the mean is from 71.58 to 79.41, which means that the mean temperature in Palo Alto falls within this interval.
+
+## Centering vs. Standardizing Data
+
+So let's say we have a variable "i" and want to either center or standardize it.
+
+```{r setting x}
+## we have a data set with 4 variables
+dn <- c(3,4,15,8)
+i <- 3
+i2 <- 4
+i3 <- 15
+i4 <- 8
+
+## find mean and standard deviation for calculations
+mn <- mean(dn)
+print(mn)
+sdn <- sd(dn)
+print(sdn)
+```
+
+Centering - subtracting mean from values
+
+```{r}
+ic = (i - mn)
+print(ic)
+
+i2c = (i2 - mn)
+print(i2c)
+
+i3c = (i3 - mn)
+print(i3c)
+
+i4c = (i4 - mn)
+print(i4c)
+
+## combine values
+
+centered <-c (ic, i2c, i3c, i4c)
+print(centered)
+```
+
+That took a while... can we do it with a for loop?
+
+```{r}
+for (i in 1:4)
+{
+    icf <- dn-mn
+}
+```
+
+Now what is our mean and standard deviation?
+
+```{r}
+mean(icf)
+sd(icf)
+```
+
+Standardization - subtracting mean, dividing by standard deviation
+
+```{r}
+is = (i - mn)/sdn
+print(is)
+
+for (i in 1:4)
+{
+    standard <- (dn-mn)/sdn
+}
+
+print(standard)
+```
+
+Now let's take a look at our mean and sd...
+
+```{r}
+mean(standard)
+sd(standard)
+```
+
+How do you do this on a dataset in R?
+
+```{r data entry}
+# setwd
+read.csv('dataset_scale.csv')->d2
+```
+
+We're looking at a dataset of height and salary.  Let's check it out...
+
+```{r useful functions for looking at data}
+summary(d2)
+head(d2)
+tail(d2)
+str(d2$height)
+```
+
+We're working with height here, so it doesn't make sense to talk about expected salary when height is set to 0 - the mean is more interpretable.  So we center!
+
+Center the data!
+
+```{r}
+with(d2,scale(height, center = TRUE, scale = FALSE)) -> d2$heightc
+head(d2$heightc)
+```
+
+Create standardized scores!
+
+```{r}
+with(d2, scale(height, center = TRUE, scale = TRUE)) -> d2$heights
+head(d2$heights)
+```
+
+Now let's reexamine our data set...
+
+```{r}
+summary(d2)
+sd(d2$heightc)
+sd(d2$heights)
+```
+
+Note that the means are 0, and the differences in standard deviation.
+
+Does this affect our output?
+
+```{r tests with normalized variables}
+# non normalized
+rs1 <- summary(lm(d2$salary~d2$height))
+print(rs1)
+plot(d2$height,d2$salary)
+lines(abline(rs1,col='red'))
+
+# centered
+rs2 <- summary(lm(d2$salary~d2$heightc))
+print(rs2)
+plot(d2$heightc,d2$salary)
+lines(abline(rs2,col='red'))
+
+# standardized
+rs3 <- summary(lm(d2$salary~d2$heights))
+print(rs3)
+plot(d2$heights,d2$salary)
+lines(abline(rs3,col='red'))
+```
+
+Note the change in estimates for the last part, but that significance never changes.
+Note also the intercept.
+
+### Differences between normalizing data and normal distributions
+
+Standardizing data doesn't fix problems of skewness.  Let's take a look at a skewed distribution
+
+```{r}
+x0 = c(1:3, 5, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9)
+plot(x0)
+
+mean(x0)->msk
+print(msk)
+
+sd(x0)->sdsk
+print(sdsk)
+
+## load psych library, test for skewness
+library(psych)
+skew(x0)
+```
+
+Now let's standardize...
+
+```{r standardizing skewed distributions}
+for (i in 1:6)
+{
+    skewst <- (x0-msk)/sdsk
+}
+
+print(skewst)
+
+## now we can see that the mean and SD are at 0 and 1
+mean(skewst)
+sd(skewst)
+
+## BUT the plot looks exactly the same -- the data is still skewed!
+plot(skewst)
+skew(skewst)
+```
+
+## T-tests and the Null Hypothesis
+
+Let's generate a distribution that represents the null.
+
+```{r t test simulation null}
+
+## generating random data
+
+group = rnorm(100, mean=0, sd=1)
+```
+
+Let's plot this distribution.
+
+```{r plot null}
+hist(group)
+```
+
+Let's do a t.test -- is this different from 0?
+```{r t test}
+t.test(group)
+```
+
+
+If we took 1000 samples from this distribution:
+
+```{r sampling null}
+scores = group
+R = 1000                                   
+t.values = numeric(R)  
+
+for (i in 1:R) {
+groups = sample(scores, size=100, replace=T)
+t.values[i] = t.test(groups)$statistic
+}
+```
+
+Plotting t values!
+
+```{r plot t-values}
+hist(t.values, breaks=20)
+```
+
+Some t-values that are outside of the range!
