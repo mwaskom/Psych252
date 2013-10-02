@@ -256,6 +256,12 @@ Let's do a t.test -- is this different from 0?
 t.test(group)
 ```
 
+Taking samples from a distribution
+```{r one sample}
+samp1 = sample(group, size=10, replace=F)
+t.stat = t.test(samp1)$statistic
+print(t.stat)
+```
 
 If we took 1000 samples from this distribution:
 
@@ -277,3 +283,42 @@ hist(t.values, breaks=20)
 ```
 
 Some t-values that are outside of the range!
+
+## Power
+
+```{r calculating power null}
+m <- 5
+sd <- 2
+n <- 20
+error <- qt(0.975,df=n-1)*sd/sqrt(n); print(error)
+left <- m-error
+right <- m+error
+print(left); print(right)
+```
+
+```{r mean CI}
+t <- m + 1.5
+t <- m + 1.5; print(t)
+tleft <- (left-assumed) / (s/sqrt(n))
+tleft <- (left-t) / (s/sqrt(n))
+tright <- (right-t) / (s/sqrt(n))
+print(tleft); print(tright)
+p <- pt(tright, df = n-1)-pt(tleft, df = n-1)
+print(p)
+```
+
+Doing this same caluclation in one line:
+
+```{r power.t.test}
+power.t.test(n=n,delta=1.5,sd=sd,sig.level=0.05,
+type="one.sample",alternative="two.sided")
+```
+
+What else can this function do?
+
+```{r power.t.test examples}
+power.t.test(delta=1.5,sd=sd,sig.level=0.05,power=.8,
+type="one.sample",alternative="two.sided") #80% power
+power.t.test(delta=1.5,sd=sd,sig.level=0.05,power=.9,
+type="one.sample",alternative="two.sided") #90% power
+```
