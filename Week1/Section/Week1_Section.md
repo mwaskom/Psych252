@@ -1,4 +1,4 @@
-Section, 9/24/13
+Section, Week 1
 =======================================
   
 Question 1
@@ -41,11 +41,11 @@ The standard deviation of the statistic (T) = `k *` sd(X). In this case, sd(X) i
 
 ```r
 k = 1
-year1 <- data.frame(length = rnorm(1000, mean = m_deaths * k, se_deaths * k))
+year1 <- data.frame(length = rnorm(1000, mean = m_deaths, s_deaths))
 k = 2
-year2 <- data.frame(length = rnorm(1000, mean = m_deaths * k, se_deaths * k))
+year2 <- year1 + data.frame(length = rnorm(1000, mean = m_deaths, s_deaths))
 k = 3
-year3 <- data.frame(length = rnorm(1000, mean = m_deaths * k, se_deaths * k))
+year3 <- year2 + data.frame(length = rnorm(1000, mean = m_deaths, s_deaths))
 ```
 
 
