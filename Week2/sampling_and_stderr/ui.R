@@ -1,7 +1,9 @@
 library(shiny)
 
+fig.width <- 600
+fig.height <- 250
 shinyUI(pageWithSidebar(
-  headerPanel("Distributions and Sampling"),
+  headerPanel("Sampling and Standard Error"),
   
   sidebarPanel(
     sliderInput("pop.sd", 
@@ -9,13 +11,13 @@ shinyUI(pageWithSidebar(
                 min=0, max=4, value=2, step=.2, ticks=FALSE),
     sliderInput("n.sample",
                 strong("Number of observations in a sample"),
-                min=1, max=200, value=20)
+                min=1, max=100, value=20)
   ),
 
   
   mainPanel(
-    div(plotOutput("population", width=500, height=200)),
-    div(plotOutput("sample", width=500, height=200,)),
-    div(plotOutput("standard.error", width=500, height=200))
+    div(plotOutput("population", width=fig.width, height=fig.height)),
+    div(plotOutput("sample", width=fig.width, height=fig.height)),
+    div(plotOutput("standard.error", width=fig.width, height=fig.height))
   )
 ))
