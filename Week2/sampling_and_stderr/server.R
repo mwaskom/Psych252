@@ -11,7 +11,7 @@ shinyServer(function(input, output) {
   output$sample <- renderPlot({
     x <- rnorm(input$n.sample, 0, input$pop.sd)
     x <- x[x > -10 & x < 10]
-    bins <- hist(x, breaks=seq(-10, 10, 1), col="#AAAAAA", xlim=c(-10, 10),
+    bins <- hist(x, breaks=seq(-10, 10, 1), col="#BBBBBB", xlim=c(-10, 10),
                  main="One Sample from the Population")
     annot.height <- max(bins$count) / 2
     sd.x = sd(x)
@@ -30,7 +30,7 @@ shinyServer(function(input, output) {
   output$standard.error <- renderPlot({
     sem <- input$pop.sd / sqrt(input$n.sample)
     x <- rnorm(10000, 0, sem)
-    hist(x, col="#AAAAAA", xlim=c(-10, 10), freq=FALSE,
+    hist(x, col="#BBBBBB", xlim=c(-10, 10), freq=FALSE,
          main="Distribution of Means from Many Samples")
     x.pos <- seq(-10, 10, length.out=1000)
     pdf <- dnorm(x.pos, 0, sem)
