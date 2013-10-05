@@ -5,7 +5,7 @@ shinyServer(function(input, output) {
 
   n.sim <- 1000
   
-  draw.sample <- function(input){
+  draw.sample <- reactive({
     
     m <- input$effect.size
     s <- 1
@@ -25,11 +25,11 @@ shinyServer(function(input, output) {
     
     list(df=df, t.stats=t.stats, p.values=p.values, sig.rate=sig.rate, power=power)
     
-  }
+  })
     
   output$t.stats <- renderPlot({
     
-    sample <- draw.sample(input)
+    sample <- draw.sample()
     plot.title <- sprintf("Power: %.2f; Proportion rejected nulls: %.2f", sample$power, sample$sig.rate)
     hist(sample$t.stats, 25, col="dodgerblue", main=plot.title, xlab="t statistics")
     abline(v=qt(0.05, sample$df, lower.tail=FALSE), lwd=5)
@@ -38,7 +38,7 @@ shinyServer(function(input, output) {
   
   output$p.values <- renderPlot({
     
-    sample <- draw.sample(input)  
+    sample <- draw.sample()  
     bins <- seq(0, 1, length.out=40)
     hist(sample$p.values, bins, col="tomato", main=NULL, xlab="p values")
     abline(v=0.05, lwd=5)
