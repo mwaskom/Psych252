@@ -1,15 +1,10 @@
 Course Datasets
 ===============
 
-<<<<<<< HEAD
-earlydeaths.csv (Juvenile Deaths in Santa Clara County)
--------------------------------------
-=======
 earlydeaths.csv
 ---------------
 
 Juvenile Deaths in Santa Clara County
->>>>>>> d2ea1676146f8a7fa03b4c0b678dfe2e7c943c9e
 
 :download:`Click to download data </datasets/earlydeaths.csv>`
 
@@ -24,4 +19,20 @@ fieldsimul1.csv
 Survey of likely voters in California
 
 :download:`Click to download data </datasets/fieldsimul1.csv>`
+
+hw2data.csv
+-----------
+
+Study of memory biases
+
+:download:`Click to download data </datasets/hw2data.csv>`
+
+Fields:
+
+* **Type**: Experimental condition
+* **Pasthap**: Rating of recalled happiness
+* **Responsible**: Self-reported feelings of responsibility
+* **Futurehapp**: Rating of expected future happiness
+* **FTP**: Future time perspective
+* **complain**: Yes/no response for whether participants would complain
 

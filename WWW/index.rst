@@ -22,5 +22,6 @@ Contents
 .. toctree::
    :maxdepth: 1
 
-   data/datasets.rst
+   data/index.rst
+   apps/index.rst
 
