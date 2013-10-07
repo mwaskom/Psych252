@@ -67,18 +67,20 @@ shinyServer(function(input, output) {
     y <- y[mask]
     resid <- resid[mask]
     
-    # Plot the observations
-    plot(x, y, bty="n", xlim=c(-5, 5), ylim=c(-3, 8), pch=16,
-         col="#444444", main="Linear Model Y ~ X")
     
     # Plot the regression line
-    lines(c(-4.5, 4.5), c(a + b * -4.5,  a + b * 4.5), lwd=2)
+    plot(c(-4.5, 4.5), c(a + b * -4.5,  a + b * 4.5), type="l", lwd=2,
+         bty="n", xlim=c(-5, 5), ylim=c(-3, 8),
+         main="Linear Model Y ~ X")
     
     # Plot each residual distance
     for (i in 1:length(resid)){
       lines(c(x[i], x[i]), c(y[i], y[i] - resid[i]),
             col=reg.data$resid.color, lwd=1.5)
     }
+    
+    # Plot the observations
+    points(x, y,  pch=16, col="#444444")
     
     # Plot the current equation as a legend
     legend(-5, 8, sprintf("y = %.3g + %.3g * x", a, b), lty=1, lwd=2, bty="n")
