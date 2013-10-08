@@ -70,7 +70,7 @@ shinyServer(function(input, output) {
     
     # Plot the regression line
     plot(c(-4.5, 4.5), c(a + b * -4.5,  a + b * 4.5), type="l", lwd=2,
-         bty="n", xlim=c(-5, 5), ylim=c(-3, 8),
+         bty="n", xlim=c(-5, 5), ylim=c(-3, 8), xlab="x", ylab="y",
          main="Linear Model Y ~ X")
     
     # Plot each residual distance
