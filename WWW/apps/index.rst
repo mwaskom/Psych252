@@ -8,7 +8,7 @@ some statistical concepts.
 Sampling and standard error
 ---------------------------
 
-`Link to app <http://spark.rstudio.com/sgagnon/sampling_and_stderr/>`_
+`Link to app <http://spark.rstudio.com/supsych/sampling_and_stderr/>`_
 
 This example demonstrates the relationship between the standard deviation of a
 population, the standard deviation and standard error of the mean for a sample
@@ -21,7 +21,7 @@ distribution of means (under normal assumptions).
 Simulating t tests
 ------------------
 
-`Link to app <http://spark.rstudio.com/sgagnon/ttest_simulation/>`_
+`Link to app <http://spark.rstudio.com/supsych/ttest_simulation/>`_
 
 This example performs 1000 one-sample t tests (with different samples from the
 same distribution) and plots the resulting histograms of t statistics and p
@@ -33,7 +33,7 @@ shows what happens when the null hypothesis is true.
 Simple linear regression
 ------------------------
 
-`Link to app <http://spark.rstudio.com/sgagnon/simple_regression/>`_
+`Link to app <http://spark.rstudio.com/supsych/simple_regression/>`_
 
 This example demonstrates the key objective of linear regression: finding the
 coefficients for a linear model that minimize the squared distance from each
