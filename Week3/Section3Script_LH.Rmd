@@ -196,6 +196,8 @@ levelplot(z, panel = panel.levelplot.raster,par.settings=list(regions=list(col=h
 
 ## Dummy Coding
 ``` {r dummy coding}
+with(d0, boxplot(Futurehapp ~ Type))
+
 rs1 = lm(Futurehapp ~ Type, data = d0)
 summary(rs1)
 
