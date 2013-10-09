@@ -1,0 +1,52 @@
+Section 10.9.2013 - Chi Square & Common Data Errors
+========================================================
+
+## Chi Square
+
+Data: 'Type' and 'Complain' - what are we looking at?
+
+Most of the variables are the same as in the Class Project on memory bias: Type = 1, 2, 3 refers to ‘free’, ‘biased’ and ‘varied’ recall, respectively; Complain = 1, if you seriously considered complaining when you missed your plane/train, and Complain = 0, otherwise. 
+
+``` {r chi square}
+d0<- read.csv('http://www.stanford.edu/class/psych252/data/hw2data.csv')
+
+str(d0)
+
+## why change to a factor?  What tests would we use if we weren't looking at "Type" and "Complain", but other variables?
+
+d0$Typefac <- factor(d0$Type, labels = c('free', 'biased', 'varied'))
+str(d0$Typefac)
+
+d0$complainf <- factor(d0$complain, labels = c('yes', 'no'))
+str(d0$complainf)
+str(d0)
+
+## double check, and find out this coded incorrectly!
+
+d0$complainfac <- factor(d0$complain, labels = c('no', 'yes'))
+str(d0$complainfac)
+str(d0)
+
+t0 <- table(d0$Typefac, d0$complainfac)
+print(t0)
+
+## compare to table if had coded incorrectly
+table(d0$Typefac, d0$complainf)
+
+## Interlude: what does it mean to do a chi square test?
+## What are some examples of relationships we would examine using a chi square test?
+## What is H0? H1?
+
+rs0 <- chisq.test(t0)  ## chisq.test(table(d0$Typefac, d0$complainfac))
+print(rs0)
+
+## How do we interpret these results?  
+## What does it mean if we fail to reject the null?
+
+```
+
+APA writeup: 
+
+A chi-square test of independence was performed to examine the relation between type of recall and whether or not participants reported considering complaining at the time. The relation between these variables was not significant, $latex {\chi}$2 (2, N = 63) = 0.654, p = .72. Participants in one of the three memory groups were no more likely than the other groups to report having considered complaining for missing their train or plane.
+
+The number of participants who considered complaining did not differ by recall type, c2(2, N = 63) = 0.654, p = .72.
