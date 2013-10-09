@@ -99,16 +99,28 @@ print(i4c)
 
 centered <-c (ic, i2c, i3c, i4c)
 print(centered)
+plot(centered)
 ```
 
-That took a while... can we do it with a for loop?
+That took a while... can we do it using matrix/vector operations??
 
 ```{r}
-for (i in 1:4)
-{
-    icf <- dn-mn
-}
+icf = dn-mn
+
+print(icf)
+plot(icf)
 ```
+
+Note, there's a helpful function that R has called `scale` -- we can use this to automatically center our data, like this:
+```{r}
+centered_data = scale(dn , scale = FALSE)
+
+print(centered_data)
+plot(centered_data)
+```
+n.b., if you just want to center the data, set **scale = FALSE**!
+
+
 
 Now what is our mean and standard deviation?
 
@@ -123,12 +135,10 @@ Standardization - subtracting mean, dividing by standard deviation
 is = (i - mn)/sdn
 print(is)
 
-for (i in 1:4)
-{
-    standard <- (dn-mn)/sdn
-}
+standard <- (dn-mn)/sdn
 
 print(standard)
+plot(standard)
 ```
 
 Now let's take a look at our mean and sd...
@@ -138,11 +148,21 @@ mean(standard)
 sd(standard)
 ```
 
+You can do this with the scale function too!
+```{r}
+standardized_data = scale(dn, scale=TRUE)
+
+print(standardized_data)
+plot(standardized_data)
+```
+
+
+
 How do you do this on a dataset in R?
 
 ```{r data entry}
 # setwd
-read.csv('dataset_scale.csv')->d2
+d2 = read.csv('dataset_scale.csv')
 ```
 
 We're looking at a dataset of height and salary.  Let's check it out...
@@ -159,15 +179,23 @@ We're working with height here, so it doesn't make sense to talk about expected 
 Center the data!
 
 ```{r}
-with(d2,scale(height, center = TRUE, scale = FALSE)) -> d2$heightc
+# before centering
+with(d2, plot(height, salary))
+
+
+d2$heightc = with(d2,scale(height, center = TRUE, scale = FALSE))
 head(d2$heightc)
+with(d2, plot(heightc, salary))
+abline(v=0, col='red', lty = 2)
 ```
 
 Create standardized scores!
 
 ```{r}
-with(d2, scale(height, center = TRUE, scale = TRUE)) -> d2$heights
+d2$heights = with(d2, scale(height, center = TRUE, scale = TRUE))
 head(d2$heights)
+with(d2, plot(heights, salary))
+abline(v=0, col='red', lty = 2)
 ```
 
 Now let's reexamine our data set...
@@ -184,20 +212,21 @@ Does this affect our output?
 
 ```{r tests with normalized variables}
 # non normalized
-rs1 <- summary(lm(d2$salary~d2$height))
-print(rs1)
+rs1 = lm(d2$salary~d2$height)
+summary(rs1)
 plot(d2$height,d2$salary)
 lines(abline(rs1,col='red'))
 
 # centered
-rs2 <- summary(lm(d2$salary~d2$heightc))
-print(rs2)
+rs2 = lm(d2$salary~d2$heightc)
+summary(rs2)
+
 plot(d2$heightc,d2$salary)
 lines(abline(rs2,col='red'))
 
 # standardized
-rs3 <- summary(lm(d2$salary~d2$heights))
-print(rs3)
+rs3 = lm(d2$salary~d2$heights)
+summary(rs3)
 plot(d2$heights,d2$salary)
 lines(abline(rs3,col='red'))
 ```
@@ -212,14 +241,16 @@ Standardizing data doesn't fix problems of skewness.  Let's take a look at a ske
 ```{r}
 x0 = c(1:3, 5, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9)
 plot(x0)
+hist(x0)
 
-mean(x0)->msk
+msk = mean(x0)
 print(msk)
 
-sd(x0)->sdsk
+sdsk = sd(x0)
 print(sdsk)
 
 ## load psych library, test for skewness
+install.packages('psych')
 library(psych)
 skew(x0)
 ```
@@ -227,19 +258,17 @@ skew(x0)
 Now let's standardize...
 
 ```{r standardizing skewed distributions}
-for (i in 1:6)
-{
-    skewst <- (x0-msk)/sdsk
-}
+
+skewst = (x0-msk)/sdsk
 
 print(skewst)
+hist(skewst)
 
 ## now we can see that the mean and SD are at 0 and 1
 mean(skewst)
 sd(skewst)
 
 ## BUT the plot looks exactly the same -- the data is still skewed!
-plot(skewst)
 skew(skewst)
 ```
 
@@ -299,35 +328,38 @@ Some t-values that are outside of the range!
 m <- 5
 sd <- 2
 n <- 20
-error <- qt(0.975,df=n-1)*sd/sqrt(n); print(error)
-left <- m-error
-right <- m+error
+alpha = 0.05
+       
+sterr = sd/sqrt(n)
+
+tstat = qt(alpha/2, df=n-1, lower.tail=FALSE); print(tstat)
+
+merror = tstat*sterr; print(merror)
+
+left = m - merror
+right = m + merror
 print(left); print(right)
 ```
 
 ```{r mean CI}
-t <- m + 1.5
-t <- m + 1.5; print(t)
-tleft <- (left-assumed) / (s/sqrt(n))
-tleft <- (left-t) / (s/sqrt(n))
-tright <- (right-t) / (s/sqrt(n))
+t = m + 1.5; print(t)
+tleft = (left-t) / (s/sqrt(n))
+tright = (right-t) / (s/sqrt(n))
 print(tleft); print(tright)
-p <- pt(tright, df = n-1)-pt(tleft, df = n-1)
+p = pt(tright, df = n-1) - pt(tleft, df = n-1)
 print(p)
 ```
 
-Doing this same caluclation in one line:
+Doing this same calculation in one line:
 
 ```{r power.t.test}
-power.t.test(n=n,delta=1.5,sd=sd,sig.level=0.05,
-type="one.sample",alternative="two.sided")
+power.t.test(n=n,delta=1.5,sd=sd,sig.level=0.05, type="one.sample",alternative="two.sided")
 ```
 
 What else can this function do?
 
 ```{r power.t.test examples}
-power.t.test(delta=1.5,sd=sd,sig.level=0.05,power=.8,
-type="one.sample",alternative="two.sided") #80% power
-power.t.test(delta=1.5,sd=sd,sig.level=0.05,power=.9,
-type="one.sample",alternative="two.sided") #90% power
+power.t.test(delta=1.5,sd=sd,sig.level=0.05,power=.8, type="one.sample",alternative="two.sided") #80% power
+
+power.t.test(delta=1.5,sd=sd,sig.level=0.05,power=.9, type="one.sample",alternative="two.sided") #90% power
 ```
