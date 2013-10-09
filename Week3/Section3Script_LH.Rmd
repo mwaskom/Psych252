@@ -107,6 +107,8 @@ Testing homogeneity of variance
 
 with(d0, bartlett.test(Futurehapp ~ Typefac, na.action = na.omit))
 
+with(d0, hist(Futurehapp))
+
 ```
 
 When data is not normal the test might just be telling us so!
@@ -120,6 +122,8 @@ What transformation should I use? Refer to ppt for examples
 d0$lgfhap = with(d0, log(Futurehapp + .5))
 
 with(d0, boxplot(lgfhap ~ Typefac))
+
+with(d0, hist(lgfhap))
 
 ```
 
@@ -155,7 +159,7 @@ oneway.test(Futurehapp ~ Typefac, data = d0, na.action = na.omit, var.equal = F)
 
 ```
 
-With the variable coded as it was the test is never significant. Pehaps because the distributions are not normal. 
+With the variable coded as it was the test is never significant. Perhaps because the distributions are not normal. 
 
 
 ## Multiple Regression
