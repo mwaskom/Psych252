@@ -178,6 +178,7 @@ summary(res2)
 anova(res1b, res2)
 ```
 
+
 ``` {r correlations between multiple variables}
 d0_corr = data.frame(cbind(d0$Futurehapp, d0$Responsible, d0$Pasthapp))
 d0_corr_matrix = cbind(d0$Futurehapp, d0$Responsible, d0$Pasthapp)
@@ -191,3 +192,20 @@ print(z)
 require(lattice)
 levelplot(z, panel = panel.levelplot.raster,par.settings=list(regions=list(col=heat.colors(100))))
 ```
+
+
+## Dummy Coding
+``` {r dummy coding}
+rs1 = lm(Futurehapp ~ Type, data = d0)
+summary(rs1)
+
+contrasts(d0$Type)
+
+# change contasts
+contrasts(d0$Type)<-cbind(c(1,0,0),c(0,0,1))
+contrasts(d0$Type)
+
+rs2 = lm(Futurehapp ~ Type, data = d0)
+summary(rs2)
+```
+
