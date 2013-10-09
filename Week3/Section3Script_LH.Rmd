@@ -156,3 +156,34 @@ oneway.test(Futurehapp ~ Typefac, data = d0, na.action = na.omit, var.equal = F)
 ```
 
 With the variable coded as it was the test is never significant. Pehaps because the distributions are not normal. 
+
+
+## Multiple Regression
+
+``` {r multiple regression}
+
+res1a = lm(Futurehapp ~ Pasthapp, data = d0)
+summary(res1a)
+
+res1b = lm(Futurehapp ~ Responsible, data = d0)
+summary(res1b)
+
+res2 = lm(Futurehapp ~ Pasthapp + Responsible, data = d0)
+summary(res2)
+
+anova(res1b, res2)
+```
+
+``` {r correlations between multiple variables}
+d0_corr = data.frame(cbind(d0$Futurehapp, d0$Responsible, d0$Pasthapp))
+d0_corr_matrix = cbind(d0$Futurehapp, d0$Responsible, d0$Pasthapp)
+
+colnames(d0_corr) = c("FutureHapp", "Responsible", "PastHapp")
+head(d0_corr)
+
+z <- cor(d0_corr)
+print(z)
+
+require(lattice)
+levelplot(z, panel = panel.levelplot.raster,par.settings=list(regions=list(col=heat.colors(100))))
+```
