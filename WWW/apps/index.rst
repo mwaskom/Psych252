@@ -39,3 +39,10 @@ This example demonstrates the key objective of linear regression: finding the
 coefficients for a linear model that minimize the squared distance from each
 observation to the prediction made by the model at the same value of x.
 
+Simple logistic regression
+--------------------------
+
+`Link to app <http://spark.rstudio.com/supsych/logistic_regression/>`_
+
+Similar to the linear regression example, this app shows how the goal of logistic regression is to find a model (expressed in linear coefficients -- here just the intercept and a slope term) that maximizes the likelihood of the data you are fitting the model to.
+
