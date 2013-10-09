@@ -59,13 +59,13 @@ shinyServer(function(input, output) {
     # Plot the regression curve
     x.vals <- seq(-5, 5, .01)
     y.vals <- exp(a + b * x.vals) / (1 + exp(a + b * x.vals))
-    plot(x.vals, y.vals, type="l", lwd=3, col="darkslategray",
+    plot(x.vals, y.vals, type="l", lwd=3, col="dimgray",
          bty="n", xlim=c(-5, 5), ylim=c(0, 1), xlab="x", ylab="y",
          main="Logistic model Y ~ X")
     
     # Plot the observations
     color.idx <- pmax(floor(prob.data * 10), 1)
-    color.bin <- rev(brewer.pal(9, "OrRd"))[color.idx]
+    color.bin <- rev(brewer.pal(9, "RdPu"))[color.idx]
     points(x, y,  pch=21, cex=1.5, col="black", bg=color.bin)
   
     # Plot the current equation as a legend
@@ -83,7 +83,7 @@ shinyServer(function(input, output) {
     log.like <- reg.data$log.like
 
     # Plot the two points
-    plot(log.like, 1, cex=2, yaxt="n", bty="n", pch=16, col="darkslategray",
+    plot(log.like, 1, cex=2, yaxt="n", bty="n", pch=16, col="dimgray",
          xlim=c(-50, 0), ylab="", xlab="", main="Log-likelihood of the data")
     
   })
