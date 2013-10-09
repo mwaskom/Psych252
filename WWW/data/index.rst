@@ -36,3 +36,32 @@ Fields:
 * **FTP**: Future time perspective
 * **complain**: Yes/no response for whether participants considered complaining
 
+
+acupuncture.csv
+---------------
+
+Survey of acupuncture and traditional medicine patients
+
+:download:`Click to download data </datasets/acupuncture.csv>`
+
+Fields:
+
+* **treatment**: Treatment type (1 = 'real' acupuncture; 2 = traditional)
+* **exercise**: Level of patient's exercise
+* **otc**: Whether participants take over the counter medicine (1 = Yes, 2 = No)
+* **time**: Elapsed time (in years) since symptom onset
+* **relief**: Level of pain relief
+
+metanalysis.csv
+---------------
+
+Metanalysis of 79 studies interested in the efficacy of acupuncture at treating chronic pain
+
+:download:`Click to download data </datasets/metanalysis.csv>`
+
+Fields:
+
+* **effect_size**: Cohens *d* such that positive values indicate that acupuncture groups did better than control groups
+* **total_N**: Total number of patients involved in the study
+* **symptoms**: The primary symptom the patient was being seen for
+

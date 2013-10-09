@@ -83,7 +83,7 @@ shinyServer(function(input, output) {
     log.like <- reg.data$log.like
 
     # Plot the two points
-    plot(log.like, 1, cex=2, yaxt="n", bty="n", pch=16, col="dimgray",
+    plot(log.like, 1, cex=2, yaxt="n", bty="n", pch=16, col="#AE017E",
          xlim=c(-50, 0), ylab="", xlab="", main="Log-likelihood of the data")
     
   })
