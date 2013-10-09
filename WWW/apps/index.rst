@@ -46,3 +46,16 @@ Simple logistic regression
 
 Similar to the linear regression example, this app shows how the goal of logistic regression is to find a model (expressed in linear coefficients -- here just the intercept and a slope term) that maximizes the likelihood of the data you are fitting the model to.
 
+Regression uncertainty
+--------------------
+
+`Link to app <http://spark.rstudio.com/supsych/regression_bootstrap/>`_
+
+This app plots a simple linear regression and allows the user to visualize the
+distribution of regression estimates from bootstrap resamples of the dataset.
+The user can also plot a normal density with mean at y-hat and standard
+deviation equal to the standard error of the regression estimate at that point.
+The app thus draws a comparison between the bootstrap procedure, the expected
+sampling characteristics of the regression line, and a common way of
+visualizing the uncertainty of a regression.
+
