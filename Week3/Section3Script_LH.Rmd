@@ -165,7 +165,6 @@ With the variable coded as it was the test is never significant. Perhaps because
 ## Multiple Regression
 
 ``` {r multiple regression}
-
 res1a = lm(Futurehapp ~ Pasthapp, data = d0)
 summary(res1a)
 
@@ -177,7 +176,6 @@ summary(res2)
 
 anova(res1b, res2)
 ```
-
 
 ``` {r correlations between multiple variables}
 d0_corr = data.frame(cbind(d0$Futurehapp, d0$Responsible, d0$Pasthapp))
@@ -192,7 +190,6 @@ print(z)
 require(lattice)
 levelplot(z, panel = panel.levelplot.raster,par.settings=list(regions=list(col=heat.colors(100))))
 ```
-
 
 ## Dummy Coding
 ``` {r dummy coding}
@@ -209,5 +206,24 @@ contrasts(d0$Type)
 
 rs2 = lm(Futurehapp ~ Type, data = d0)
 summary(rs2)
+```
+
+## Scaling continuous variables
+``` {r scaling}
+res1a = lm(Futurehapp ~ Pasthapp, data = d0)
+summary(res1a)
+
+res1a_scaled = lm(Futurehapp ~ scale(Pasthapp, scale= FALSE), data = d0)
+summary(res1a_scaled)
+
+res1b = lm(Futurehapp ~ Responsible, data = d0)
+summary(res1b)
+
+res2 = lm(Futurehapp ~ Pasthapp + Responsible, data = d0)
+summary(res2)
+
+res2_scaled = lm(Futurehapp ~ scale(Pasthapp, scale= FALSE) + scale(Responsible, scale=FALSE), data = d0)
+summary(res1a_scaled)
+
 ```
 
