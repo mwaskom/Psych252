@@ -16,18 +16,29 @@ shinyUI(pageWithSidebar(
                   strong("Intercept"),
                   min=-3, max=3, step=.25,
                   value=sample(seq(-3, 3, .25), 1), ticks=FALSE),
+      br(),
       sliderInput("slope", 
                   strong("Slope"),
                   min=-3, max=3, step=.25, 
-                  value=sample(seq(-2, 2, .25), 1), ticks=FALSE)
+                  value=sample(seq(-2, 2, .25), 1), ticks=FALSE),
+      br(),
+      checkboxInput("logit",
+                    strong("Plot in logit domain"),
+                    value=FALSE),
+      br(),
+      checkboxInput("summary",
+                    strong("Show summary(glm(y ~ x))"),
+                    value=FALSE)
       
     )
   ),
 
   mainPanel(
-    div(plotOutput("reg.plot", width=fig.width, height=fig.height),
-        title="y = 2 + x"),
-    div(plotOutput("like.plot", width=fig.width, height=fig.height / 3))
+    plotOutput("reg.plot", width=fig.width, height=fig.height),
+    plotOutput("like.plot", width=fig.width, height=fig.height / 3),
+    div(class="span7", conditionalPanel("input.summary == true",
+                                        p(strong("GLM Summary")),
+                                        verbatimTextOutput("summary")))
   )
     
 ))

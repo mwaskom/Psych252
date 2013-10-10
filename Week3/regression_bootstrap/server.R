@@ -49,7 +49,21 @@ shinyServer(function(input, output) {
     # Plot the true model
     plot(x, y, xlim=c(-4, 4), ylim=c(-2, 5), pch=16, cex=1.2, col="#333333", bty="n")
     abline(coef=fit.coef, lwd=3.5)
-  
+    
+    # Find the standard error of the regression
+    model.fit <- reg.data$model.fit
+    x.vals <- seq(-4.5, 4.5, .01)
+    y.vals <- fit.coef[1] + fit.coef[2] * x.vals
+    se <- predict(model.fit, data.frame(x=x.vals), se.fit=TRUE)$se.fit
+    
+    # Find the parameters for the negative density
+    dist.pos <- input$dist.pos
+    se.loc <- predict(model.fit, data.frame(x=dist.pos), se.fit=TRUE)$se.fit
+    y.hat.loc <- fit.coef[1] + fit.coef[2] * dist.pos
+    y.loc <- seq(qnorm(.0001, y.hat.loc, se.loc),
+                 qnorm(.9999, y.hat.loc, se.loc), .01)
+    d.se <- dnorm(y.loc, y.hat.loc, se.loc)
+
     # Plot the bootstrap estimates
     boot.coef <- reg.data$boot.coef
     if (input$n.boot > 0){
@@ -59,21 +73,11 @@ shinyServer(function(input, output) {
     }
     
     # Plot the standard error of the regression
-    model.fit <- reg.data$model.fit
-    x.vals <- seq(-4.5, 4.5, .01)
-    y.vals <- fit.coef[1] + fit.coef[2] * x.vals
-    se <- predict(model.fit, data.frame(x=x.vals), se.fit=TRUE)$se.fit
-    lines(x.vals, y.vals + se, col="navy", lwd=2)
-    lines(x.vals, y.vals - se, col="navy", lwd=2)
+    lines(x.vals, y.vals + se, col="steelblue", lwd=2)
+    lines(x.vals, y.vals - se, col="steelblue", lwd=2)
     
     # Plot the bootstrap distribution curve
     if (input$plot.boot.dist){
-      dist.pos <- input$dist.pos
-      se.loc <- predict(model.fit, data.frame(x=dist.pos), se.fit=TRUE)$se.fit
-      y.hat.loc <- fit.coef[1] + fit.coef[2] * dist.pos
-      y.loc <- seq(qnorm(.0001, y.hat.loc, se.loc),
-                   qnorm(.9999, y.hat.loc, se.loc), .01)
-      d.se <- dnorm(y.loc, y.hat.loc, se.loc)
       abline(v=dist.pos, lty=3)
       lines(dist.pos + d.se, y.loc, col="#333333", lwd=2)
     }
