@@ -234,16 +234,6 @@ summary(res1a_scaled)
 # Visualize centered data
 with(d0, plot(Futurehapp ~ scale(Pasthapp, scale= FALSE)))
 abline(v=0, col='red')
-
-res1b = lm(Futurehapp ~ Responsible, data = d0)
-summary(res1b)
-
-res2 = lm(Futurehapp ~ Pasthapp + Responsible, data = d0)
-summary(res2)
-
-res2_scaled = lm(Futurehapp ~ scale(Pasthapp, scale= FALSE) + scale(Responsible, scale=FALSE), data = d0)
-
-summary(res2_scaled)
 ```
 
 
