@@ -1,4 +1,4 @@
-Section 10.9.2013
+Psych 252: Week 3 Section
 ========================================================
 
 ## Online applets
@@ -12,7 +12,6 @@ Data: 'Type' and 'Complain' - what are we looking at?
 Most of the variables are the same as in the Class Project on memory bias: Type = 1, 2, 3 refers to ‘free’, ‘biased’ and ‘varied’ recall, respectively; Complain = 1, if you seriously considered complaining when you missed your plane/train, and Complain = 0, otherwise. 
 
 ``` {r reading in data}
-## d0<- read.csv(http://www.stanford.edu/class/psych252/data/hw2data.csv)
 d0<- read.csv('http://www.stanford.edu/class/psych252/data/hw2data.csv')
 
 str(d0)
@@ -193,6 +192,8 @@ levelplot(z, panel = panel.levelplot.raster,par.settings=list(regions=list(col=h
 
 ## Dummy/Contrast/Effect Coding
 ``` {r dummy coding}
+d0$Type <- factor(d0$Type, labels = c('free', 'biased', 'varied'))
+
 with(d0, boxplot(Futurehapp ~ Type))
 
 rs1 = lm(Futurehapp ~ Type, data = d0)
