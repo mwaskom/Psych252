@@ -1,4 +1,4 @@
-Section 10.9.2013
+Psych 252: Week 3 Section
 ========================================================
 
 ## Online applets
@@ -724,92 +724,6 @@ abline(v = 0, col = "red")
 ```
 
 ![plot of chunk scaling](figure/scaling.png) 
-
-```r
-
-res1b = lm(Futurehapp ~ Responsible, data = d0)
-summary(res1b)
-```
-
-```
-## 
-## Call:
-## lm(formula = Futurehapp ~ Responsible, data = d0)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -4.877 -2.221  0.123  1.372 10.331 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)    3.107      0.738    4.21  8.6e-05 ***
-## Responsible    0.104      0.058    1.79    0.078 .  
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 2.93 on 61 degrees of freedom
-## Multiple R-squared:  0.0501,	Adjusted R-squared:  0.0345 
-## F-statistic: 3.22 on 1 and 61 DF,  p-value: 0.0778
-```
-
-```r
-
-res2 = lm(Futurehapp ~ Pasthapp + Responsible, data = d0)
-summary(res2)
-```
-
-```
-## 
-## Call:
-## lm(formula = Futurehapp ~ Pasthapp + Responsible, data = d0)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -4.830 -1.941 -0.045  1.404 10.170 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)   
-## (Intercept)    1.389      0.892    1.56   0.1246   
-## Pasthapp       0.305      0.100    3.05   0.0034 **
-## Responsible    0.128      0.055    2.32   0.0238 * 
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 2.75 on 60 degrees of freedom
-## Multiple R-squared:  0.178,	Adjusted R-squared:  0.151 
-## F-statistic: 6.49 on 2 and 60 DF,  p-value: 0.0028
-```
-
-```r
-
-res2_scaled = lm(Futurehapp ~ scale(Pasthapp, scale = FALSE) + scale(Responsible, 
-    scale = FALSE), data = d0)
-
-summary(res2_scaled)
-```
-
-```
-## 
-## Call:
-## lm(formula = Futurehapp ~ scale(Pasthapp, scale = FALSE) + scale(Responsible, 
-##     scale = FALSE), data = d0)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -4.830 -1.941 -0.045  1.404 10.170 
-## 
-## Coefficients:
-##                                   Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)                          4.254      0.346   12.28   <2e-16 ***
-## scale(Pasthapp, scale = FALSE)       0.305      0.100    3.05   0.0034 ** 
-## scale(Responsible, scale = FALSE)    0.128      0.055    2.32   0.0238 *  
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 2.75 on 60 degrees of freedom
-## Multiple R-squared:  0.178,	Adjusted R-squared:  0.151 
-## F-statistic: 6.49 on 2 and 60 DF,  p-value: 0.0028
-```
 
 
 
