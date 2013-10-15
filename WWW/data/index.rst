@@ -65,3 +65,21 @@ Fields:
 * **total_N**: Total number of patients involved in the study
 * **symptoms**: The primary symptom the patient was being seen for
 
+mentillness.csv
+---------------
+Data from a study about how jurors’ perceptions of a defendant as ‘mentally ill’ might affect their perceptions 
+of defendant guilt. Participants are asked to read a carefully pretested case outline and then to answer questions 
+about the case. The case outline states the main facts of a robbery, including eye-witness testimony about the 
+identity and behavior of the robber.
+
+
+:download:`Click to download data </datasets/mentillness.csv>`
+
+Fields:
+
+* **guilt**: Belief that the defendant is guilty (1 = Definitely Not Guilty, 2 = Probably Not Guilty, 3 = Probably Guilty, or 4 = Definitely Guilty) 
+* **mentill**: Belief that the defendant is mentally ill (1 = Yes or 0 = No)
+* **futhrt**: Belief that the defendant is a future threat to society (scale from 0 (Very Low) to 10 (Very High))
+
+
+
