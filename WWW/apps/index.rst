@@ -47,7 +47,7 @@ Simple logistic regression
 Similar to the linear regression example, this app shows how the goal of logistic regression is to find a model (expressed in linear coefficients -- here just the intercept and a slope term) that maximizes the likelihood of the data you are fitting the model to.
 
 Regression uncertainty
---------------------
+----------------------
 
 `Link to app <http://spark.rstudio.com/supsych/regression_bootstrap/>`_
 
@@ -58,4 +58,18 @@ deviation equal to the standard error of the regression estimate at that point.
 The app thus draws a comparison between the bootstrap procedure, the expected
 sampling characteristics of the regression line, and a common way of
 visualizing the uncertainty of a regression.
+
+Modeling choices in multiple regression
+---------------------------------------
+
+`Link to app <http://spark.rstudio.com/supsych/multi_regression/>`_
+
+This app plots a basic multiple regression with two variables: x, a continuous
+measure, and group, a categorical measure. The app lets the user choose whether
+to fit a simple regression, an additive multiple regression, or an interactive
+multiple regression, and it shows the ``lm()`` output and a visualization for
+each choice. The app also lets the user control the true effect size for each
+component of the data to help build intuition about the visual and statistical
+consequences of different relationships between variables in a multiple
+regression.
 

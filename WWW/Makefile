@@ -155,4 +155,4 @@ doctest:
 
 upload:
 	cp datasets/* _build/html/data/
-	rsync -azP $(BUILDDIR)/html/ sgagnon@cardinal.stanford.edu:/afs/ir/class/psych252/WWW
+	rsync -azP $(BUILDDIR)/html/ cardinal.stanford.edu:/afs/ir/class/psych252/WWW

@@ -25,6 +25,7 @@ d0$Typefac <- factor(d0$Type, labels = c('free', 'biased', 'varied'))
 
 str(d0$Typefac)
 
+# This data is 1 = "yes" 2 = "no"
 d0$complainf <- factor(d0$complain, labels = c('yes', 'no'))
 
 str(d0$complainf)
@@ -43,7 +44,7 @@ str(d0$complainfac)
 str(d0)
 ```
 
-Creating table of the data
+Creating table of the data 
 
 ```{r tabling data}
 
@@ -191,6 +192,7 @@ levelplot(z, panel = panel.levelplot.raster,par.settings=list(regions=list(col=h
 ```
 
 ## Dummy/Contrast/Effect Coding
+
 ``` {r dummy coding}
 d0$Type <- factor(d0$Type, labels = c('free', 'biased', 'varied'))
 

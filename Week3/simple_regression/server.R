@@ -12,7 +12,9 @@ shinyServer(function(input, output) {
     x <- rnorm(n.obs, 0, 2)
     y <- 2 + x + rnorm(n.obs, 0, 1)
     
-    return(list(x=x, y=y))
+    model.summary <- summary(lm(y ~ x))
+    
+    return(list(x=x, y=y, model.summary=model.summary))
     
   })  
   
@@ -122,6 +124,16 @@ shinyServer(function(input, output) {
     
     # Plot a normal density (the expected residual distribtuion)
     curve(dnorm, col=reg.data$resid.color, lwd=2, add=TRUE)
+    
+  })
+  
+  #---------------------------------------------------------------------------
+  # Print the glm() summary of the true model
+  output$summary <- renderPrint({
+    
+    if (input$summary){
+      return(draw.sample()$model.summary)
+    }
     
   })
 })
