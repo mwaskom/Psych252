@@ -1,0 +1,112 @@
+<style> div.largefont {font-size:200%}</style>
+
+Logistic Regression Tutorial
+========================================================
+
+Look at the data
+-----------------
+
+To get started, let's load in a dataset (info about the variables can be found [here](http://stanford.edu/class/psych252/):
+
+```{r load_data}
+d0 = read.csv("http://www.stanford.edu/class/psych252/data/hw2data.csv")
+summary(d0)
+
+# factor d0$Type (i.e., memory groups), since it is categorical
+d0$Type = factor(d0$Type)
+head(d0)
+```
+
+We can see that the variable `d0$complain` takes on values of 1 or 0. Here, 1 and 0 code for YES/NO responses for whether or not a participant considers complaining (1=YES, 2=NO).
+
+Now, we might be interested in whether or not a participant's **self-reported feelings of responsibility** of missing a plane or a train (`d0$Responsible`) influences whether or not they **considered complaining** (`d0$complain`).
+
+First, let's take a look at the data in a few different ways:
+```{r plot_complainXresponsible, fig.width=5, fig.height=5}
+plot(factor(d0$complain), d0$Responsible, xlab=("Considered Complaining (0=NO, 1=YES)"), ylab="Feeling of Responsibility")
+
+plot(jitter(d0$complain, factor=0.5)~d0$Responsible, ylab="Considered Complaining (0=NO, 1=YES)", xlab="Feeling of Responsibility")
+```
+
+Based on these plots, it looks like participants who felt more responsible about missing a plane or a train considered complaining less than participants
+who felt less responsible for missing a plane/train. Let's test this hypothesis formally.
+
+
+Hypothesis Testing
+-----------------
+
+Here we will examine how a participant's feeling of *responsibility* influences their tendency to *complain*. Since `complain` is a binary coded variable (i.e., with values of 0 or 1), `complain` is categorical rather than continuous. Thus, we are faced with a **classification** problem, rather than a **linear regression** problem. That is, given a person with some value of `Responsible`, we want to predict whether or not that person is likely to complain; in other words, we want to *classify* that person as "complainer"" (`complain` = 1), or a non-complainer (`complain` = 0). **Logistic regression** can be used to solve a classification problem like this. 
+
+
+### What if we were to model the data with linear regression?
+
+Here, we've plotted the data, and the linear regression line-of-best-fit:
+```{r plot_linear, fig.width=5, fig.height=5}
+plot(jitter(d0$complain, factor=0.5)~d0$Responsible, ylab="P(Complain = 1)", xlab="Feeling of Responsibility", xlim=c(0,30))
+
+abline(lm(d0$complain~d0$Responsible), col='red')
+```
+
+**A few things to note:**
+
+1. The line-of-best-fit tells us the **predicted probability** of complaining (i.e., P(`complain` = 1)) for each level of `Responsible`. For example, someone with a responsible level of "10" would have a 50% probability of complaining; someone with a responsible level of "5" would have a 70% probability of complaining.
+
+2. For greater levels of `Responsible`, the model from linear regression predicts that the probability of complaining would be *less than* 0. This is impossible!
+
+
+### Sigmoid (logistic) function
+Since a straight line won't fit our data well, we instead will use an S-shaped, **sigmoid** function. This function ensures that our output `y` values will fall between 0 and 1, for any value of `x`.
+
+The sigmoid (or "logistic") function is given by the equation:  
+_______
+<div class=largefont> $P(y=1) = \frac{1}{1+e^{-(b + mx)}}$ </div>
+_______
+
+That is, the probability of a person complaining (`complain` = 1) is a function of x, *e* (the base of the natural logarithm, ~ 2.718), and the coefficients from the generalized linear model (*b* = intercept, *m* = coefficient for `Responsible`).
+
+Here's an example of the sigmoid function plotted:
+```{r plot_sigmoid, fig.width=5, fig.height=5}
+x <- c(-10:10)
+b = 0 # intercept
+m = 1 # slope
+y <- 1 / (1 + exp(-(b + m*x)))
+plot(x, y, xlab="X", ylab="P(Y=1)")
+```
+
+In general, changing the **intercept** (`b`) shifts the sigmoid along the x-axis; positive intercepts result in a sigmoid to the *right* of x=0, and negative intercepts result in a sigmoid to the *left* of x=0. Changing the **slope** (`m`) changes both the *direction* and the *steepness* of the function. That is, positive slopes result in an "s"-shaped curve, and negative slopes result in a "z"-shaped curve. In addition, larger absolute values of slope result in a steeper function, and smaller absolute values result in a more gradual slope.
+
+If you want to explore how varying the slope and intercept change the shape of the sigmoid function, try changing the coefficients in the .Rmd file, or check out the app [here](http://spark.rstudio.com/supsych/logistic_regression/)).
+
+
+### Running a general linear model w/ glm()
+To estimate the intercept and slope coefficients, we can run a **generalized linear model** using the R function `glm()`. 
+
+```{r glm_complainBYresponsible}
+rs1 = glm(complain ~ Responsible, data = d0, family = binomial, na.action = na.omit)
+summary(rs1)
+
+# coeffeci
+rs1$coefficients
+```
+
+
+Now, let's take the coefficients from the model, and put them into our sigmoid function to generate predicted values:
+```{r plot_logistic, fig.width=5, fig.height=5}
+# plot the data
+plot(jitter(d0$complain, factor=0.5)~d0$Responsible, ylab="P(Complain = 1)", xlab="Feeling of Responsibility", ylim=c(0,1), xlim=c(0,20))
+
+# plot the predicted values using the sigmoid function
+x <- c(0:20)
+b = rs1$coefficients[1] # intercept
+m = rs1$coefficients[2] # slope
+y <- 1 / (1 + exp(-(b + m*x)))
+
+par(new=TRUE) # don't erase what's already on the plot!
+plot(x, y, xlab="", ylab="", pch = 16, ylim=c(0,1), xlim=c(0,20), col='red')
+```
+
+Since the slope (m = `r rs1$coefficients[2]`; i.e., the coefficient for `Responsible`) is negative, the function is flipped from the s-shaped sigmoid shown above. Further, since the slope is small, the drop-off in the function is more gradual.
+
+### Interpreting the output from glm()
+
+

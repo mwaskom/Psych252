@@ -1,14 +1,11 @@
 #HW-3, #L
-sink("rhw3sols.r")
-
-d0 = read.csv('mentillness.csv')
+d0 = read.csv('http://www.stanford.edu/class/psych252/data/mentillness.csv')
 d0.y = d0[d0$mentill==1,]
 d0.n = d0[d0$mentill==0,]
 
 x1 = min(d0$futhrt); x2 = max(d0$futhrt)		#allows plots for different groups on same axes
 y1 = min(d0$guiltcat); y2 = max(d0$guiltcat)
 
-pdf('guiltillnessplots1.pdf')
 par(mfrow=c(2,2))
 
 rs0 = lm(guiltcat ~ futhrt, d0)
@@ -58,12 +55,8 @@ rs5 = glm(mentill ~ guiltcat, d0, family = binomial, na.action = na.omit)
 print(summary(rs5))
 
 #Example of logistic regression: Does guilt influence 'mentill'?
-pdf("hw3logistic.pdf")
 par(mfrow=c(2,2))
 xr = seq(1, 4, .5)		#possible values of Guilt
 yc = predict(rs5, data.frame(guiltcat = xr), type = 'response')	#predicted P(mentill) for given levels of guiltcat
 plot(d0$guiltcat, d0$mentill, type = 'p', main = 'P(mentill) vs guilt', xlab='guilt',ylab='P(Ment-Ill)')
 lines(xr, yc)			#plots predicted curve
-graphics.off()
-
-sink(file=NULL, append=FALSE)

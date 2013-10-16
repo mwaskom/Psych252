@@ -77,9 +77,9 @@ identity and behavior of the robber.
 
 Fields:
 
-* **guilt**: Belief that the defendant is guilty (1 = Definitely Not Guilty, 2 = Probably Not Guilty, 3 = Probably Guilty, or 4 = Definitely Guilty) 
-* **mentill**: Belief that the defendant is mentally ill (1 = Yes or 0 = No)
-* **futhrt**: Belief that the defendant is a future threat to society (scale from 0 (Very Low) to 10 (Very High))
-
+* **guilt**: Self-reported belief that the defendant is guilty (1 = Definitely Not Guilty, 2 = Probably Not Guilty, 3 = Probably Guilty, or 4 = Definitely Guilty) 
+* **mentill**:  Self-reported belief that the defendant is mentally ill (1 = Yes or 0 = No)
+* **futhrt**:  Self-reported belief that the defendant is a future threat to society (scale from 0 [Very Low] to 10 [Very High])
+* **futthcat**:  Self-reported belief that the defendant is a future threat to society (binning together extreme responses [0-2; 3; 4; 5; 6-10])
 
 
