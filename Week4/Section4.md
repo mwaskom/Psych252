@@ -1,4 +1,4 @@
-Section 4
+Psych 252, Section Week 4
 ============
 
 A
@@ -298,28 +298,94 @@ P_Male
 ```
 
 
+Alternately, you could build a table, and take the marginal values:
+
+```r
+eTable = matrix(c(47, 86, 227, 132, 53, 49, 62, 28, 44, 83, 14, 9), byrow = T, 
+    ncol = 3)
+colnames(eTable) = c("0", "1", "Multi")
+rownames(eTable) = c("Males+", "Males-", "Females+", "Females-")
+eTable_margins = addmargins(eTable)
+eTable_margins
+```
+
+```
+##            0   1 Multi Sum
+## Males+    47  86   227 360
+## Males-   132  53    49 234
+## Females+  62  28    44 134
+## Females-  83  14     9 106
+## Sum      324 181   329 834
+```
+
+```r
+
+# Total Males/Total Patients
+pMale = (eTable_margins[1, 4] + eTable_margins[2, 4])/sum(eTable_margins[5, 
+    4])
+pMale
+```
+
+```
+## [1] 0.7122
+```
+
+
 ### E.1.b)
 The probability of testing positive for male patients with angina was 0.61, and the probability of testing positive for female patients with angina was 0.56.
 
 
 ```r
+# Total positive treadmill tests for males/Males
 P_pos_Male <- (47 + 86 + 227)/(47 + 86 + 227 + 132 + 53 + 49)
-# P_pos_Male) = 0.606
+P_pos_Male
+```
 
+```
+## [1] 0.6061
+```
+
+```r
+P_pos_Male <- eTable_margins[1, 4]/(eTable_margins[1, 4] + eTable_margins[2, 
+    4])
+P_pos_Male
+```
+
+```
+## [1] 0.6061
+```
+
+```r
+
+# Total positive treadmill tests for females/Females
 P_pos_Female <- (62 + 28 + 44)/(62 + 28 + 44 + 83 + 14 + 9)
-# P_pos_Female = 0.558
+P_pos_Female
+```
+
+```
+## [1] 0.5583
+```
+
+```r
+P_pos_Female <- eTable_margins[3, 4]/(eTable_margins[3, 4] + eTable_margins[4, 
+    4])
+P_pos_Female
+```
+
+```
+## [1] 0.5583
 ```
 
 
 ### E.1.c)
-While a much higher portion of patients with angina are men than are women, the maximal exercise treadmill test returns a positive result with roughly the same frequency across gender.
+While a much higher portion of patients with angina are men than are women, the maximal exercise treadmill test returns a positive result with roughly the same frequency across gender.....(explain results from above)....look at gender*test chi-squared contingency...
 
 ### E.2) (Code below...)
 After recoding the severity level of disease into a dichotomous variable (healthy/zero vessels and diseased/one or more vessels), I used a chi-square test of independence within each gender group to evaluate how diagnostic the treadmill test is of diseased vessels.  There was a significant relationship between test result and disease for both men, X2(1,N=594) = 124.56, p < 0.001, and for women, X2(1,N=240) = 24.07, p < 0.001.  Patients (of both genders) who test positive were more likely to have coronary artery disease, which shows that the test is diagnostic.  However, for men the link between test outcome and disease severity is stronger than for women, as is shown by a number of different ways of measuring the effect size of the test.  The phi coefficient (which is identical to Cramer's V in this case because there are two levels of the test result) was greater for men (0.46) than for women (0.32).  Pearson's contingency coefficient for men (0.42) was also greater than for women (0.30).  Finally, the Yule's Q statistic for men (0.79) was greater than for women (0.61).  All these measurements of effect size show that the exercise treadmill test is more effective as a diagnostic test of coronary artery disease for men than for women.
 
 
 ```r
-### E.1 ##
+# alternate way to do E.1
 coronarytable = matrix(c(47, 86, 227, 132, 53, 49, 62, 28, 44, 83, 14, 9), byrow = T, 
     ncol = 3)
 ### E.1.a ##
@@ -327,6 +393,11 @@ p.male = sum(coronarytable[1:2, ])/sum(coronarytable)
 ### E.1.b ##
 p.pos.ifmale = sum(coronarytable[1, ])/sum(coronarytable[1:2, ])
 p.pos.iffemale = sum(coronarytable[3, ])/sum(coronarytable[3:4, ])
+```
+
+
+
+```r
 ### E.2 ##
 maletable = as.table(cbind(coronarytable[1:2, 1], coronarytable[1:2, 2] + coronarytable[1:2, 
     3]))
