@@ -58,19 +58,16 @@ Now, we might be interested in whether or not a participant's **self-reported fe
 First, let's take a look at the data in a few different ways:
 
 ```r
+par(mfrow = c(1, 2))
 plot(factor(d0$complain), d0$Responsible, xlab = ("Considered Complaining (0=NO, 1=YES)"), 
     ylab = "Feeling of Responsibility")
-```
-
-![plot of chunk plot_complainXresponsible](figure/plot_complainXresponsible1.png) 
-
-```r
+title(main = "Visualization of the Data")
 
 plot(jitter(d0$complain, factor = 0.5) ~ d0$Responsible, ylab = "Considered Complaining (0=NO, 1=YES)", 
     xlab = "Feeling of Responsibility")
 ```
 
-![plot of chunk plot_complainXresponsible](figure/plot_complainXresponsible2.png) 
+![plot of chunk plot_complainXresponsible](figure/plot_complainXresponsible.png) 
 
 
 Based on these plots, it looks like participants who felt more responsible about missing a plane or a train considered complaining less than participants
@@ -92,6 +89,7 @@ plot(jitter(d0$complain, factor = 0.5) ~ d0$Responsible, ylab = "P(Complain = 1)
     xlab = "Feeling of Responsibility", xlim = c(0, 30))
 
 abline(lm(d0$complain ~ d0$Responsible), col = "red")
+title(main = "Data & Predicted Values from \nLinear Regression Model")
 ```
 
 ![plot of chunk plot_linear](figure/plot_linear.png) 
@@ -105,14 +103,14 @@ abline(lm(d0$complain ~ d0$Responsible), col = "red")
 
 
 ### Sigmoid (logistic) function
-Since a straight line won't fit our data well, we instead will use an S-shaped, **sigmoid** function. This function ensures that our output values will fall between 0 and 1, for any value of `x`. Further, please note that this function outputs the *probability* that y=1.
+Since a straight line won't fit our data well, we instead will use an S-shaped, **sigmoid** function. This function ensures that our output values will fall between 0 and 1, for any value of `x`. Further, please note that this function outputs the *probability* that `y` = 1.
 
 The sigmoid (or "logistic") function is given by the equation:  
 _______
-<div class=largefont> $P(y=1) = \frac{e^{(b + mx)}}{1+e^{(b + mx)}}$ </div>
+$$P(y=1) = \frac{e^{(b + mx)}}{1+e^{(b + mx)}}$$
 _______
 
-That is, the probability of a person complaining (`complain` = 1) is a function of x, *e* (the base of the natural logarithm, ~ 2.718), and the coefficients from the generalized linear model (*b* = intercept, *m* = coefficient for `Responsible`).
+That is, the probability of a person complaining (`complain` = 1) is a function of `x`, *e* (the base of the natural logarithm, $\approx$ 2.718), and the coefficients from the generalized linear model (`b` = intercept, `m` = coefficient for `Responsible`).
 
 Here's an example of the sigmoid function plotted:
 
@@ -122,6 +120,7 @@ b = 0  # intercept
 m = 1  # slope
 y <- exp((b + m * x))/(1 + exp((b + m * x)))
 plot(x, y, xlab = "X", ylab = "P(Y=1)")
+title(main = "Sigmoid (Logistic) Function")
 ```
 
 ![plot of chunk plot_sigmoid](figure/plot_sigmoid.png) 
@@ -130,6 +129,10 @@ plot(x, y, xlab = "X", ylab = "P(Y=1)")
 In general, changing the **intercept** (`b`) shifts the sigmoid along the x-axis; positive intercepts result in a sigmoid to the *right* of x=0, and negative intercepts result in a sigmoid to the *left* of x=0. Changing the **slope** (`m`) changes both the *direction* and the *steepness* of the function. That is, positive slopes result in an "s"-shaped curve, and negative slopes result in a "z"-shaped curve. In addition, larger absolute values of slope result in a steeper function, and smaller absolute values result in a more gradual slope.
 
 If you want to explore how varying the slope and intercept change the shape of the sigmoid function, try changing the coefficients in the .Rmd file, or check out the app [here](http://spark.rstudio.com/supsych/logistic_regression/)).
+
+Before, we mentioned that the sigmoid (logistic) function outputs the *probability* that `y` = 1. This is is because the *logistic* regression is essentially *linear* regression on the **logit transform** of our original `y`. Solving our sigmoid function above for `b + mx` = $\hat{y}$, we find that $\hat{y}$ is the **logit**, sometimes referred to as **log odds**.
+
+$$logit(y) = \hat{y} = b + mx= log(\frac{p}{1-p}) = \frac{P(Y=1)}{P(Y=0)}$$
 
 
 ### Running a general linear model w/ glm()
@@ -168,8 +171,7 @@ summary(rs1)
 ```
 
 ```r
-
-# coeffeci
+# show coeffecients
 rs1$coefficients
 ```
 
@@ -179,8 +181,7 @@ rs1$coefficients
 ```
 
 
-
-Now, let's take the coefficients from the model, and put them into our sigmoid function to generate predicted values:
+Now, let's take the coefficients from the model, and put them into our sigmoid function to **generate predicted values**:
 
 ```r
 # plot the data
@@ -196,6 +197,7 @@ y <- exp((b + m * x))/(1 + exp((b + m * x)))
 par(new = TRUE)  # don't erase what's already on the plot!
 plot(x, y, xlab = "", ylab = "", pch = 16, ylim = c(0, 1), xlim = c(0, 20), 
     col = "red")
+title(main = "Data & Predicted Values from \nLogistic Regression Model")
 ```
 
 ![plot of chunk plot_logistic](figure/plot_logistic.png) 
@@ -203,9 +205,10 @@ plot(x, y, xlab = "", ylab = "", pch = 16, ylim = c(0, 1), xlim = c(0, 20),
 
 Since the slope (m = -0.1428; i.e., the coefficient for `Responsible`) is negative, the function is flipped from the s-shaped sigmoid shown above. Further, since the slope is small, the drop-off in the function is more gradual.
 
+
 ### Interpreting the output from glm()
 Before we noted that the logistic/sigmoid function outputs the **probability** that `y` = 1 for a given value of `x`. In this example, P(`complain` = 1) -- the probability that someone considered complaining -- if they had a self-reported feeling of responsibility = 5 would be equal to:
-<div class=largefont> $P(y=1) = \frac{e^{(1.4866 + -0.1428 * 5)}}{1+e^{(1.4866 + -0.1428 * 5)}}$ </div>
+$$P(y=1) = \frac{e^{(1.4866 + -0.1428 * 5)}}{1+e^{(1.4866 + -0.1428 * 5)}}$$
 
 Which would equal:
 
@@ -229,8 +232,55 @@ Thus, based on our logistic regression model, the probability that a person with
 ### Log odds
 We can also extract the **log odds** from our `glm()` output. In our example, log odds essentially capture the ratio of (being a "complainer"):(not being a "complainer"). In logistic regression, the dependent variable ($\hat{y}$, or `b + mx`) is referred to as the **logit**, which is the natural log of the odds.
 
-By rearranging the logistic function, we get the equation for the logit:
-<div class=largefont> $\hat{y} = b + mx= log(\frac{p}{1-p})$ </div>
+As noted above, by rearranging the logistic function, we get the equation for the logit:
+$$\hat{y} = b + mx= log(\frac{p}{1-p})$$
 
-As a result, the coefficient of "Responsible" can be interpreted as **"for every one unit increase in self-reported responsibility, the odds of complaining increase by $e^{(-0.1428)}$ = 0.8669 times."**
+Since the predicted variable here is log odds, the coefficient of "Responsible" can be interpreted as **"for every one unit increase in self-reported responsibility, the odds of complaining increase by $e^{(-0.1428)}$ = 0.8669 times."**
+
+
+### Some more ways to vizualize logistic regression data/results
+
+```r
+# plot the data
+plot(jitter(d0$complain, factor = 0.5) ~ d0$Responsible, ylab = "P(Complain = 1)", 
+    xlab = "Feeling of Responsibility", ylim = c(0, 1), xlim = c(0, 20))
+
+# draw a curve based on prediction from logistic regression model
+Responsible = d0$Responsible
+curve(predict(rs1, data.frame(Responsible = x), type = "resp"), add = TRUE)
+
+points(d0$Responsible, fitted(rs1), pch = 20, col = "red")
+```
+
+![plot of chunk plot_logistic_2](figure/plot_logistic_2.png) 
+
+
+
+```r
+install.packages("popbio")
+```
+
+```
+## Installing package into
+## '/Applications/RStudio.app/Contents/Resources/R/library' (as 'lib' is
+## unspecified)
+```
+
+```
+## Error: trying to use CRAN without setting a mirror
+```
+
+```r
+library(popbio)
+```
+
+```
+## Loading required package: quadprog
+```
+
+```r
+logi.hist.plot(d0$Responsible, d0$complain, boxp = FALSE, type = "hist", col = "gray")
+```
+
+![plot of chunk plot_logistic_3](figure/plot_logistic_3.png) 
 

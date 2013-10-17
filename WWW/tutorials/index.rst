@@ -24,5 +24,8 @@ functions in R, manipulating dataframes, plotting, and a brief intro to general 
 Logistic Regression
 ---------------------------
 
+This tutorial provides an introduction to logistic regression. Using an example dataset from class, 
+we walk through a glm() analysis, and discuss the interpretation of results in terms of the data.
+
 `Link to logistic regression tutorial <http://stanford.edu/~sgagnon/Site/Psych252/Tutorial_LogisticRegression>`_
 
