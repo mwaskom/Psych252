@@ -29,3 +29,12 @@ we walk through a glm() analysis, and discuss the interpretation of results in t
 
 `Link to logistic regression tutorial <http://stanford.edu/~sgagnon/Site/Psych252/Tutorial_LogisticRegression>`_
 
+
+Math behind Chi Square tests
+---------------------------
+
+This PDF provides the math to run chi-square tests by hand. It includes both a one-way classification (i.e., a goodness-of-fit test)
+and 2 way classification (i.e., a contingency test, or test of independence).
+
+`Link to pdf <http://stanford.edu/~sgagnon/Site/Psych252/ChiSquared_math.pdf>`_
+
