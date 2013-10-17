@@ -223,5 +223,9 @@ as.numeric(y)
 
 Thus, based on our logistic regression model, the probability that a person with a self-reported responsibility = 5 would have a 68.4087% probability of complaining.
 
-We can also extract the **log odds** 
+
+### Log odds
+We can also extract the **log odds** from our `glm()` output. In our example, log odds essentially capture the ratio of (being a "complainer"):(not being a "complainer"). In logistic regression, the dependent variable is referred to as the **logit**, which is the natural log of the odds.
+
+<div class=largefont> $\hat{y} = b + mx= log(\frac{p}{1-p})$ </div>
 
