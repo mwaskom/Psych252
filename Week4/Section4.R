@@ -150,7 +150,11 @@ yc = predict(rs1, data.frame(Responsible = xr), type = 'response')
 plot(d0$Responsible, d0$complain, type = 'p', main = 'P(Complain) vs Responsible', xlab='Responsible',ylab='P(Complain)')
 lines(xr, yc)  		# plots predicted curve
 
-# We could interpret the intercept in the usual way but realizing that it reflects the probability at 0, instead of a predicted value of the dependent variable. For example, we see that the probability at 0 is  ~.8, so:
+# We could interpret the intercept in the usual way but 
+# realizing that it reflects the probability at 0, instead 
+# of a predicted value of the dependent variable. For example, 
+# we see that the probability at 0 is  ~.8, so:
+
 yc[1] # is .82 or ~.8, 
 
 # The slope gives the steepness with which we transition between low and high probabilities. 
@@ -167,9 +171,16 @@ lines(xr, (1+exp(-1*(2+coef(rs1)[2]*xr)))^-1) # we see that p(0 | a=2) > p(0 | a
 
 lines(xr, (1+exp(-1*(coef(rs1)[1]-1*xr)))^-1) # we expect the probability of complaining to decrease faster for a stronger negative relationship.
 
-# We can always provide an account of the results by directly reading the predicted probability at a point of interest. For example, the probability of complaining at an average level of responsibility (10) is .5. Also, we are never fully certain that someone will complain, given the range of responsibility observed. 
+# We can always provide an account of the results by directly 
+#reading the predicted probability at a point of interest. 
+# For example, the probability of complaining at an average 
+# level of responsibility (10) is .5. Also, we are never fully 
+# certain that someone will complain, given the range of 
+# responsibility observed. 
 
-# Alternatively, we could provide an account of the results in terms of likelyhood ratios, as Bennoit discussed in class (slide 23 on 11ho5 in week 4 materials).
+# Alternatively, we could provide an account of the results in 
+# terms of likelyhood ratios, as Bennoit discussed in class 
+# (slide 23 on 11ho5 in week 4 materials).
 
 
 

@@ -1,12 +1,22 @@
 ####  Know this for Next Quiz ###
-Calculate P(1 < \chi_3^2 < 6.25)
+Calculate P(1 < $\chi^{2}$ < 6.25)
 
-p1 = pchisq(6.25, df = 3, lower.tail=F)
-p2 = pchisq(1, df = 3, lower.tail = T)
+# Visualize
+hist(rchisq(n=500, df = 3))
+abline(v=c(6.25,1), col='red', lty=2)
+
+p1 = pchisq(6.25, df = 3, lower.tail=F); p1
+p2 = pchisq(1, df = 3, lower.tail = T); p2
 1-p2-p1
 
+# alternately...
+p1 = pchisq(6.25, df = 3, lower.tail=T); p1
+p2 = pchisq(1, df = 3, lower.tail=T); p1
+p1-p2
 
-##### Let's go over what lm() does with categorical and continuous variables ####
+
+##### Let's go over what lm() does with categorical 
+# and continuous variables ####
 d = read.csv('http://www.stanford.edu/class/psych252/data/hw2data.csv')
 
 d.lm1 <- lm(Futurehapp~Responsible, d, na.action=na.omit)
@@ -27,7 +37,7 @@ plot(d$Futurehapp ~ d$Responsible)
 
 # add our fit line
 ?abline
-abline(d.lm1, col= 'red')  # pass in whole object
+abline(d.lm1, col= 'red', lty=3, lwd=3)  # pass in whole object
 
 # We can do it with coefficients as well
 d.lm1$coefficients
@@ -58,6 +68,9 @@ abline(d.lm2$coefficients[1],d.lm2$coefficients[2], col= 'blue')  # pass in coef
 # Can calculate at any point on the line 
 points(1, d.lm2$coefficients[1] + (1* d.lm2$coefficients[2]), col='green')
 
+# plotting w/ggplot
+require(ggplot2)
+ggplot(d, aes(x=Type, y=Futurehapp, fill=Type)) + geom_boxplot()
 
 
 ##  Let's talk about reporting in general ##

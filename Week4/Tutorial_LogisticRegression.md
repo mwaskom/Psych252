@@ -238,7 +238,10 @@ $$\hat{y} = b + mx= log(\frac{p}{1-p})$$
 Since the predicted variable here is log odds, the coefficient of "Responsible" can be interpreted as **"for every one unit increase in self-reported responsibility, the odds of complaining increase by $e^{(-0.1428)}$ = 0.8669 times."**
 
 
-### Some more ways to vizualize logistic regression data/results
+
+
+Some more ways to vizualize logistic regression data/results
+------------------------------------------------------------
 
 ```r
 # plot the data
