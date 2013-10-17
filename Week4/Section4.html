@@ -196,16 +196,16 @@ SP &lt;- 55.2
 </code></pre>
 
 <p>First, let&#39;s start out with some equations:
-\[ Sum of Squares: SS = \sum\limits_{i=1}^n (x_i - \bar{x})^2 = 
+\[ \textrm{Sum of Squares: } SS = \sum\limits_{i=1}^n (x_i - \bar{x})^2 = 
 \sum\limits_{i=1}^n (x_i)^2 - \frac{(\sum\limits_{i=1}^n x_i)^2}{n}, df = n-1 \]
-\[ Sum of Products: SP = \sum\limits_{i=1}^n (x_i - \bar{x})(y_i - \bar{y}) \]
-\[ Covariance:cov(x,y) = \frac{SP}{n-1} \]
-\[ Correlation (\rho): r(x,y) = \frac{SP}{\sqrt{SS_x * SS_y}} = \frac{cov(x,y)}{\sigma_x \sigma_y} \]
-\[ Linear function: \hat{Y} = a * bX, a=intercept, b=slope \]
-\[ Slope of regression: b = \frac{SP}{SS_x} =  \frac{cov(x,y)}{s^2_x} \]
-\[ Intercept of regression: a = \hat{y} - b * \hat{x} \]
-\[ Statistic of regression: t = r * \sqrt{\frac{n-2}{1-r^2}} \]
-\[ Standard error of prediction: stErr_\hat{y} = \sqrt{\frac{SS_y}{(n-2)}*(1-r^2)} \]</p>
+\[ \textrm{Sum of Products: } SP = \sum\limits_{i=1}^n (x_i - \bar{x})(y_i - \bar{y}) \]
+\[ \textrm{Covariance: } cov(x,y) = \frac{SP}{n-1} \]
+\[ \textrm{Correlation }(\rho): r(x,y) = \frac{SP}{\sqrt{SS_x * SS_y}} = \frac{cov(x,y)}{\sigma_x \sigma_y} \]
+\[ \textrm{Linear function: }\hat{Y} = a * bX, a=intercept, b=slope \]
+\[ \textrm{Slope of regression: }b = \frac{SP}{SS_x} =  \frac{cov(x,y)}{s^2_x} \]
+\[ \textrm{Intercept of regression: }a = \hat{y} - b * \hat{x} \]
+\[ \textrm{Statistic of regression: }t = r * \sqrt{\frac{n-2}{1-r^2}} \]
+\[ \textrm{Standard error of prediction: }stErr_\hat{y} = \sqrt{\frac{SS_y}{(n-2)}*(1-r^2)} \]</p>
 
 <h3>Aa) Correlation between D and E, r_DE. Test r_DE.</h3>
 
