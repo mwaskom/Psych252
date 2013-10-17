@@ -132,4 +132,3 @@ By rearranging the logistic function, we get the equation for the logit:
 
 As a result, the coefficient of "Responsible" can be interpreted as **"for every one unit increase in self-reported responsibility the odds of complaining increase by $e^{(`r m`)}$ = `r exp(m)` times."**
 
-Further, results from the generalized linear model indicate that this effect of `Responsibile` on `complain` is significant, z = 
