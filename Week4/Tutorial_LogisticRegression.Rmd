@@ -55,11 +55,11 @@ abline(lm(d0$complain~d0$Responsible), col='red')
 
 
 ### Sigmoid (logistic) function
-Since a straight line won't fit our data well, we instead will use an S-shaped, **sigmoid** function. This function ensures that our output `y` values will fall between 0 and 1, for any value of `x`.
+Since a straight line won't fit our data well, we instead will use an S-shaped, **sigmoid** function. This function ensures that our output values will fall between 0 and 1, for any value of `x`. Further, please note that this function outputs the *probability* that y=1.
 
 The sigmoid (or "logistic") function is given by the equation:  
 _______
-<div class=largefont> $P(y=1) = \frac{1}{1+e^{-(b + mx)}}$ </div>
+<div class=largefont> $P(y=1) = \frac{e^{(b + mx)}}{1+e^{(b + mx)}}$ </div>
 _______
 
 That is, the probability of a person complaining (`complain` = 1) is a function of x, *e* (the base of the natural logarithm, ~ 2.718), and the coefficients from the generalized linear model (*b* = intercept, *m* = coefficient for `Responsible`).
@@ -69,7 +69,7 @@ Here's an example of the sigmoid function plotted:
 x <- c(-10:10)
 b = 0 # intercept
 m = 1 # slope
-y <- 1 / (1 + exp(-(b + m*x)))
+y <- exp((b + m*x)) / (1 + exp((b + m*x)))
 plot(x, y, xlab="X", ylab="P(Y=1)")
 ```
 
@@ -99,7 +99,7 @@ plot(jitter(d0$complain, factor=0.5)~d0$Responsible, ylab="P(Complain = 1)", xla
 x <- c(0:20)
 b = rs1$coefficients[1] # intercept
 m = rs1$coefficients[2] # slope
-y <- 1 / (1 + exp(-(b + m*x)))
+y <- exp((b + m*x)) / (1 + exp((b + m*x)))
 
 par(new=TRUE) # don't erase what's already on the plot!
 plot(x, y, xlab="", ylab="", pch = 16, ylim=c(0,1), xlim=c(0,20), col='red')
@@ -108,5 +108,20 @@ plot(x, y, xlab="", ylab="", pch = 16, ylim=c(0,1), xlim=c(0,20), col='red')
 Since the slope (m = `r rs1$coefficients[2]`; i.e., the coefficient for `Responsible`) is negative, the function is flipped from the s-shaped sigmoid shown above. Further, since the slope is small, the drop-off in the function is more gradual.
 
 ### Interpreting the output from glm()
+Before we noted that the logistic/sigmoid function outputs the **probability** that `y` = 1 for a given value of `x`. In this example, P(`complain` = 1) -- the probability that someone considered complaining -- if they had a self-reported feeling of responsibility = 5 would be equal to:
+<div class=largefont> $P(y=1) = \frac{e^{(`r b` + `r m` * 5)}}{1+e^{(`r b` + `r m` * 5)}}$ </div>
 
+Which would equal:
+```{r calc_pCOMPLAIN_x=5, fig.width=5, fig.height=5}
+x = 5
+b = rs1$coefficients[1] # intercept
+m = rs1$coefficients[2] # slope
+y <- exp((b + m*x)) / (1 + exp((b + m*x)))
+
+as.numeric(y)
+```
+
+Thus, based on our logistic regression model, the probability that a person with a self-reported responsibility = 5 would have a `r y*100`% probability of complaining.
+
+We can also extract the **log odds** 
 
