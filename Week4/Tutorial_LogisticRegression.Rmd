@@ -3,10 +3,12 @@
 Logistic Regression Tutorial
 ========================================================
 
+We use **logistic regression** to predict the probability of a *categorical* dependent variable (with 2 values, usually 0 and 1), with some other *continuous* independent variable(s). That is, the logistic regression model predicts P(Y=1) as a function of X. 
+
+
 Look at the data
 -----------------
-
-To get started, let's load in a dataset (info about the variables can be found [here](http://stanford.edu/class/psych252/):
+To get started, let's load in a dataset (info about the variables can be found [here](http://stanford.edu/class/psych252/data/)):
 
 ```{r load_data}
 d0 = read.csv("http://www.stanford.edu/class/psych252/data/hw2data.csv")
