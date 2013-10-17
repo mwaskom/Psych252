@@ -225,7 +225,10 @@ Thus, based on our logistic regression model, the probability that a person with
 
 
 ### Log odds
-We can also extract the **log odds** from our `glm()` output. In our example, log odds essentially capture the ratio of (being a "complainer"):(not being a "complainer"). In logistic regression, the dependent variable is referred to as the **logit**, which is the natural log of the odds.
+We can also extract the **log odds** from our `glm()` output. In our example, log odds essentially capture the ratio of (being a "complainer"):(not being a "complainer"). In logistic regression, the dependent variable ($\hat{y}$, or `b + mx`) is referred to as the **logit**, which is the natural log of the odds.
 
+By rearranging the logistic function, we get the equation for the logit:
 <div class=largefont> $\hat{y} = b + mx= log(\frac{p}{1-p})$ </div>
+
+As a result, the coefficient of "Responsible" can be interpreted as "for every one unit increase in self-reported responsibility the odds of complaining increase by $e^{(-0.1428)}$ = 0.8669 times."
 
