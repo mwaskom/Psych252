@@ -230,5 +230,5 @@ We can also extract the **log odds** from our `glm()` output. In our example, lo
 By rearranging the logistic function, we get the equation for the logit:
 <div class=largefont> $\hat{y} = b + mx= log(\frac{p}{1-p})$ </div>
 
-As a result, the coefficient of "Responsible" can be interpreted as "for every one unit increase in self-reported responsibility the odds of complaining increase by $e^{(-0.1428)}$ = 0.8669 times."
+As a result, the coefficient of "Responsible" can be interpreted as **"for every one unit increase in self-reported responsibility the odds of complaining increase by $e^{(-0.1428)}$ = 0.8669 times."**
 
