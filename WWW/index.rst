@@ -25,4 +25,5 @@ Contents
    data/index.rst
    apps/index.rst
    tutorials/index.rst
+   section/index.rst
 
