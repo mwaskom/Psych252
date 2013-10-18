@@ -1,0 +1,254 @@
+Coin flipping, probability, and logistic regression
+===================================================
+
+In this notebook, I'll try to connect some of the ideas from class about random variables and probability to statistical models and tests in the context of a simple, concrete example.
+
+The coin machine
+----------------
+
+Say I tell you that I have a machine sitting on my desk that will mint a coin every time I pull a lever on the side of it.
+
+We might have a number of questions about this coin. Here's a basic one: is it a fair coin? Could I use it to determine, for instance, who gets to kick off in the football game this weekend?
+
+What do we mean by this, colloqiually?
+
+I think we could agree that we'd call a coin fair if we can expect it, over the long run, to turn up heads exactly half of the time we toss it.
+
+But, we can't toss the coin an infinitely large number of times. We want to be able to use the tools of probability and statistics to generalize from a relatively small number of tosses (our **sample**) to the behavior of the coin in the long run (the **population**).
+
+Say we tossed our coin 20 times. Even if we were certain we had a fair coin (say we just got it from a government mint, instead of the machine sitting on my desk), we wouldn't expect to get *exactly* 20 head. We wouldn't be surprised if we got 9 heads, or 12. This deviation from the long-run behavior is the **sampling error**, and it's what we need to use the tools of probability and statistics to account for.
+
+Binomial random variables
+-------------------------
+
+To inject a little formality, let's say we have a coin that we are going to toss $n$ times, and that we are going to count the number of heads we see on those tosses. The number of heads, which we'll call $X$, is a random variable. To be extra-formal, we should define $X$ as the sum of a set of random variables called $X_i$, one for each toss, that take the value $1$ when that toss resulted in heads in $0$ when it resulted in tails. So,
+
+$$X = \sum_{i=1}^NX_i$$
+
+Our random varible, $X$, is going to depend not just on the number of tosses but also on the *bias* of the coin. The bias is a product of the physical properties of the coin, but you can also think of it as the proportion of heads you would get in the long run, when you've tossed the coin an infinite number of times. We'll call the bias $p$. 
+
+A random variable of the sort we are describing is called a [binomial random variable](http://en.wikipedia.org/wiki/Binomial_distribution), which we state formally as:
+
+$$X \sim \textrm{Binomial}(n,~p)$$
+
+Recall if we repeatedly make $n$ tosses of a coin with bias $p$, we'll get a different $X$ each time because of random sampling error (that's why it's a random variable). However, because $X$ is binomially distributed, we know what range of $X$ we'll get, and how likely each particular value of $X$ is.
+
+The function that tells us this information is called the **probability mass function (PMF)**, becuase $X$ is a **discrete** variable, as it can only take integer values. If $X$ were a continuous random variable, we would be talking about the **probability density function (PDF)**.
+
+The binomial PMF, to be specific, tells us the probability of obtaining $k$ heads in $n$ flips when the coin has a bias of $p$, and is defined as
+
+$$f(k;~n,~p) = P(X~=~k) = \binom{n}{k}p^k(1-p)^{n-k}$$
+
+The `R` function to evaluate this function is called `dbinom()` (`d` for density -- R doesn't require you to think about whether a distribution is discrete or continuous). The help for binomial functions (`?dbinom`) tells us: 
+
+```
+Usage
+-----
+  
+dbinom(x, size, prob, log = FALSE)
+
+Arguments
+---------
+
+x, q:   vector of quantiles.
+p:	    vector of probabilities.
+n:	    number of observations. If length(n) > 1, the length is taken to be the number required.
+size:   number of trials (zero or more).
+prob:   probability of success on each trial.
+
+```
+
+To translate from the notation we're using here to what `R` calls things, `x` is $k$, `size` is `n`, and `prob` is $p$.
+
+The probability mass function of $X$ looks like this for different values of $n$ and $p$:
+
+
+```r
+k <- 1:20
+plot(k, dbinom(k, 20, 0.5), main = "PMFs of different binomial random variables", 
+    bty = "n", cex = 2, pch = 16, col = "#7FC97F", ylab = "P(k)", xlim = c(0, 
+        20), ylim = c(0, 0.3))
+points(k, dbinom(k, 20, 0.8), cex = 2, pch = 16, col = "#BEAED4")
+points(k, dbinom(k, 10, 0.5), cex = 2, pch = 16, col = "#FDC086")
+legend(3.8, 0.33, c("n = 20, p = .5", "n = 20, p = .8", "n = 10, p = .5"), col = c("#7FC97F", 
+    "#BEAED4", "#FDC086"), pch = 16, box.lwd = 0, horiz = TRUE)
+```
+
+![plot of chunk binom_pmf](figure/binom_pmf.png) 
+
+
+We are also frequently interested in the **cumulative distribution function**, or **CDF** for a random variable, which in this case we would get from `pbinom()`, which has a similar usage:
+
+```
+pbinom(q, size, prob, lower.tail = TRUE, log.p = FALSE)
+```
+
+The CDF is just a cumulative sum of the PMF, so it tells you for a given value of $X$ how likely it would be to have seen a value of that size or smaller (by default -- you can use the `lower.tail` argument to get the probability of a more extreme value).
+
+
+```r
+k <- 1:20
+plot(k, pbinom(k, 20, 0.5), main = "CDFs of different binomial random variables", 
+    bty = "n", cex = 2, pch = 16, col = "#7FC97F", ylab = "P(k)", xlim = c(0, 
+        20), ylim = c(0, 1))
+points(k, pbinom(k, 20, 0.8), cex = 2, pch = 16, col = "#BEAED4")
+points(k, pbinom(k, 10, 0.5), cex = 2, pch = 16, col = "#FDC086")
+```
+
+![plot of chunk binom_cdf](figure/binom_cdf.png) 
+
+
+Do we have a fair coin?
+-----------------------
+
+Let's return to the first question we have about our coin. By asking if our coin is "fair", what we really mean is "does $p = 0.5$?" You should have some intution at this point that we could call this a null hypothesis for the value of $p$: $H_0 = 0.5$. To test this null hypothesis we can collect some data and then, using the properties of the binomial distribution, ask how surprising the number of heads we saw would be if $p$ really did equal $0.5$. To do that, we would use the $pbinom()$ function. Let's say we tossed the coin 20 times and saw 15 heads. We want to know the probablity of seeing 15 or more heads on 20 tosses of a fair coin:
+
+
+```r
+p <- pbinom(q=15 - 1,  # We want P(X >= x), not P(X > x)
+            size=20,
+            prob=0.5,
+            lower.tail=FALSE)
+```
+
+
+This shows us that the probability of obtaining 15 or more heads on 20 tosses of a fair coin is 0.021. This is is the **p value** for the test we our performing. It is the probability of getting a value as or more extreme than our data if the null hypothesis is true (or, formally, $P(X\ge k~|~H_0)$.
+
+You might note that we would also be suspicious of our coin if it only turned up 2 heads in our example, but the way we evaluated the CDF would have returned a large *p* value. We want to perform a **two-tailed test**, unless we had a strong suspicion that the coin was, in fact, biased towards heads. Formally, we want $P(X\ge |x|~|~H_0)$. In this case, because the distribution under $H_0$ is symettric, we can just mutiply our *p* value by 2:
+
+
+```r
+p <- 2 * pbinom(15 - 1, 20, 0.5, FALSE)
+```
+
+
+Leaving us with a *p* of 0.041. Because this is less than 0.05, our traditional cutoff, we can say that we have a "significant" result. Or, to put our conclusion another way, it would have been so unlikely to see 15 heads if our coin were fair, that (because we had no beliefs about whether or not it was fair before we saw these 20 flips), we conclude that it must not be.
+
+It should be relatively easy to follow the math and logic here, but even though this test is quite simple, there is a function in `R` to do it for you called `binom.test()`.
+
+
+```r
+res <- binom.test(15, 20, 0.5)
+print(res)
+```
+
+```
+## 
+## 	Exact binomial test
+## 
+## data:  15 and 20
+## number of successes = 15, number of trials = 20, p-value = 0.04139
+## alternative hypothesis: true probability of success is not equal to 0.5
+## 95 percent confidence interval:
+##  0.5090 0.9134
+## sample estimates:
+## probability of success 
+##                   0.75
+```
+
+
+We see that we get exactly the same p value from this test as we did from doing the math "by hand". Hopefully, you're beginning to see the generalization to how this is frequently the case: a statistical test, and the function in `R` that performs it, is usually just a quick way of 1) obtaining a test statistic and 2) evaluating that statistic against its theoretical distribution under the null hypothesis.
+
+What is the bias on my coin?
+----------------------------
+
+Another question you might have about a coin produced from this machine is what the bias on it is. If you could throw the coin an infinite amount of times, the proportion of heads would be the bias (after all, that is how we defined it). But lacking that, what should we do?
+
+A reasonable way to estimate the bias would be to take the proportion of heads in a particular sample, which we'll call $\hat p$. You should have the intuition that if you only toss the coin a few times, the proportion of heads might not be a particularly good estimate of the bias. On the other hand, if you took all afternoon and tossed the coin thousands of times, your estimate would be much better. This is the the familiar issue of **sampling variability**, which we approach with the **standard error**, which is directly related to **confidence intervals**. It turns out that one way to get the standard error for $\hat p$ is related to the way we calculate the standard error for normally distributed variables, which is justified by the central limit theorem (note how we defined $X$ as a sum of random variables above): $$\hat{p} \pm z\sqrt{\frac{\hat{p}(1 - \hat{p})}{n}}$$. We can use that to find the confidence interval for $\hat p$ given our data from above.
+
+
+```r
+n <- 20
+k <- 15
+p.hat <- k/n
+se <- sqrt(p.hat * (1 - p.hat)/n)
+z <- qnorm(0.975)
+ci <- c(p.hat - se * z, p.hat + se * z)
+names(ci) <- c("2.5%", "97.5%")
+print(sprintf("phat = %.2f", p.hat))
+```
+
+```
+## [1] "phat = 0.75"
+```
+
+```r
+print(ci)
+```
+
+```
+##   2.5%  97.5% 
+## 0.5602 0.9398
+```
+
+
+(You might have noticed that `binom.test()` gives a different confidence interval. There is not one agreed-upon method, and that function uses a different, more conservative approach).
+
+We see that the confidence interval does not include 0.5, which tells us the same information as the *p* value from the binomial test -- namely that we can reject the $H_0$ that $p = 0.5$ at $\alpha = 0.05$. This statement about the confidence interval doesn't tell us anything *new* about $H_0$, it's just another way of stating the same thing.
+
+However, the confidence interval does tell us a bit more than the *p* value. You might get a small *p* value because you have a very biased coin that you flipped a few times. You might also get a small *p* value if you had a coin that was only slightly biased but you flipped many, many times to get a precise estimate of the bias. Usually in science the first case is more interesting (it's a "big effect"), so it's useful to know the precision of our effect.
+
+Let's see how the number of flips influences the confidence interval around $\hat p$ for the same proportion of heads in a much larger sample:
+
+
+```r
+n <- 200
+k <- 150
+p.hat <- k/n
+se <- sqrt(p.hat * (1 - p.hat)/n)
+z <- qnorm(0.975)
+ci <- c(p.hat - se * z, p.hat + se * z)
+names(ci) <- c("2.5%", "97.5%")
+print(sprintf("phat = %.2f", p.hat))
+```
+
+```
+## [1] "phat = 0.75"
+```
+
+```r
+print(ci)
+```
+
+```
+##  2.5% 97.5% 
+##  0.69  0.81
+```
+
+
+How many heads will I get?
+---------------------------
+
+If you have one coin that you have estimated $\hat p$ for, you should be able to easily calculate the number of heads you would get for a given number of flips, $\bar{X}$, which we can do with $n\hat{p}$. The formula for the standard deviaion of the binomial distribution, $\sqrt{np(1 - p)}$ tells you what a reasonable number of flips you might reasonable expect to miss this number by.
+
+Let's complicate things by minting a bunch of coins from this machine with two different known biases: $p_1 = 0.3$ and $p_2 = 0.8$. We'll make 250 coins with a bias $p_1$ and 750 coins with a bias $p_2$, and then dump them into a big bucket.
+
+Here's a question you could ask yourself. If you were to grab a random coin from the bucket and flip it 100 times, what is your best estimate of the number of heads you would get?
+
+To estimate $\bar{X}$ in this scenario, you need to think about how likely you would be to draw each of the two kinds of coins, and then how likely each of those coins is to turn up heads on each toss: 
+$$
+\begin{align}
+p &= p_1P(p = p_1) + p_2P(p = p_2) \\
+  &= .8 \times .25 + .3 \times .75 \\
+\bar{X} &= np = 100 \times .675 = 67.5 \\
+\textrm{Var}(X) &= np(1-p) = 100 \times .675 \times .325 = 21.9
+\end{align} \\
+$$
+
+What influences the bias on the coins?
+--------------------------------------
+
+Let's expand our example scenario a bit further. Say this machine on my desk has a dial on the side of it. You might be curious whether the dial has any influence on the bias of the coins that the machine can produce.
+
+Here's a good way to test this:
+
+- Set the dial to a range of positions
+- At each position, mint a coin, flip it, and record whether it was heads
+
+You're left with two sets of data: one that is a range of continuous values, and the other that is a set of 0s and 1s. You're now perfectly set up to perform a logistic regression.
+
+If you assume that the dial can have, at most, some linear effect on the bias of the coin it produces, the logistic function gives you a mapping from the continuous position on the dial to $\hat p$ for the coin you made at that position. The job of the logistic regression is to find an estimate of the *coefficient* on the dial, which tells you how strongly the dial influences the bias, and the *intercept*, which tells you the bias on the coins produced when the dial was at 0. It does this by finding the coefficient that gives a set of vector $\hat{p}$ that make the particular data you observed more likely than any other values.
+
+For more intuition about fitting a logistic regression, you can use play with [this Shiny app](http://spark.rstudio.com/supsych/logistic_regression/).
+
+The great thing about logistic regression is that you could be dealing with a very complicated machine that has many dials and switches, and it will recover an estimate for each mechanism while accounting for their codependence.
