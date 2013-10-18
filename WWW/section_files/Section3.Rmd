@@ -1,0 +1,238 @@
+Psych 252: Week 3 Section
+========================================================
+
+## Chi Square
+
+Data: 'Type' and 'Complain' - what are we looking at?
+
+Most of the variables are the same as in the Class Project on memory bias: Type = 1, 2, 3 refers to ‘free’, ‘biased’ and ‘varied’ recall, respectively; Complain = 1, if you seriously considered complaining when you missed your plane/train, and Complain = 0, otherwise. 
+
+``` {r reading in data}
+d0<- read.csv('http://www.stanford.edu/class/psych252/data/hw2data.csv')
+
+str(d0)
+```
+
+Why change to a factor?  What tests would we use if we weren't looking at "Type" and "Complain", but other variables? Refer to ppt
+
+```{r factoring variables}
+
+d0$Typefac <- factor(d0$Type, labels = c('free', 'biased', 'varied'))
+
+str(d0$Typefac)
+
+# This data is 1 = "yes" 2 = "no"
+d0$complainf <- factor(d0$complain, labels = c('yes', 'no'))
+
+str(d0$complainf)
+
+str(d0)
+```
+
+Double check, and find out this coded incorrectly!
+
+```{r factoring correctly}
+
+d0$complainfac <- factor(d0$complain, labels = c('no', 'yes'))
+
+str(d0$complainfac)
+
+str(d0)
+```
+
+Creating table of the data 
+
+```{r tabling data}
+
+t0 <- table(d0$Typefac, d0$complainfac)
+print(t0)
+
+```
+
+Compare to table if had coded incorrectly
+
+```{r wrong table}
+
+table(d0$Typefac, d0$complainf)
+
+```
+
+Interlude: what does it mean to do a chi square test?
+What are some examples of relationships we would examine using a chi square test?
+What is H0? H1?
+
+Chi square by hand!
+
+Calculating chi sq stat: ((10-10.47)^2)/10.47+((10-10.95)^2)/10.95+((10-8.57)^2)/8.57+((12-11.52)^2)/11.52+((13-12.04)^2)/12.04+((8-9.42)^2)/9.42
+
+Table for critical values: http://sites.stat.psu.edu/~mga/401/tables/Chi-square-table.pdf
+
+``` {r chisq test}
+
+rs0 <- chisq.test(t0)  ## chisq.test(table(d0$Typefac, d0$complainfac))
+print(rs0)
+
+```
+
+How do we interpret these results?  
+What does it mean if we fail to reject the null?
+
+APA writeup: 
+
+A chi-square test of independence was performed to examine the relation between type of recall and whether or not participants reported considering complaining at the time. The relation between these variables was not significant, $latex {\chi^2_2}$ (2, N = 63) = 0.654, p = .72. Participants in one of the three memory groups were no more likely than the other groups to report having considered complaining for missing their train or plane.
+
+The number of participants who considered complaining did not differ by recall type, c2(2, N = 63) = 0.654, p = .72.
+
+## Data examination and transformation
+
+We've already loaded our data so we're good to go! Let's take a look at the data.
+
+``` {r data examination}
+
+aggregate(Futurehapp~Typefac,d0, function(x)(c(mean(x),sd(x))))
+
+with(d0, boxplot(Futurehapp ~ Typefac))
+
+```
+
+Should we transform the data?
+
+Testing homogeneity of variance
+
+``` {r bartlett test}
+
+with(d0, bartlett.test(Futurehapp ~ Typefac, na.action = na.omit))
+
+with(d0, hist(Futurehapp))
+
+```
+
+When data is not normal the test might just be telling us so!
+
+Log transform the data to normalize and redo the boxplot
+
+What transformation should I use? Refer to ppt for examples
+
+``` {r log transform}
+
+d0$lgfhap = with(d0, log(Futurehapp + .5))
+
+with(d0, boxplot(lgfhap ~ Typefac))
+
+with(d0, hist(lgfhap))
+
+```
+
+Rerun bartlett test with log transformed data
+
+```{r bartlett 2}
+
+with(d0, bartlett.test(lgfhap ~ Typefac, na.action = na.omit))
+
+```
+
+What does this mean?  Variances are different no matter how we look at them!
+
+Run anova with transformed data
+
+```{r anova transformed data}
+
+oneway.test(lgfhap ~ Typefac, data = d0, na.action = na.omit, var.equal = T)
+
+oneway.test(lgfhap ~ Typefac, data = d0, na.action = na.omit, var.equal = F)
+
+```
+
+Note how a marginal difference appears to be highly significant
+
+Let's see how ignoring the transformation might have affected our results
+
+``` {r anova not transformed}
+
+oneway.test(Futurehapp ~ Typefac, data = d0, na.action = na.omit, var.equal = TRUE)
+
+oneway.test(Futurehapp ~ Typefac, data = d0, na.action = na.omit, var.equal = F)
+
+```
+
+With the variable coded as it was the test is never significant. Perhaps because the distributions are not normal. 
+
+
+## Multiple Regression
+
+``` {r multiple regression}
+res1a = lm(Futurehapp ~ Pasthapp, data = d0)
+summary(res1a)
+
+res1b = lm(Futurehapp ~ Responsible, data = d0)
+summary(res1b)
+
+res2 = lm(Futurehapp ~ Pasthapp + Responsible, data = d0)
+summary(res2)
+
+anova(res1b, res2)
+```
+
+``` {r correlations between multiple variables}
+d0_corr = data.frame(cbind(d0$Futurehapp, d0$Responsible, d0$Pasthapp))
+d0_corr_matrix = cbind(d0$Futurehapp, d0$Responsible, d0$Pasthapp)
+
+colnames(d0_corr) = c("FutureHapp", "Responsible", "PastHapp")
+head(d0_corr)
+
+z <- cor(d0_corr)
+print(z)
+
+require(lattice)
+levelplot(z, panel = panel.levelplot.raster,par.settings=list(regions=list(col=heat.colors(100))))
+```
+
+## Dummy/Contrast/Effect Coding
+
+``` {r dummy coding}
+d0$Type <- factor(d0$Type, labels = c('free', 'biased', 'varied'))
+
+with(d0, boxplot(Futurehapp ~ Type))
+
+rs1 = lm(Futurehapp ~ Type, data = d0)
+summary(rs1)
+
+contrasts(d0$Type)
+
+# change contasts
+contrasts(d0$Type)<-cbind(c(1,0,0),c(0,0,1))
+contrasts(d0$Type)
+
+rs2 = lm(Futurehapp ~ Type, data = d0)
+summary(rs2)
+
+# contrast coding
+contrasts(d0$Type)<-cbind(c(1,1,-2),c(1,-1,0))
+contrasts(d0$Type)
+
+rs2 = lm(Futurehapp ~ Type, data = d0)
+summary(rs2)
+
+# effect coding
+contrasts(d0$Type)<-cbind(c(1,0,-1),c(0,1,-1))
+contrasts(d0$Type)
+
+rs2 = lm(Futurehapp ~ Type, data = d0)
+summary(rs2)
+```
+
+## Centering continuous variables & lm() output
+``` {r scaling}
+res1a = lm(Futurehapp ~ Pasthapp, data = d0)
+summary(res1a)
+
+res1a_scaled = lm(Futurehapp ~ scale(Pasthapp, scale= FALSE), data = d0)
+summary(res1a_scaled)
+
+# Visualize centered data
+with(d0, plot(Futurehapp ~ scale(Pasthapp, scale= FALSE)))
+abline(v=0, col='red')
+```
+
+
+

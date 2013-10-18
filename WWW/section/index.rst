@@ -1,6 +1,15 @@
 Section Resources
 =================
 
+Week 3
+---------------
+
+Overview of chi-square tests; data examination and transformation; multiple regression and
+correlations between multiple variables; dummy/contrast/effect coding; centering continuous variables
+
+`Link to html <http://www.stanford.edu/class/psych252/section/Section3.html>`_
+
+
 Week 4
 ---------------
 
