@@ -101,7 +101,7 @@ points(k, pbinom(k, 10, 0.5), cex = 2, pch = 16, col = "#FDC086")
 Do we have a fair coin?
 -----------------------
 
-Let's return to the first question we have about our coin. By asking if our coin is "fair", what we really mean is "does $p = 0.5$?" You should have some intution at this point that we could call this a null hypothesis for the value of $p$: $H_0 = 0.5$. To test this null hypothesis we can collect some data and then, using the properties of the binomial distribution, ask how surprising the number of heads we saw would be if $p$ really did equal $0.5$. To do that, we would use the $pbinom()$ function. Let's say we tossed the coin 20 times and saw 15 heads. We want to know the probablity of seeing 15 or more heads on 20 tosses of a fair coin:
+Let's return to the first question we have about our coin. By asking if our coin is "fair", what we really mean is "does $p = 0.5$?" You should have some intution at this point that we could call this a null hypothesis for the value of $p$: $H_0 = 0.5$. To test this null hypothesis we can collect some data and then, using the properties of the binomial distribution, ask how surprising the number of heads we saw would be if $p$ really did equal $0.5$. To do that, we would use the `pbinom()` function. Let's say we tossed the coin 20 times and saw 15 heads. We want to know the probablity of seeing 15 or more heads on 20 tosses of a fair coin:
 
 
 ```r
@@ -251,4 +251,22 @@ If you assume that the dial can have, at most, some linear effect on the bias of
 
 For more intuition about fitting a logistic regression, you can use play with [this Shiny app](http://spark.rstudio.com/supsych/logistic_regression/).
 
-The great thing about logistic regression is that you could be dealing with a very complicated machine that has many dials and switches, and it will recover an estimate for each mechanism while accounting for their codependence.
+Let's walk through what's happening in the app in a bit more detail. When you move one of the slides up tweak the intercept or slope of the model, the following lines of code get executed.
+
+```
+p.hat <- exp(a + b * x) / (1 + exp(a + b * x))
+prob.data = dbinom(y, 1, p.hat)
+log.like <- sum(log(prob.data))
+```
+
+Here's how this code works: a and b are the intercept and slope terms taken from the slider. `x` and `y` are the x values of the datapoints and a vector of 0s and 1s giving whether each datapoint is a head or a tail (keeping with the coin flipping example).
+
+The first line runs the equation for the linear model `y = (a + b * x)` through the logistic function, `exp(y) / (1 + exp(y))`. This takes the line that is produced by the linear model and gives a sigmoidal curve. The curve provides us with a one-to-one mapping between an $x$ (the position of the dial on the machine) and a $\hat p$, or our estimate for the bias of a coin manufactured with the dial is set to that value.
+
+On the second line, we use the PMF for binomial random variables. Recall how that tells you, given bias $p$, the probability of seeing $k$ heads in $n$ flips. For the data we have here, we flipped each coin 1 times and saw either 0 or 1 heads. Thus if `p.hat` is .75 and `k` is 1, prob.data will be .75. On the other hand if `p.hat` is .4 and k is 0, `prob.data` will be .6. We actually pass in `p.hat` as a *vector*, so `prob.data` is also a vector of probabilities. If you look at the app, the color of the datapoints is given by the value `prob.data`. When it is close to 0 the points are purple and when it is close to 1 the points are white.
+
+The third line calculates the total likelihood of the data. For a vector of independent events, the probability of the vector is the product of the probabilities (this is a fact about probability that you could prove, but we'll just assert it here). We actually take the log and then sum, which is easier to work with and has less rounding error. The result of this step, `log.like`, is the number we are trying to *maximize* in this approach, much as we try to *minimize* the sum squared error in linear regression. The value in `log.lik` is the likelihood of the data, given this particular model (the current values of `a` and `b`).
+
+The horizontal axis below the main plot in the app shows the current value of `log.like`. You should see that as you move the slope and intercept to get a better looking model for the data, the value of `log.like` increases. The best fitting model (the one that is described if you turn the `glm()` summary on) is just the values for `a` and `b` that maximize the log likelihood, as obtained using the three steps above. That's why we call the fitting approach **maximum likelihood** (drawing a comparison with **least squares**).  What `glm()` is doing behind the scenes is trying a bunch of values for a and b and picking the ones that give the largest `log.like`, just as you would do when you're playing with the app.
+
+The great thing about logistic regression is that you could be dealing with a very complicated machine that has many dials and switches, and it will recover an estimate for each mechanism while accounting for their codependence. because we can take everything we know from multivariate linear regression about implementing a complex statistical design and re-use it on the right side of the `~` in the model. All that changes is 1) that we pass the output of the linear model through the logistic function and 2) how we define the "best" model we are searching for.

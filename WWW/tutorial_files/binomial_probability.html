@@ -273,7 +273,7 @@ points(k, pbinom(k, 10, 0.5), cex = 2, pch = 16, col = &quot;#FDC086&quot;)
 
 <h2>Do we have a fair coin?</h2>
 
-<p>Let&#39;s return to the first question we have about our coin. By asking if our coin is &ldquo;fair&rdquo;, what we really mean is &ldquo;does \( p = 0.5 \)?&rdquo; You should have some intution at this point that we could call this a null hypothesis for the value of \( p \): \( H_0 = 0.5 \). To test this null hypothesis we can collect some data and then, using the properties of the binomial distribution, ask how surprising the number of heads we saw would be if \( p \) really did equal \( 0.5 \). To do that, we would use the \( pbinom() \) function. Let&#39;s say we tossed the coin 20 times and saw 15 heads. We want to know the probablity of seeing 15 or more heads on 20 tosses of a fair coin:</p>
+<p>Let&#39;s return to the first question we have about our coin. By asking if our coin is &ldquo;fair&rdquo;, what we really mean is &ldquo;does \( p = 0.5 \)?&rdquo; You should have some intution at this point that we could call this a null hypothesis for the value of \( p \): \( H_0 = 0.5 \). To test this null hypothesis we can collect some data and then, using the properties of the binomial distribution, ask how surprising the number of heads we saw would be if \( p \) really did equal \( 0.5 \). To do that, we would use the <code>pbinom()</code> function. Let&#39;s say we tossed the coin 20 times and saw 15 heads. We want to know the probablity of seeing 15 or more heads on 20 tosses of a fair coin:</p>
 
 <pre><code class="r">p &lt;- pbinom(q=15 - 1,  # We want P(X &gt;= x), not P(X &gt; x)
             size=20,
@@ -400,7 +400,24 @@ p &= p_1P(p = p_1) + p_2P(p = p_2) \\
 
 <p>For more intuition about fitting a logistic regression, you can use play with <a href="http://spark.rstudio.com/supsych/logistic_regression/">this Shiny app</a>.</p>
 
-<p>The great thing about logistic regression is that you could be dealing with a very complicated machine that has many dials and switches, and it will recover an estimate for each mechanism while accounting for their codependence.</p>
+<p>Let&#39;s walk through what&#39;s happening in the app in a bit more detail. When you move one of the slides up tweak the intercept or slope of the model, the following lines of code get executed.</p>
+
+<pre><code>p.hat &lt;- exp(a + b * x) / (1 + exp(a + b * x))
+prob.data = dbinom(y, 1, p.hat)
+log.like &lt;- sum(log(prob.data))
+</code></pre>
+
+<p>Here&#39;s how this code works: a and b are the intercept and slope terms taken from the slider. <code>x</code> and <code>y</code> are the x values of the datapoints and a vector of 0s and 1s giving whether each datapoint is a head or a tail (keeping with the coin flipping example).</p>
+
+<p>The first line runs the equation for the linear model <code>y = (a + b * x)</code> through the logistic function, <code>exp(y) / (1 + exp(y))</code>. This takes the line that is produced by the linear model and gives a sigmoidal curve. The curve provides us with a one-to-one mapping between an \( x \) (the position of the dial on the machine) and a \( \hat p \), or our estimate for the bias of a coin manufactured with the dial is set to that value.</p>
+
+<p>On the second line, we use the PMF for binomial random variables. Recall how that tells you, given bias \( p \), the probability of seeing \( k \) heads in \( n \) flips. For the data we have here, we flipped each coin 1 times and saw either 0 or 1 heads. Thus if <code>p.hat</code> is .75 and <code>k</code> is 1, prob.data will be .75. On the other hand if <code>p.hat</code> is .4 and k is 0, <code>prob.data</code> will be .6. We actually pass in <code>p.hat</code> as a <em>vector</em>, so <code>prob.data</code> is also a vector of probabilities. If you look at the app, the color of the datapoints is given by the value <code>prob.data</code>. When it is close to 0 the points are purple and when it is close to 1 the points are white.</p>
+
+<p>The third line calculates the total likelihood of the data. For a vector of independent events, the probability of the vector is the product of the probabilities (this is a fact about probability that you could prove, but we&#39;ll just assert it here). We actually take the log and then sum, which is easier to work with and has less rounding error. The result of this step, <code>log.like</code>, is the number we are trying to <em>maximize</em> in this approach, much as we try to <em>minimize</em> the sum squared error in linear regression. The value in <code>log.lik</code> is the likelihood of the data, given this particular model (the current values of <code>a</code> and <code>b</code>).</p>
+
+<p>The horizontal axis below the main plot in the app shows the current value of <code>log.like</code>. You should see that as you move the slope and intercept to get a better looking model for the data, the value of <code>log.like</code> increases. The best fitting model (the one that is described if you turn the <code>glm()</code> summary on) is just the values for <code>a</code> and <code>b</code> that maximize the log likelihood, as obtained using the three steps above. That&#39;s why we call the fitting approach <strong>maximum likelihood</strong> (drawing a comparison with <strong>least squares</strong>).  What <code>glm()</code> is doing behind the scenes is trying a bunch of values for a and b and picking the ones that give the largest <code>log.like</code>, just as you would do when you&#39;re playing with the app.</p>
+
+<p>The great thing about logistic regression is that you could be dealing with a very complicated machine that has many dials and switches, and it will recover an estimate for each mechanism while accounting for their codependence. because we can take everything we know from multivariate linear regression about implementing a complex statistical design and re-use it on the right side of the <code>~</code> in the model. All that changes is 1) that we pass the output of the linear model through the logistic function and 2) how we define the &ldquo;best&rdquo; model we are searching for.</p>
 
 </body>
 
