@@ -14,11 +14,11 @@ Includes basic functions in R, manipulating dataframes, plotting, and a brief
 intro to general linear models.
 
 Download/installation instructions
-[`PDF </http://stanford.edu/class/psych252/tutorials/PSYCH252_Rintro.pdf>`_]
+[`PDF <http://www.stanford.edu/class/psych252/tutorials/PSYCH252_Rintro.pdf>`_]
 
 Tutorial 1 
-[`html <http://stanford.edu/class/psych252/tutorials/stutorial1.html>`_]
-[`Rmd <http://stanford.edu/class/psych252/tutorials/stutorial1.Rmd>`_] 
+[`html <http://www.stanford.edu/class/psych252/tutorials/stutorial1.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/tutorials/stutorial1.Rmd>`_] 
 
 Tutorial 2 
 [`html <http://www.stanford.edu/class/psych252/tutorials/stutorial2.html>`_]

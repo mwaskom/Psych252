@@ -1,0 +1,223 @@
+Psych 252, Section Week 4
+============
+
+A
+---
+### Begin by inputing the given values.
+```{r}
+Dbar <- 3.8
+Ebar <- 3
+SS_D <- 401.1
+SS_E <- 134.4
+SP <- 55.2
+```
+
+First, let's start out with some equations:
+$$\textrm{Sum of Squares: } SS = \sum\limits_{i=1}^n (x_i - \bar{x})^2 = 
+\sum\limits_{i=1}^n (x_i)^2 - \frac{(\sum\limits_{i=1}^n x_i)^2}{n}, df = n-1$$
+$$\textrm{Sum of Products: } SP = \sum\limits_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})$$
+$$\textrm{Covariance: } cov(x,y) = \frac{SP}{n-1}$$
+$$\textrm{Correlation }(\rho): r(x,y) = \frac{SP}{\sqrt{SS_x * SS_y}} = \frac{cov(x,y)}{\sigma_x \sigma_y}$$
+$$\textrm{Linear function: }\hat{Y} = a * bX, a=intercept, b=slope$$
+$$\textrm{Slope of regression: }b = \frac{SP}{SS_x} =  \frac{cov(x,y)}{s^2_x}$$
+$$\textrm{Intercept of regression: }a = \hat{y} - b * \hat{x}$$
+$$\textrm{Statistic of regression: }t = r * \sqrt{\frac{n-2}{1-r^2}}$$
+$$\textrm{Standard error of prediction: }stErr_\hat{y} = \sqrt{\frac{SS_y}{(n-2)}*(1-r^2)}$$
+
+### Aa) Correlation between D and E, r_DE. Test r_DE.
+To answer the first part, we need to know that:
+$$r_DE = \frac{SP}{\sqrt{SS_D*SS_E}}$$
+
+```{r}
+r <- SP/(sqrt(SS_E*SS_D)); r
+r_squared = r^2; r_squared
+
+# note, if we know the n, we can calculate covariance (SP/(n-1)), 
+# and divide that by (sigma_D*sigma_D), where sigma_D = SS_D/(n-1).
+n=100
+s_D <- sqrt(SS_D/(n-1)); s_D
+s_E <- sqrt(SS_E/(n-1)); s_E
+
+r <- SP/(s_D*s_E*(n-1)); r
+```
+
+For the second part we should use the formula 
+$$ t = r * \sqrt{\frac{n-2}{1-r^2}}$$
+So we get the `t` first and then test it.
+
+```{r}
+t <- r*sqrt((n-2)/(1-r^2)); t
+p <- pt(t,n-2, lower.tail=F); p
+
+# also:
+p <- 1 - pt(t,n-2, lower.tail=T); p
+```
+r= .24 and p<.01. So the number of stressful events correlates with depression scores.
+
+### Ab) Can the number of events predict depression scores?
+Now we need to know that:
+
+$$a = Dbar - b*Ebar$$ and $$b = \frac{SP}{SS_E}$$
+
+```{r}
+b <- SP/SS_E; b
+a <- Dbar - b*Ebar; a
+```
+So D = 2.58 + .41E
+
+### Ac) Compute the standard error of predicted D. Let's call this Y. We need to know that:
+
+$$s.e._Y = \sqrt{\frac{SS_res}{n-2}}$$ and 
+$$SS_res = SS_y*(1-r^2)$$ in this case. So,
+
+```{r}
+SS_res <- SS_D*(1-r^2); SS_res
+s.e._Y <- sqrt(SS_res/(n-2)); s.e._Y
+
+# also
+stErr_D = sqrt((SS_D/(n-2))*(1-r^2)); stErr_D
+```
+s.e._Y = 1.97
+
+### Ad) 
+95% (`conf_95`) confidence interval of a predicted value. Let's name the predicted value yhat and recall that the 95% confidence interval will be given by $\hat{y} +- 1.96 * s.e._Y$. Consequently,
+
+```{r}
+score <- 5
+yhat <- a+b*score; yhat
+
+t = qt(.025, 98, lower.tail = F); t
+
+conf_95low <- yhat-t*s.e._Y; conf_95low 
+conf_95high <- yhat+t*s.e._Y; conf_95high
+```
+The 95% conf interval of this predicted value is (.73, 8.51). This is NOT the 95% conf interval of b!
+
+A more precise way to compute it relies on adjusting for how far from the mean the predictor is. In this case we adjust s.e._Y as a function of:
+$$\sqrt{1 + \frac{1}{N} + \frac{(x - Ebar)^2}{(n - 1)*\frac{SS_X}{(n - 2)}}}$$
+
+So:
+
+```{r}
+adj_s.e._Y = s.e._Y*sqrt(1 + (1/n) + (((score - Ebar)^2)/((n - 1)*(SS_E/(n - 2))))); adj_s.e._Y
+
+# how adjustment changes as a function of x (and distance from mean x)
+x = c(-5:10)
+plot(x, s.e._Y*sqrt(1 + (1/n) + (((x - Ebar)^2)/((n - 1)*(SS_E/(n - 2))))))
+abline(v=Ebar, col='red', lty = 2, lwd=3)
+```
+
+Note that this increased our standard error of the prediction. So we expect the new 95% confidence interval to be wider. See [this app](http://spark.rstudio.com/supsych/regression_bootstrap/) to visualize this w/bootstrapped samples!
+
+```{r}
+adj_conf_95low <- yhat-t*adj_s.e._Y
+adj_conf_95high <- yhat+t*adj_s.e._Y
+```
+
+Adjusted 95% confidence interval (.65, 8.6). Given the small difference you are welcome to use the non adjusted s.e._Y.
+
+### Ae) Use additional correlational info and describe the "mechanisms" not the data. See figure on HW PDF.
+It would be useful to know if these other correlations are significant. So let's test them. 
+
+```{r}
+r_DC <- -.197
+r_EC <- .247
+
+t_r_DC <- r_DC*sqrt((n-2)/(1-r_DC^2))
+p_t_r_DC <- pt(t_r_DC, n-2, lower.tail=T)
+
+t_r_EC <- r_EC*sqrt((n-2)/(1-r_EC^2))
+p_t_r_EC <- pt(t_r_EC, n-2, lower.tail=F)
+```
+We have a bunch of interesting relationships. Note the potentially quadratic relationship of coping on event. What could this mean? What is the implication of the negative relationship between depress and coping?
+
+E
+-----
+### E.1.a)
+A group of patients with chest pain thought to be anginal were studied by a maximal exercise treadmill test (a positive test is thought to indicate coronary artery disease).  The gender of each patient was recorded, and later their disease was classified into zero-, one- or multi-vessel disease (in increasing order of severity).
+
+```{r}
+P_Male <- (47 + 86 + 227 + 132 + 53 + 49) / (47 + 86 + 227 + 132 + 53 + 49 + 62 + 28 + 44 + 83 + 14 + 9); P_Male
+```
+
+Alternately, you could build a table, and take the marginal values:
+```{r}
+eTable = matrix(c(47, 86, 227, 132, 53, 49, 62, 28, 44, 83, 14, 9), byrow=T,ncol=3)
+colnames(eTable) = c('0', '1', 'Multi')
+rownames(eTable) = c('Males+', 'Males-', 'Females+', 'Females-')
+eTable_margins = addmargins(eTable); eTable_margins
+
+# Total Males/Total Patients
+pMale = (eTable_margins[1,4]+eTable_margins[2,4])/sum(eTable_margins[5,4]); pMale
+```
+
+### E.1.b)
+The probability of testing positive for male patients with angina was 0.61, and the probability of testing positive for female patients with angina was 0.56.
+
+```{r}
+# Total positive treadmill tests for males/Males
+P_pos_Male <- (47 + 86 + 227) / (47 + 86 + 227 + 132 + 53 + 49); P_pos_Male
+P_pos_Male <- eTable_margins[1,4] / (eTable_margins[1,4]+eTable_margins[2,4]); P_pos_Male
+
+# Total positive treadmill tests for females/Females
+P_pos_Female <- (62 + 28 + 44) / (62 + 28 + 44 + 83 + 14 + 9); P_pos_Female
+P_pos_Female <- eTable_margins[3,4] / (eTable_margins[3,4]+eTable_margins[4,4]); P_pos_Female
+```
+
+### E.1.c)
+While a much higher portion of patients with angina are men than are women, the maximal exercise treadmill test returns a positive result with roughly the same frequency across gender.....(explain results from above)....look at gender*test chi-squared contingency...
+
+### E.2) (Code below...)
+After recoding the severity level of disease into a dichotomous variable (healthy/zero vessels and diseased/one or more vessels), I used a chi-square test of independence within each gender group to evaluate how diagnostic the treadmill test is of diseased vessels.  There was a significant relationship between test result and disease for both men, X2(1,N=594) = 124.56, p < 0.001, and for women, X2(1,N=240) = 24.07, p < 0.001.  Patients (of both genders) who test positive were more likely to have coronary artery disease, which shows that the test is diagnostic.  However, for men the link between test outcome and disease severity is stronger than for women, as is shown by a number of different ways of measuring the effect size of the test.  The phi coefficient (which is identical to Cramer's V in this case because there are two levels of the test result) was greater for men (0.46) than for women (0.32).  Pearson's contingency coefficient for men (0.42) was also greater than for women (0.30).  Finally, the Yule's Q statistic for men (0.79) was greater than for women (0.61).  All these measurements of effect size show that the exercise treadmill test is more effective as a diagnostic test of coronary artery disease for men than for women.
+
+```{r}
+# alternate way to do E.1
+coronarytable = matrix(c(47,86,227, 132, 53, 49, 62, 28, 44, 83, 14, 9), byrow=T, ncol=3)
+### E.1.a ##
+p.male = sum(coronarytable[1:2,]) / sum(coronarytable)
+### E.1.b ##
+p.pos.ifmale = sum(coronarytable[1,]) / sum(coronarytable[1:2,])
+p.pos.iffemale = sum(coronarytable[3,]) / sum(coronarytable[3:4,])
+```
+
+```{r}
+### E.2 ##
+maletable = as.table(cbind(coronarytable[1:2,1],coronarytable[1:2,2]+coronarytable[1:2,3]))
+
+femaletable = as.table(cbind(coronarytable[3:4,1],coronarytable[3:4,2]+coronarytable[3:4,3]))
+
+chisq.test(maletable)
+chisq_male = as.numeric(chisq.test(maletable)$statistic)
+
+chisq.test(femaletable)
+chisq_female = as.numeric(chisq.test(femaletable)$statistic)
+```
+
+### Effect Sizes
+phi coefficient
+```{r}
+phi_coeff_m = sqrt(chisq_male / sum(maletable))
+phi_coeff_f = sqrt(chisq_female / sum(femaletable))
+```
+
+Cramer's V, which is identical to the above, in this case, because the table has two levels by two levels
+```{r}
+V_m = sqrt((chisq_male / sum(maletable)) / min(2-1,2-1)); V_m
+
+V_f = sqrt((chisq_female / sum(femaletable)) / min(2-1,2-1)); V_f
+```
+ 
+Pearsons contingency coefficient
+```{r}
+Cm = sqrt((chisq_male/sum(maletable)) / (1 + chisq_male/sum(maletable))); Cm
+Cf = sqrt((chisq_female / sum(femaletable)) / (1 + chisq_female / sum(femaletable))); Cf
+```
+
+    
+Yule's Q Statistic, i.e. gamma
+```{r}
+gamma_m = (maletable[1,1]*maletable[2,2] - maletable[1,2]*maletable[2,1]) / (maletable[1,1]*maletable[2,2] + maletable[1,2]*maletable[2,1]); gamma_m
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  gamma_f = (femaletable[1,1]*femaletable[2,2] - femaletable[1,2]*femaletable[2,1]) / (femaletable[1,1]*femaletable[2,2] + femaletable[1,2]*femaletable[2,1]); gamma_f
+```
+
+
