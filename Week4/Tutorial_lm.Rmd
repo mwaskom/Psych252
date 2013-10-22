@@ -1,0 +1,110 @@
+Psych 252: Running General Linear Models with `lm()`
+========================================================
+
+Load in data
+-------------
+```{r}
+d0 = read.csv("http://www.stanford.edu/class/psych252/data/mentillness.csv")
+str(d0)
+summary(d0)
+```
+
+### Factoring categorical variables
+After we've loaded in the data, we should always check which variables we might need to factor. Here, we'll start by factoring mental illness, since the defendants fall into one of two discrete categories; normal (not mentally ill), or mentally ill.
+```{r}
+d0$mentill = factor(d0$mentill, label=c('Normal','Mentally Ill'))
+str(d0)
+```
+
+Visualize data
+-------------
+It's always a good idea to see what trends might exist in your data; this will be helpful later on, when interpreting possible interactions, etc.
+```{r}
+library(ggplot2)
+
+ggplot(d0, aes(x=mentill, y=futhrt)) + 
+  geom_boxplot() + 
+  stat_summary(fun.y=mean, geom="point", shape=5, size=4)
+
+ggplot(d0, aes(x=futhrt, y=guilt, color=mentill)) +
+  geom_point(shape=1, position=position_jitter(width=.25,height=.25)) +
+  geom_smooth(method=lm, fullrange=TRUE)
+```
+
+Generate Hypotheses
+-------------------
+How does perceived **mental illness** of the defendant influence how much the participant thinks the defendant will be a **future threat**?
+
+Possible explanations?
+1. If a person is mentally ill, they might cause a lot of harm to society, but not necessarily know why; they might be worse at controlling their actions.
+2. A person who is not mentall ill might commit specific crimes against people they know (e.g., if someone found out their significant other was cheating on them, they might harm the person who was cheating), and thus not pose as big a threat to everyone in society.
+
+```{r}
+str(d0)
+levels(d0$mentill)
+
+# get some summary stats
+library(psych)
+describeBy(d0$futhrt, group = d0$mentill, mat=TRUE)
+
+# another way to get some quick stats:
+library(plyr)
+ddply(d0,~mentill,summarise,
+      mean=mean(futhrt),
+      sd=sd(futhrt),
+      n=length(futhrt))
+```
+
+Here, we can see that **mental illness** is *categorical*; it has the value of "not mentally ill/normal" or "mentally ill". Perceived **future threat** is continuous, since participants rated this variable on a scale.
+
+By looking at the summary statistics, we can see that the mean perceived future threat for normal people = 3.633, and the mean perceived threat for mentally ill people = 4.433.
+
+Testing Hypotheses
+-------------------
+Does perceived **mental illness** of the defendant influence how much the participant thinks the defendant will be a **future threat**?
+
+To test this, we could use an unpaired t-test (since there are only two groups), or a general linear model (i.e., `lm()`). The results should be the same in either case.
+
+First, let's use a t-test:
+```{r}
+# are the variances in futhrt equal between mental illness groups?
+bartlett.test(futhrt~mentill, data = d0)
+
+?t.test
+t.test(futhrt~mentill, data = d0, paired = FALSE, var.equal=TRUE)
+```
+
+Now, let's test this same question using a general linear model:
+```{r}
+rs1 = lm(futhrt~mentill, data = d0)
+summary(rs1)
+anova(rs1)
+```
+
+Here, we can see that the anova() output is identical to the t-test we ran above. However, we get some more information when looking at the lm() output. Here, the estimate for the intercept (i.e., `3.633`) gives us the `y-intercept` for our model; this is the value of `futhrt` where `mentill` = 0. In other words, this is the mean value of `futhrt` for the *control* group of `mentill`. That is, since mental illness is categorical, `lm()` automatically **dummy-codes** the variable. That means that one condition is treated as a "control" (and coded as 0), and the other condition(s) are compared to that control via the dummy-coding. 
+
+To get a sense for this, let's take a look at the default dummy contrasts:
+### Contrasts
+```{r}
+contrasts(d0$mentill)
+```
+
+We can see that the column `Mentally Ill` gives `Normal` a value of 0, and `Mentally Ill` a value of 1. As a result, the `Normal` level of `mentill` is treated as the control, and the `lm()` will compare the level `Mentally Ill` to the `Normal` level.
+
+As we can see from the output of the `lm()`, the **intercept estimate gives us the mean value of future threat for the Normal condition**. 
+
+In addition the `mentillMentally Ill` estimate is giving us the results from the first column of our contrasts for `mentill` (in this case, our *only* column), that is called `Mentally Ill`. The `estimate` for this contrast is basically the difference between the mean futhrt of our `Mentally Ill` group, relative to our `Normal` group. Thus, we can derive the **mean value of future threat for the Mentally Ill condition by adding the estimate (i.e., slope) to the intercept; this gives us 3.633 + 0.800 = 4.433, the mean perceived future threat for the Mentally Ill group.**
+
+
+More complicated questions (testing the relationship between multiple variables)
+-------------------------------------------------
+
+
+
+interactions/slopes
+
+quadratic terms and poly, modeling the data
+
+linear components & quadratic componenets, plus how to interpret the interaction
+
+model comparison
