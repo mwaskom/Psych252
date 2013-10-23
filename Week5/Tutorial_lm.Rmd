@@ -11,6 +11,7 @@ summary(d0)
 
 ### Factoring categorical variables
 After we've loaded in the data, we should always check which variables we might need to factor. Here, we'll start by factoring mental illness, since the defendants fall into one of two discrete categories; normal (not mentally ill), or mentally ill.
+
 ```{r}
 d0$mentill = factor(d0$mentill, label=c('Normal','Mentally Ill'))
 str(d0)
@@ -19,7 +20,14 @@ str(d0)
 Visualize data
 -------------
 It's always a good idea to see what trends might exist in your data; this will be helpful later on, when interpreting possible interactions, etc.
-```{r}
+
+Simplest plot:
+
+```{r simple boxplots}
+with(d0, plot(mentill, futhrt))
+```
+
+```{r ggplot}
 library(ggplot2)
 
 ggplot(d0, aes(x=mentill, y=futhrt)) + 
@@ -71,7 +79,11 @@ First, let's use a t-test:
 bartlett.test(futhrt~mentill, data = d0)
 
 ?t.test
-t.test(futhrt~mentill, data = d0, paired = FALSE, var.equal=TRUE)
+t.test(futhrt~mentill, data = d0, paired = FALSE, var.equal=TRUE) -> t1; print(t1) 
+
+## compare to paired
+t.test(futhrt~mentill, data = d0, paired = TRUE, var.equal=TRUE) 
+
 ```
 
 Now, let's test this same question using a general linear model:
@@ -79,6 +91,8 @@ Now, let's test this same question using a general linear model:
 rs1 = lm(futhrt~mentill, data = d0)
 summary(rs1)
 anova(rs1)
+
+(t1$statistic) ^ 2 # Remember that t ^ 2 is approximately equal to F!
 ```
 
 Here, we can see that the anova() output is identical to the t-test we ran above. However, we get some more information when looking at the lm() output. Here, the estimate for the intercept (i.e., `3.633`) gives us the `y-intercept` for our model; this is the value of `futhrt` where `mentill` = 0. In other words, this is the mean value of `futhrt` for the *control* group of `mentill`. That is, since mental illness is categorical, `lm()` automatically **dummy-codes** the variable. That means that one condition is treated as a "control" (and coded as 0), and the other condition(s) are compared to that control via the dummy-coding. 
@@ -95,16 +109,156 @@ As we can see from the output of the `lm()`, the **intercept estimate gives us t
 
 In addition the `mentillMentally Ill` estimate is giving us the results from the first column of our contrasts for `mentill` (in this case, our *only* column), that is called `Mentally Ill`. The `estimate` for this contrast is basically the difference between the mean futhrt of our `Mentally Ill` group, relative to our `Normal` group. Thus, we can derive the **mean value of future threat for the Mentally Ill condition by adding the estimate (i.e., slope) to the intercept; this gives us 3.633 + 0.800 = 4.433, the mean perceived future threat for the Mentally Ill group.**
 
+```{r}
+mean(d0$futhrt[d0$mentill=='Mentally Ill'])
+```
 
 More complicated questions (testing the relationship between multiple variables)
 -------------------------------------------------
 
+Now let's take a look at a more complicated model.  What would we expect if we looked at whether mental illness and perceptions of being a future threat predict judgments of guilt?  Would we predict main effects?  Interactions?
 
+Mental illness: Categorical IV
+Future threat: Continuous IV
 
-interactions/slopes
+Guilt: Continuous DV
+(1 = Definitely Not Guilty, 2 = Probably Not Guilty, 3 = Probably Guilty, or 4 = Definitely Guilty)
 
-quadratic terms and poly, modeling the data
+Let's start out with the simplest model.
+```{r}
 
-linear components & quadratic componenets, plus how to interpret the interaction
+m1 = lm(guilt~futhrt, d0) # What kind of test is this?
+summary(m1)
 
-model comparison
+```
+
+Seems like as judges perceive a target to be a greater future threat, they are more likely to think the defendant is guilty. Let's explore some different ways to plot this.
+
+```{r plotting options}
+
+with(d0, plot(futhrt, guilt))
+lines(abline(m1, col='green'))
+
+ggplot(d0, aes(x=futhrt, y=guilt)) + 
+  geom_point(shape=1) +  # Use hollow circles
+  geom_smooth(method=lm, fullrange=TRUE) # Add linear regression line 
+                         #  (by default includes 95% confidence region, to remove
+                         #   use se=FALSE)
+
+ggplot(d0, aes(x=futhrt, y=guilt)) + 
+  geom_point(shape=1, position=position_jitter(width=.5,height=.25)) +  
+  geom_smooth(method=lm, fullrange=TRUE)
+
+```
+
+Let's move on to a more complicated model.
+
+```{r}
+
+m2 = lm(guilt~futhrt + mentill, d0)
+summary(m2)
+
+```
+
+What kind of model is this? 
+Additive!
+
+What would we conclude from this output? 
+
+```{r qplot}
+
+qplot(x = futhrt, y= guilt, data= d0, geom=c("jitter", "smooth"), 
+   method="lm", se=FALSE, color= mentill, 
+   main="Predictors of Perceived Guilt", 
+   xlab="Future Threat", ylab="Guilt")
+
+```
+
+What does it look like is going on in this plot?
+
+Let's check out a more complicated model
+
+```{r interactive}
+
+m3 = lm(guilt~futhrt * mentill, d0)
+summary(m3)
+
+````
+
+What would we conclude from this output?
+
+```{r plots}
+
+with(d0, interaction.plot(futhrt, mentill, guilt, col = 2:3))  # Not the best, plotting mean for each value of the continuous variable "futhrt" 
+
+ggplot(d0, aes(x=futhrt, y=guilt, colour=mentill)) +  # Adding color for mentill
+  geom_point(shape=1, position=position_jitter(width=1,height=.5)) +  
+  geom_smooth(method=lm, se=FALSE) +
+  theme_bw()
+
+```
+
+Let's center this model!
+
+```{r}
+m5c = lm(guilt~ I(futhrt - mean(futhrt)) * mentill, d0)
+summary(m5c)
+
+ggplot(d0, aes(x=scale(futhrt), y=guilt, colour=mentill)) +  # Adding color for mentill
+  geom_point(shape=1, position=position_jitter(width=1,height=.5)) +  
+  geom_smooth(method=lm, se=FALSE) +
+  theme_bw()
+```
+
+Note what changed in the coefficients - why would this have changed?
+
+Now let's explore whether there is a quadratic relationship in our data.
+
+```{r poly add}
+
+m4 = lm(guilt~poly(futhrt,2) + mentill, d0)
+summary(m4)
+
+````
+
+How might we plot this?
+
+```{r loess}
+
+ggplot(d0, aes(x=futhrt, y=guilt, colour=mentill)) + 
+  geom_point(shape=1, position=position_jitter(width=1,height=.5)) +  
+  geom_smooth(method='loess',se=FALSE) # remove "method=lm", loess smooth fit curve!
+
+```
+
+Interactive model
+
+```{r poly}
+
+m5 = lm(guilt~poly(futhrt,2) * mentill, d0)
+summary(m5)
+
+````
+
+So how do we decide which model is best?
+
+```{r model comparison}
+
+anova(m1, m2, m3) # why wouldn't we compare m4?
+
+anova(m3, m4) 
+
+m4a <- lm(guilt ~ poly(futhrt,2), d0)
+anova(m1, m4a, m4)
+
+anova(m2, m4)
+
+```
+
+```{r}
+
+anova(m4, m5)
+
+```
+
+Which model would we use?

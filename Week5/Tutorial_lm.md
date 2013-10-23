@@ -54,6 +54,7 @@ summary(d0)
 ### Factoring categorical variables
 After we've loaded in the data, we should always check which variables we might need to factor. Here, we'll start by factoring mental illness, since the defendants fall into one of two discrete categories; normal (not mentally ill), or mentally ill.
 
+
 ```r
 d0$mentill = factor(d0$mentill, label = c("Normal", "Mentally Ill"))
 str(d0)
@@ -77,6 +78,17 @@ Visualize data
 -------------
 It's always a good idea to see what trends might exist in your data; this will be helpful later on, when interpreting possible interactions, etc.
 
+Simplest plot:
+
+
+```r
+with(d0, plot(mentill, futhrt))
+```
+
+![plot of chunk simple boxplots](figure/simple_boxplots.png) 
+
+
+
 ```r
 library(ggplot2)
 
@@ -84,7 +96,7 @@ ggplot(d0, aes(x = mentill, y = futhrt)) + geom_boxplot() + stat_summary(fun.y =
     geom = "point", shape = 5, size = 4)
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-31.png) 
+![plot of chunk ggplot](figure/ggplot1.png) 
 
 ```r
 
@@ -93,7 +105,7 @@ ggplot(d0, aes(x = futhrt, y = guilt, color = mentill)) + geom_point(shape = 1,
     fullrange = TRUE)
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-32.png) 
+![plot of chunk ggplot](figure/ggplot2.png) 
 
 
 Generate Hypotheses
@@ -199,7 +211,8 @@ bartlett.test(futhrt ~ mentill, data = d0)
 ```r
 
 `?`(t.test)
-t.test(futhrt ~ mentill, data = d0, paired = FALSE, var.equal = TRUE)
+t1 <- t.test(futhrt ~ mentill, data = d0, paired = FALSE, var.equal = TRUE)
+print(t1)
 ```
 
 ```
@@ -214,6 +227,26 @@ t.test(futhrt ~ mentill, data = d0, paired = FALSE, var.equal = TRUE)
 ## sample estimates:
 ##       mean in group Normal mean in group Mentally Ill 
 ##                      3.633                      4.433
+```
+
+```r
+
+## compare to paired
+t.test(futhrt ~ mentill, data = d0, paired = TRUE, var.equal = TRUE)
+```
+
+```
+## 
+## 	Paired t-test
+## 
+## data:  futhrt by mentill
+## t = -4.043, df = 119, p-value = 9.414e-05
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -1.1918 -0.4082
+## sample estimates:
+## mean of the differences 
+##                    -0.8
 ```
 
 
@@ -260,6 +293,16 @@ anova(rs1)
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
+```r
+
+(t1$statistic)^2  # Remember that t ^ 2 is approximately equal to F!
+```
+
+```
+##     t 
+## 16.17
+```
+
 
 Here, we can see that the anova() output is identical to the t-test we ran above. However, we get some more information when looking at the lm() output. Here, the estimate for the intercept (i.e., `3.633`) gives us the `y-intercept` for our model; this is the value of `futhrt` where `mentill` = 0. In other words, this is the mean value of `futhrt` for the *control* group of `mentill`. That is, since mental illness is categorical, `lm()` automatically **dummy-codes** the variable. That means that one condition is treated as a "control" (and coded as 0), and the other condition(s) are compared to that control via the dummy-coding. 
 
@@ -284,14 +327,419 @@ As we can see from the output of the `lm()`, the **intercept estimate gives us t
 In addition the `mentillMentally Ill` estimate is giving us the results from the first column of our contrasts for `mentill` (in this case, our *only* column), that is called `Mentally Ill`. The `estimate` for this contrast is basically the difference between the mean futhrt of our `Mentally Ill` group, relative to our `Normal` group. Thus, we can derive the **mean value of future threat for the Mentally Ill condition by adding the estimate (i.e., slope) to the intercept; this gives us 3.633 + 0.800 = 4.433, the mean perceived future threat for the Mentally Ill group.**
 
 
+```r
+mean(d0$futhrt[d0$mentill == "Mentally Ill"])
+```
+
+```
+## [1] 4.433
+```
+
+
 More complicated questions (testing the relationship between multiple variables)
 -------------------------------------------------
 
+Now let's take a look at a more complicated model.  What would we expect if we looked at whether mental illness and perceptions of being a future threat predict judgments of guilt?  Would we predict main effects?  Interactions?
 
-# interactions/slopes
+Mental illness: Categorical IV
+Future threat: Continuous IV
 
-# quadratic terms and poly, modeling the data
+Guilt: Continuous DV
+(1 = Definitely Not Guilty, 2 = Probably Not Guilty, 3 = Probably Guilty, or 4 = Definitely Guilty)
 
-# linear components & quadratic componenets, plus how to interpret the interaction
+Let's start out with the simplest model.
 
-# model comparison
+```r
+
+m1 = lm(guilt ~ futhrt, d0)  # What kind of test is this?
+summary(m1)
+```
+
+```
+## 
+## Call:
+## lm(formula = guilt ~ futhrt, data = d0)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.4468 -0.9361  0.0639  0.8596  1.1660 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)   1.6297     0.1461   11.15   <2e-16 ***
+## futhrt        0.1021     0.0337    3.03   0.0027 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.828 on 238 degrees of freedom
+## Multiple R-squared:  0.0371,	Adjusted R-squared:  0.0331 
+## F-statistic: 9.18 on 1 and 238 DF,  p-value: 0.00272
+```
+
+
+Seems like as judges perceive a target to be a greater future threat, they are more likely to think the defendant is guilty. Let's explore some different ways to plot this.
+
+
+```r
+
+with(d0, plot(futhrt, guilt))
+lines(abline(m1, col='green'))
+```
+
+![plot of chunk plotting options](figure/plotting_options1.png) 
+
+```r
+
+ggplot(d0, aes(x=futhrt, y=guilt)) + 
+  geom_point(shape=1) +  # Use hollow circles
+  geom_smooth(method=lm, fullrange=TRUE) # Add linear regression line 
+```
+
+![plot of chunk plotting options](figure/plotting_options2.png) 
+
+```r
+                         #  (by default includes 95% confidence region, to remove
+                         #   use se=FALSE)
+
+ggplot(d0, aes(x=futhrt, y=guilt)) + 
+  geom_point(shape=1, position=position_jitter(width=.5,height=.25)) +  
+  geom_smooth(method=lm, fullrange=TRUE)
+```
+
+![plot of chunk plotting options](figure/plotting_options3.png) 
+
+
+Let's move on to a more complicated model.
+
+
+```r
+
+m2 = lm(guilt ~ futhrt + mentill, d0)
+summary(m2)
+```
+
+```
+## 
+## Call:
+## lm(formula = guilt ~ futhrt + mentill, data = d0)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.4988 -0.5745 -0.0442  0.6528  1.5771 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)           1.7411     0.1376   12.65  < 2e-16 ***
+## futhrt                0.1515     0.0325    4.66  5.2e-06 ***
+## mentillMentally Ill  -0.6212     0.1031   -6.02  6.4e-09 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.773 on 237 degrees of freedom
+## Multiple R-squared:  0.165,	Adjusted R-squared:  0.158 
+## F-statistic: 23.4 on 2 and 237 DF,  p-value: 5.25e-10
+```
+
+
+What kind of model is this? 
+Additive!
+
+What would we conclude from this output? 
+
+
+```r
+
+qplot(x = futhrt, y = guilt, data = d0, geom = c("jitter", "smooth"), method = "lm", 
+    se = FALSE, color = mentill, main = "Predictors of Perceived Guilt", xlab = "Future Threat", 
+    ylab = "Guilt")
+```
+
+![plot of chunk qplot](figure/qplot.png) 
+
+
+What does it look like is going on in this plot?
+
+Let's check out a more complicated model
+
+
+```r
+
+m3 = lm(guilt ~ futhrt * mentill, d0)
+summary(m3)
+```
+
+```
+## 
+## Call:
+## lm(formula = guilt ~ futhrt * mentill, data = d0)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.6044 -0.6728  0.0802  0.6244  1.4101 
+## 
+## Coefficients:
+##                            Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                  1.4603     0.1845    7.91  9.7e-14 ***
+## futhrt                       0.2288     0.0470    4.87  2.1e-06 ***
+## mentillMentally Ill         -0.0363     0.2784   -0.13    0.896    
+## futhrt:mentillMentally Ill  -0.1459     0.0646   -2.26    0.025 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.766 on 236 degrees of freedom
+## Multiple R-squared:  0.183,	Adjusted R-squared:  0.172 
+## F-statistic: 17.6 on 3 and 236 DF,  p-value: 2.46e-10
+```
+
+
+What would we conclude from this output?
+
+
+```r
+
+with(d0, interaction.plot(futhrt, mentill, guilt, col = 2:3))  # Not the best, plotting mean for each value of the continuous variable "futhrt" 
+```
+
+![plot of chunk plots](figure/plots1.png) 
+
+```r
+
+ggplot(d0, aes(x=futhrt, y=guilt, colour=mentill)) +  # Adding color for mentill
+  geom_point(shape=1, position=position_jitter(width=1,height=.5)) +  
+  geom_smooth(method=lm, se=FALSE) +
+  theme_bw()
+```
+
+![plot of chunk plots](figure/plots2.png) 
+
+
+Let's center this model!
+
+
+```r
+m5c = lm(guilt~ I(futhrt - mean(futhrt)) * mentill, d0)
+summary(m5c)
+```
+
+```
+## 
+## Call:
+## lm(formula = guilt ~ I(futhrt - mean(futhrt)) * mentill, data = d0)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.6044 -0.6728  0.0802  0.6244  1.4101 
+## 
+## Coefficients:
+##                                              Estimate Std. Error t value
+## (Intercept)                                    2.3832     0.0724   32.90
+## I(futhrt - mean(futhrt))                       0.2288     0.0470    4.87
+## mentillMentally Ill                           -0.6247     0.1023   -6.11
+## I(futhrt - mean(futhrt)):mentillMentally Ill  -0.1459     0.0646   -2.26
+##                                              Pr(>|t|)    
+## (Intercept)                                   < 2e-16 ***
+## I(futhrt - mean(futhrt))                      2.1e-06 ***
+## mentillMentally Ill                           4.1e-09 ***
+## I(futhrt - mean(futhrt)):mentillMentally Ill    0.025 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.766 on 236 degrees of freedom
+## Multiple R-squared:  0.183,	Adjusted R-squared:  0.172 
+## F-statistic: 17.6 on 3 and 236 DF,  p-value: 2.46e-10
+```
+
+```r
+
+ggplot(d0, aes(x=scale(futhrt), y=guilt, colour=mentill)) +  # Adding color for mentill
+  geom_point(shape=1, position=position_jitter(width=1,height=.5)) +  
+  geom_smooth(method=lm, se=FALSE) +
+  theme_bw()
+```
+
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
+
+
+Note what changed in the coefficients - why would this have changed?
+
+Now let's explore whether there is a quadratic relationship in our data.
+
+
+```r
+
+m4 = lm(guilt ~ poly(futhrt, 2) + mentill, d0)
+summary(m4)
+```
+
+```
+## 
+## Call:
+## lm(formula = guilt ~ poly(futhrt, 2) + mentill, data = d0)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.5672 -0.5875  0.0386  0.5801  1.6691 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)           2.3569     0.0714   33.03  < 2e-16 ***
+## poly(futhrt, 2)1      3.7415     0.7941    4.71  4.2e-06 ***
+## poly(futhrt, 2)2     -1.5108     0.7692   -1.96    0.051 .  
+## mentillMentally Ill  -0.6305     0.1026   -6.14  3.4e-09 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.768 on 236 degrees of freedom
+## Multiple R-squared:  0.178,	Adjusted R-squared:  0.168 
+## F-statistic: 17.1 on 3 and 236 DF,  p-value: 4.48e-10
+```
+
+
+How might we plot this?
+
+
+```r
+
+ggplot(d0, aes(x = futhrt, y = guilt, colour = mentill)) + geom_point(shape = 1, 
+    position = position_jitter(width = 1, height = 0.5)) + geom_smooth(method = "loess", 
+    se = FALSE)  # remove 'method=lm', loess smooth fit curve!
+```
+
+![plot of chunk loess](figure/loess.png) 
+
+
+Interactive model
+
+
+```r
+
+m5 = lm(guilt ~ poly(futhrt, 2) * mentill, d0)
+summary(m5)
+```
+
+```
+## 
+## Call:
+## lm(formula = guilt ~ poly(futhrt, 2) * mentill, data = d0)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.6102 -0.6554  0.0835  0.6150  1.5903 
+## 
+## Coefficients:
+##                                      Estimate Std. Error t value Pr(>|t|)
+## (Intercept)                            2.3827     0.0723   32.94  < 2e-16
+## poly(futhrt, 2)1                       5.5515     1.2081    4.60  7.1e-06
+## poly(futhrt, 2)2                      -0.2184     1.1220   -0.19    0.846
+## mentillMentally Ill                   -0.6400     0.1025   -6.25  2.0e-09
+## poly(futhrt, 2)1:mentillMentally Ill  -2.8967     1.6631   -1.74    0.083
+## poly(futhrt, 2)2:mentillMentally Ill  -1.7748     1.6088   -1.10    0.271
+##                                         
+## (Intercept)                          ***
+## poly(futhrt, 2)1                     ***
+## poly(futhrt, 2)2                        
+## mentillMentally Ill                  ***
+## poly(futhrt, 2)1:mentillMentally Ill .  
+## poly(futhrt, 2)2:mentillMentally Ill    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.765 on 234 degrees of freedom
+## Multiple R-squared:  0.193,	Adjusted R-squared:  0.176 
+## F-statistic: 11.2 on 5 and 234 DF,  p-value: 1.08e-09
+```
+
+
+So how do we decide which model is best?
+
+
+```r
+
+anova(m1, m2, m3)  # why wouldn't we compare m4?
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: guilt ~ futhrt
+## Model 2: guilt ~ futhrt + mentill
+## Model 3: guilt ~ futhrt * mentill
+##   Res.Df RSS Df Sum of Sq    F  Pr(>F)    
+## 1    238 163                              
+## 2    237 142  1      21.7 36.9 4.9e-09 ***
+## 3    236 139  1       3.0  5.1   0.025 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+
+anova(m3, m4)
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: guilt ~ futhrt * mentill
+## Model 2: guilt ~ poly(futhrt, 2) + mentill
+##   Res.Df RSS Df Sum of Sq F Pr(>F)
+## 1    236 139                      
+## 2    236 139  0     -0.72
+```
+
+```r
+
+m4a <- lm(guilt ~ poly(futhrt, 2), d0)
+anova(m1, m4a, m4)
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: guilt ~ futhrt
+## Model 2: guilt ~ poly(futhrt, 2)
+## Model 3: guilt ~ poly(futhrt, 2) + mentill
+##   Res.Df RSS Df Sum of Sq     F  Pr(>F)    
+## 1    238 163                               
+## 2    237 162  1      1.67  2.83   0.094 .  
+## 3    236 139  1     22.29 37.76 3.4e-09 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+
+anova(m2, m4)
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: guilt ~ futhrt + mentill
+## Model 2: guilt ~ poly(futhrt, 2) + mentill
+##   Res.Df RSS Df Sum of Sq    F Pr(>F)  
+## 1    237 142                           
+## 2    236 139  1      2.28 3.86  0.051 .
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+
+
+```r
+
+anova(m4, m5)
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: guilt ~ poly(futhrt, 2) + mentill
+## Model 2: guilt ~ poly(futhrt, 2) * mentill
+##   Res.Df RSS Df Sum of Sq    F Pr(>F)
+## 1    236 139                         
+## 2    234 137  2      2.49 2.13   0.12
+```
+
+
+Which model would we use?
