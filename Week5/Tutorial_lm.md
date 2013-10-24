@@ -735,15 +735,16 @@ So how do we decide which model is best?
 
 ```r
 
-anova(m1, m2, m3)  # why wouldn't we compare m4?
+# linear models
+anova(m1, m2_centered, m3_centered)  # why wouldn't we compare m4?
 ```
 
 ```
 ## Analysis of Variance Table
 ## 
 ## Model 1: guilt ~ futhrt
-## Model 2: guilt ~ futhrt + mentill
-## Model 3: guilt ~ futhrt * mentill
+## Model 2: guilt ~ scale(futhrt, scale = FALSE) + mentill
+## Model 3: guilt ~ scale(futhrt, scale = FALSE) * mentill
 ##   Res.Df RSS Df Sum of Sq    F  Pr(>F)    
 ## 1    238 163                              
 ## 2    237 142  1      21.7 36.9 4.9e-09 ***
@@ -754,13 +755,14 @@ anova(m1, m2, m3)  # why wouldn't we compare m4?
 
 ```r
 
-anova(m3, m4)
+# addition of quadratic trend
+anova(m3_centered, m4)
 ```
 
 ```
 ## Analysis of Variance Table
 ## 
-## Model 1: guilt ~ futhrt * mentill
+## Model 1: guilt ~ scale(futhrt, scale = FALSE) * mentill
 ## Model 2: guilt ~ poly(futhrt, 2) + mentill
 ##   Res.Df RSS Df Sum of Sq F Pr(>F)
 ## 1    236 139                      
@@ -769,33 +771,14 @@ anova(m3, m4)
 
 ```r
 
-m4a <- lm(guilt ~ poly(futhrt, 2), d0)
-anova(m1, m4a, m4)
+# addition of quadratic trend to additive model
+anova(m2_centered, m4)
 ```
 
 ```
 ## Analysis of Variance Table
 ## 
-## Model 1: guilt ~ futhrt
-## Model 2: guilt ~ poly(futhrt, 2)
-## Model 3: guilt ~ poly(futhrt, 2) + mentill
-##   Res.Df RSS Df Sum of Sq     F  Pr(>F)    
-## 1    238 163                               
-## 2    237 162  1      1.67  2.83   0.094 .  
-## 3    236 139  1     22.29 37.76 3.4e-09 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
-
-```r
-
-anova(m2, m4)
-```
-
-```
-## Analysis of Variance Table
-## 
-## Model 1: guilt ~ futhrt + mentill
+## Model 1: guilt ~ scale(futhrt, scale = FALSE) + mentill
 ## Model 2: guilt ~ poly(futhrt, 2) + mentill
 ##   Res.Df RSS Df Sum of Sq    F Pr(>F)  
 ## 1    237 142                           
@@ -804,38 +787,337 @@ anova(m2, m4)
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
-
-
 ```r
-anova(m4, m5)
+
+# addition of quadratic trend to interactive model
+anova(m3_centered, m5)
 ```
 
 ```
 ## Analysis of Variance Table
 ## 
-## Model 1: guilt ~ poly(futhrt, 2) + mentill
+## Model 1: guilt ~ scale(futhrt, scale = FALSE) * mentill
 ## Model 2: guilt ~ poly(futhrt, 2) * mentill
 ##   Res.Df RSS Df Sum of Sq    F Pr(>F)
 ## 1    236 139                         
-## 2    234 137  2      2.49 2.13   0.12
+## 2    234 137  2      1.77 1.51   0.22
 ```
-
 
 Which model would we use?
 
 
 
 
-## Continuous Interations
-library(MASS)
-data(road)
-str(road)
+Continuous Interations
+------------------------
+
+First let's start by loading in some generic R data
 
 ```r
-with(road, coplot(deaths ~ temp | rural))
+library(MASS)
+data(state)
+state = data.frame(state.x77)
+str(state)
 ```
 
 ```
-## Error: object 'road' not found
+## 'data.frame':	50 obs. of  8 variables:
+##  $ Population: num  3615 365 2212 2110 21198 ...
+##  $ Income    : num  3624 6315 4530 3378 5114 ...
+##  $ Illiteracy: num  2.1 1.5 1.8 1.9 1.1 0.7 1.1 0.9 1.3 2 ...
+##  $ Life.Exp  : num  69 69.3 70.5 70.7 71.7 ...
+##  $ Murder    : num  15.1 11.3 7.8 10.1 10.3 6.8 3.1 6.2 10.7 13.9 ...
+##  $ HS.Grad   : num  41.3 66.7 58.1 39.9 62.6 63.9 56 54.6 52.6 40.6 ...
+##  $ Frost     : num  20 152 15 65 20 166 139 103 11 60 ...
+##  $ Area      : num  50708 566432 113417 51945 156361 ...
 ```
+
+
+What is the effect of Illiteracy on Income?
+
+```r
+ggplot(state, 
+       aes(x=scale(Illiteracy, scale=FALSE), 
+           y=Income)) +  # Adding color for mentill
+  geom_point(shape=1) +  
+  geom_smooth(method=lm) +
+  theme_bw()
+```
+
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
+
+```r
+
+res_illit = lm(Income~scale(Illiteracy, scale=FALSE), data = state)
+summary(res_illit)
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ scale(Illiteracy, scale = FALSE), data = state)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -948.9 -376.2  -49.8  347.0 2024.6 
+## 
+## Coefficients:
+##                                  Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                          4436         79   56.17   <2e-16 ***
+## scale(Illiteracy, scale = FALSE)     -441        131   -3.37   0.0015 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 558 on 48 degrees of freedom
+## Multiple R-squared:  0.191,	Adjusted R-squared:  0.174 
+## F-statistic: 11.3 on 1 and 48 DF,  p-value: 0.00151
+```
+
+
+What is the effect of Murder Rate on Income?
+
+```r
+ggplot(state, 
+       aes(x=scale(Murder, scale=FALSE), 
+           y=Income)) +  # Adding color for mentill
+  geom_point(shape=1) +  
+  geom_smooth(method=lm) +
+  theme_bw()
+```
+
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17.png) 
+
+```r
+
+res_murder = lm(Income~scale(Murder, scale=FALSE), data = state)
+summary(res_illit)
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ scale(Illiteracy, scale = FALSE), data = state)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -948.9 -376.2  -49.8  347.0 2024.6 
+## 
+## Coefficients:
+##                                  Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                          4436         79   56.17   <2e-16 ***
+## scale(Illiteracy, scale = FALSE)     -441        131   -3.37   0.0015 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 558 on 48 degrees of freedom
+## Multiple R-squared:  0.191,	Adjusted R-squared:  0.174 
+## F-statistic: 11.3 on 1 and 48 DF,  p-value: 0.00151
+```
+
+
+What about interactive (or additive) effects of illiteracy and murder rate on income?
+
+```r
+res_add = lm(Income ~ scale(Illiteracy, scale = FALSE) + scale(Murder, scale = FALSE), 
+    data = state)
+
+res_inter = lm(Income ~ scale(Illiteracy, scale = FALSE) * scale(Murder, scale = FALSE), 
+    data = state)
+summary(res_inter)
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ scale(Illiteracy, scale = FALSE) * scale(Murder, 
+##     scale = FALSE), data = state)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -955.2 -326.0   10.7  300.0 1892.1 
+## 
+## Coefficients:
+##                                                               Estimate
+## (Intercept)                                                    4617.31
+## scale(Illiteracy, scale = FALSE)                               -246.59
+## scale(Murder, scale = FALSE)                                      9.82
+## scale(Illiteracy, scale = FALSE):scale(Murder, scale = FALSE)  -117.10
+##                                                               Std. Error
+## (Intercept)                                                        96.34
+## scale(Illiteracy, scale = FALSE)                                  200.26
+## scale(Murder, scale = FALSE)                                       28.80
+## scale(Illiteracy, scale = FALSE):scale(Murder, scale = FALSE)      40.13
+##                                                               t value
+## (Intercept)                                                     47.93
+## scale(Illiteracy, scale = FALSE)                                -1.23
+## scale(Murder, scale = FALSE)                                     0.34
+## scale(Illiteracy, scale = FALSE):scale(Murder, scale = FALSE)   -2.92
+##                                                               Pr(>|t|)    
+## (Intercept)                                                     <2e-16 ***
+## scale(Illiteracy, scale = FALSE)                                0.2244    
+## scale(Murder, scale = FALSE)                                    0.7348    
+## scale(Illiteracy, scale = FALSE):scale(Murder, scale = FALSE)   0.0054 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 520 on 46 degrees of freedom
+## Multiple R-squared:  0.327,	Adjusted R-squared:  0.283 
+## F-statistic: 7.46 on 3 and 46 DF,  p-value: 0.000359
+```
+
+
+Model comparison:
+
+```r
+anova(res_illit, res_add, res_inter)
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: Income ~ scale(Illiteracy, scale = FALSE)
+## Model 2: Income ~ scale(Illiteracy, scale = FALSE) + scale(Murder, scale = FALSE)
+## Model 3: Income ~ scale(Illiteracy, scale = FALSE) * scale(Murder, scale = FALSE)
+##   Res.Df      RSS Df Sum of Sq    F Pr(>F)   
+## 1     48 14966741                            
+## 2     47 14748893  1    217848 0.81 0.3742   
+## 3     46 12445502  1   2303391 8.51 0.0054 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Looks like our interactive model performs the best!
+
+
+### Understanding our interaction
+
+For a first step, it can be a good idea to visualize your data
+
+```r
+with(state, coplot(Income ~ scale(Murder, scale = FALSE) | scale(Illiteracy, 
+    scale = FALSE)))
+```
+
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-201.png) 
+
+```r
+
+with(state, coplot(Income ~ scale(Illiteracy, scale = FALSE) | scale(Murder, 
+    scale = FALSE)))
+```
+
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-202.png) 
+
+
+
+```r
+# Slope at the mean of Illiteracy
+summary(lm(Income ~ I(scale(Illiteracy)) * scale(Murder), data = state))
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ I(scale(Illiteracy)) * scale(Murder), data = state)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -955.2 -326.0   10.7  300.0 1892.1 
+## 
+## Coefficients:
+##                                    Estimate Std. Error t value Pr(>|t|)
+## (Intercept)                          4617.3       96.3   47.93   <2e-16
+## I(scale(Illiteracy))                 -150.3      122.1   -1.23   0.2244
+## scale(Murder)                          36.2      106.3    0.34   0.7348
+## I(scale(Illiteracy)):scale(Murder)   -263.5       90.3   -2.92   0.0054
+##                                       
+## (Intercept)                        ***
+## I(scale(Illiteracy))                  
+## scale(Murder)                         
+## I(scale(Illiteracy)):scale(Murder) ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 520 on 46 degrees of freedom
+## Multiple R-squared:  0.327,	Adjusted R-squared:  0.283 
+## F-statistic: 7.46 on 3 and 46 DF,  p-value: 0.000359
+```
+
+```r
+
+# Simple slope at scale(Illiteracy) + 1SD
+summary(lm(Income ~ I(scale(Illiteracy) - 1) * scale(Murder), data = state))
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ I(scale(Illiteracy) - 1) * scale(Murder), 
+##     data = state)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -955.2 -326.0   10.7  300.0 1892.1 
+## 
+## Coefficients:
+##                                        Estimate Std. Error t value
+## (Intercept)                              4467.0      179.0   24.96
+## I(scale(Illiteracy) - 1)                 -150.3      122.1   -1.23
+## scale(Murder)                            -227.2      151.7   -1.50
+## I(scale(Illiteracy) - 1):scale(Murder)   -263.5       90.3   -2.92
+##                                        Pr(>|t|)    
+## (Intercept)                              <2e-16 ***
+## I(scale(Illiteracy) - 1)                 0.2244    
+## scale(Murder)                            0.1410    
+## I(scale(Illiteracy) - 1):scale(Murder)   0.0054 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 520 on 46 degrees of freedom
+## Multiple R-squared:  0.327,	Adjusted R-squared:  0.283 
+## F-statistic: 7.46 on 3 and 46 DF,  p-value: 0.000359
+```
+
+```r
+
+# Simple slope at scale(Illiteracy) - 1SD
+summary(lm(Income ~ I(scale(Illiteracy) + 1) * scale(Murder), data = state))
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ I(scale(Illiteracy) + 1) * scale(Murder), 
+##     data = state)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -955.2 -326.0   10.7  300.0 1892.1 
+## 
+## Coefficients:
+##                                        Estimate Std. Error t value
+## (Intercept)                              4767.6      127.8   37.31
+## I(scale(Illiteracy) + 1)                 -150.3      122.1   -1.23
+## scale(Murder)                             299.7      126.1    2.38
+## I(scale(Illiteracy) + 1):scale(Murder)   -263.5       90.3   -2.92
+##                                        Pr(>|t|)    
+## (Intercept)                              <2e-16 ***
+## I(scale(Illiteracy) + 1)                 0.2244    
+## scale(Murder)                            0.0217 *  
+## I(scale(Illiteracy) + 1):scale(Murder)   0.0054 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 520 on 46 degrees of freedom
+## Multiple R-squared:  0.327,	Adjusted R-squared:  0.283 
+## F-statistic: 7.46 on 3 and 46 DF,  p-value: 0.000359
+```
+
+
+1.  At the mean of Illiteracy: Income = 4617.31 + 36.23 * zMurder
+2.  At +1 SD Illiteracy: Income = 4467 - 227.2 * zMurder
+3.  At -1 SD Illiteracy: Income = 4767.6 + 299.7 * zMurder
+
+
+
 
