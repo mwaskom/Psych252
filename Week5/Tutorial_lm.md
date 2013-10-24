@@ -998,15 +998,13 @@ with(state, coplot(Income ~ scale(Murder, scale = FALSE) | scale(Illiteracy,
     scale = FALSE)))
 ```
 
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-201.png) 
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20.png) 
 
 ```r
 
-with(state, coplot(Income ~ scale(Illiteracy, scale = FALSE) | scale(Murder, 
-    scale = FALSE)))
+# alternately, with(state,coplot(Income~ scale(Illiteracy, scale=FALSE) |
+# scale(Murder, scale=FALSE)))
 ```
-
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-202.png) 
 
 
 
@@ -1119,5 +1117,21 @@ summary(lm(Income ~ I(scale(Illiteracy) + 1) * scale(Murder), data = state))
 3.  At -1 SD Illiteracy: Income = 4767.6 + 299.7 * zMurder
 
 
+```r
+ggplot(state, 
+       aes(x=scale(Murder), 
+           y=Income)) +  # Adding color for mentill
+  geom_point(shape=1) +  
+  theme_bw() + 
+  # effect of murder on income @mean illiteracy
+  geom_abline(aes(intercept=4617.31, slope=36.23), colour='black') +
+  # effect of murder on income @+1SD illiteracy
+  geom_abline(aes(intercept=4467, slope=-227.2), colour='red') +
+  # effect of murder on income @-1SD illiteracy
+  geom_abline(aes(intercept=4767.6, slope=229.7), colour='green')+
+  ggtitle('Interaction between Murder and Illiteracy on Income')
+```
+
+![plot of chunk unnamed-chunk-22](figure/unnamed-chunk-22.png) 
 
 
