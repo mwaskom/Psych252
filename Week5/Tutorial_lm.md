@@ -80,7 +80,6 @@ It's always a good idea to see what trends might exist in your data; this will b
 
 Simplest plot:
 
-
 ```r
 with(d0, plot(mentill, futhrt))
 ```
@@ -88,6 +87,7 @@ with(d0, plot(mentill, futhrt))
 ![plot of chunk simple boxplots](figure/simple_boxplots.png) 
 
 
+Or, you can use the ggplot2 package:
 
 ```r
 library(ggplot2)
@@ -113,8 +113,8 @@ Generate Hypotheses
 How does perceived **mental illness** of the defendant influence how much the participant thinks the defendant will be a **future threat**?
 
 Possible explanations?
-1. If a person is mentally ill, they might cause a lot of harm to society, but not necessarily know why; they might be worse at controlling their actions.
-2. A person who is not mentall ill might commit specific crimes against people they know (e.g., if someone found out their significant other was cheating on them, they might harm the person who was cheating), and thus not pose as big a threat to everyone in society.
+ 1.   If a person is mentally ill, they might cause a lot of harm to society, but not necessarily know why; they might be worse at controlling their actions.
+ 2.   A person who is not mentally ill might commit specific crimes against people they know (e.g., if someone found out their significant other was cheating on them, they might harm the person who was cheating), and thus not pose as big a threat to everyone in society.
 
 
 ```r
@@ -185,7 +185,8 @@ ddply(d0, ~mentill, summarise, mean = mean(futhrt), sd = sd(futhrt), n = length(
 
 Here, we can see that **mental illness** is *categorical*; it has the value of "not mentally ill/normal" or "mentally ill". Perceived **future threat** is continuous, since participants rated this variable on a scale.
 
-By looking at the summary statistics, we can see that the mean perceived future threat for normal people = 3.633, and the mean perceived threat for mentally ill people = 4.433.
+By looking at the summary statistics, we can see that the mean perceived future threat for normal people = `3.633`, and the mean perceived threat for mentally ill people = `4.433`.
+
 
 Testing Hypotheses
 -------------------
@@ -193,7 +194,7 @@ Does perceived **mental illness** of the defendant influence how much the partic
 
 To test this, we could use an unpaired t-test (since there are only two groups), or a general linear model (i.e., `lm()`). The results should be the same in either case.
 
-First, let's use a t-test:
+First, let's use a t-test (make sure we specify `paired=FALSE` since different subjects read different stories!):
 
 ```r
 # are the variances in futhrt equal between mental illness groups?
@@ -211,7 +212,7 @@ bartlett.test(futhrt ~ mentill, data = d0)
 ```r
 
 `?`(t.test)
-t1 <- t.test(futhrt ~ mentill, data = d0, paired = FALSE, var.equal = TRUE)
+t1 = t.test(futhrt ~ mentill, data = d0, paired = FALSE, var.equal = TRUE)
 print(t1)
 ```
 
@@ -227,26 +228,6 @@ print(t1)
 ## sample estimates:
 ##       mean in group Normal mean in group Mentally Ill 
 ##                      3.633                      4.433
-```
-
-```r
-
-## compare to paired
-t.test(futhrt ~ mentill, data = d0, paired = TRUE, var.equal = TRUE)
-```
-
-```
-## 
-## 	Paired t-test
-## 
-## data:  futhrt by mentill
-## t = -4.043, df = 119, p-value = 9.414e-05
-## alternative hypothesis: true difference in means is not equal to 0
-## 95 percent confidence interval:
-##  -1.1918 -0.4082
-## sample estimates:
-## mean of the differences 
-##                    -0.8
 ```
 
 
@@ -304,10 +285,13 @@ anova(rs1)
 ```
 
 
-Here, we can see that the anova() output is identical to the t-test we ran above. However, we get some more information when looking at the lm() output. Here, the estimate for the intercept (i.e., `3.633`) gives us the `y-intercept` for our model; this is the value of `futhrt` where `mentill` = 0. In other words, this is the mean value of `futhrt` for the *control* group of `mentill`. That is, since mental illness is categorical, `lm()` automatically **dummy-codes** the variable. That means that one condition is treated as a "control" (and coded as 0), and the other condition(s) are compared to that control via the dummy-coding. 
+Here, we can see that the anova() output is **identical to the t-test** we ran above. However, we get some more information when looking at the lm() output. 
+
+### Interpreting the Intercept from `lm()`
+The estimate for the intercept (i.e., `3.633`) gives us the `y-intercept` for our model; in this example, the y-intercept is the value of `futhrt` where `mentill` = 0. Importantly, when using R's default coding, this y-intercept value is the mean value of `futhrt` for the *control* group of `mentill`. That is, since mental illness is categorical, `lm()` automatically **dummy-codes** the variable; that means that one condition is treated as a **"control" (and coded as 0)**, and the other condition(s) are compared to that control via the dummy-coding. 
 
 To get a sense for this, let's take a look at the default dummy contrasts:
-### Contrasts
+### Dummy coding contrasts
 
 ```r
 contrasts(d0$mentill)
@@ -322,12 +306,27 @@ contrasts(d0$mentill)
 
 We can see that the column `Mentally Ill` gives `Normal` a value of 0, and `Mentally Ill` a value of 1. As a result, the `Normal` level of `mentill` is treated as the control, and the `lm()` will compare the level `Mentally Ill` to the `Normal` level.
 
-As we can see from the output of the `lm()`, the **intercept estimate gives us the mean value of future threat for the Normal condition**. 
+As we can see from the output of the `lm()`, the **intercept estimate gives us the mean value of future threat for the Normal (i.e., "control") condition**. 
 
-In addition the `mentillMentally Ill` estimate is giving us the results from the first column of our contrasts for `mentill` (in this case, our *only* column), that is called `Mentally Ill`. The `estimate` for this contrast is basically the difference between the mean futhrt of our `Mentally Ill` group, relative to our `Normal` group. Thus, we can derive the **mean value of future threat for the Mentally Ill condition by adding the estimate (i.e., slope) to the intercept; this gives us 3.633 + 0.800 = 4.433, the mean perceived future threat for the Mentally Ill group.**
+### Interpreting the estimates/coefficients/slopes
+Further, the `mentillMentally Ill` estimate in our `lm()` output gives us the results from the column of our contrasts for `mentill` (in this case, our *only* column), that is called `Mentally Ill`. R uses the format `variableConstrastName` to label each contrast, and these contrasts are what appear in the `lm()` output. By default, the 2nd level of the variable will become the first contrast (and 3rd level the 2nd contrast, etc.).
+
+In the `lm()` output, the `estimate` for this contrast is basically the difference between the mean `futhrt` of our `Mentally Ill` group, relative to our `Normal` group. Thus, we can derive the **mean value of future threat for the Mentally Ill condition by adding the estimate (i.e., slope) to the intercept; this gives us 3.633 + 0.800 = 4.433, the mean perceived future threat for the Mentally Ill group.**
 
 
 ```r
+# adding the intercept + the estimate/slope of 'Mentally Ill'
+rs1$coefficients[1] + rs1$coefficients[2]
+```
+
+```
+## (Intercept) 
+##       4.433
+```
+
+```r
+
+# calculating the mean of mentally ill
 mean(d0$futhrt[d0$mentill == "Mentally Ill"])
 ```
 
@@ -336,21 +335,17 @@ mean(d0$futhrt[d0$mentill == "Mentally Ill"])
 ```
 
 
+
 More complicated questions (testing the relationship between multiple variables)
 -------------------------------------------------
+One nice thing about general linear models is that you can explore more complicated relationships between variables. For instance, what if you wanted to know how **perceptions of future threat** (a *continuous* variable) and **mental illness** (a *categorical* variable) influence the **judgment of guilt** (a *continuous* variable)?
 
-Now let's take a look at a more complicated model.  What would we expect if we looked at whether mental illness and perceptions of being a future threat predict judgments of guilt?  Would we predict main effects?  Interactions?
+Is there a **main effect** of mental illness, such that someone perceived as mentally ill is considered less guilty? Is there a **main effect** of perception of future threat, such that those with a higher level of perceived future threat are considered more guilty? Is there an **additive** effect of mental illness and future threat, such that one level of mental illness results in higher levels of guilt across all levels of perceived future threat? Or, might there be an **interaction**, such that whether or not a person is perceived as mentally ill influences the relationship between perceived future threat on judgements of guilt? In the case of an interaction, it might be the case that for mentally ill people, the perceived future threat of a defendant doesn't have much effect on the guilt of the defendant. However, for normal people, whether or not someone is a perceived future threat might have a large impact on their perceived guilt.
 
-Mental illness: Categorical IV
-Future threat: Continuous IV
-
-Guilt: Continuous DV
-(1 = Definitely Not Guilty, 2 = Probably Not Guilty, 3 = Probably Guilty, or 4 = Definitely Guilty)
-
-Let's start out with the simplest model.
+### Single term model
+Let's start out with a simple model:
 
 ```r
-
 m1 = lm(guilt ~ futhrt, d0)  # What kind of test is this?
 summary(m1)
 ```
@@ -377,43 +372,62 @@ summary(m1)
 ```
 
 
-Seems like as judges perceive a target to be a greater future threat, they are more likely to think the defendant is guilty. Let's explore some different ways to plot this.
+Seems like as people perceive the defendant to be a greater future threat, they are more likely to think the defendant is guilty.
 
 
 ```r
-
-with(d0, plot(futhrt, guilt))
-lines(abline(m1, col='green'))
+ggplot(d0, aes(x = futhrt, y = guilt)) + geom_point(shape = 1, position = position_jitter(width = 0.3, 
+    height = 0.3)) + geom_smooth(method = lm, fullrange = TRUE)
 ```
 
-![plot of chunk plotting options](figure/plotting_options1.png) 
+![plot of chunk plotting options ](figure/plotting_options_.png) 
+
+However, we can see that the intercept here does not give us the mean value of guilt, i.e., the value of guilt at the mean value of future threat.
+
+### CENTERING continuous variables (i.e., future threat):
 
 ```r
-
-ggplot(d0, aes(x=futhrt, y=guilt)) + 
-  geom_point(shape=1) +  # Use hollow circles
-  geom_smooth(method=lm, fullrange=TRUE) # Add linear regression line 
+m1_centered = lm(guilt ~ scale(futhrt, scale = FALSE), d0)  # What kind of test is this?
+summary(m1_centered)
 ```
 
-![plot of chunk plotting options](figure/plotting_options2.png) 
-
-```r
-                         #  (by default includes 95% confidence region, to remove
-                         #   use se=FALSE)
-
-ggplot(d0, aes(x=futhrt, y=guilt)) + 
-  geom_point(shape=1, position=position_jitter(width=.5,height=.25)) +  
-  geom_smooth(method=lm, fullrange=TRUE)
+```
+## 
+## Call:
+## lm(formula = guilt ~ scale(futhrt, scale = FALSE), data = d0)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.4468 -0.9361  0.0639  0.8596  1.1660 
+## 
+## Coefficients:
+##                              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                    2.0417     0.0535   38.19   <2e-16 ***
+## scale(futhrt, scale = FALSE)   0.1021     0.0337    3.03   0.0027 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.828 on 238 degrees of freedom
+## Multiple R-squared:  0.0371,	Adjusted R-squared:  0.0331 
+## F-statistic: 9.18 on 1 and 238 DF,  p-value: 0.00272
 ```
 
-![plot of chunk plotting options](figure/plotting_options3.png) 
-
-
-Let's move on to a more complicated model.
-
-
 ```r
 
+# mean value of guilt
+mean(d0$guilt)
+```
+
+```
+## [1] 2.042
+```
+
+Here, we can see that the results are essentially the same as what we saw with the uncentered version of `futhrt`, however, when we center, our intercept is more informative.
+
+### Additive model
+Let's move on to a more complicated **ADDITIVE** model.
+
+```r
 m2 = lm(guilt ~ futhrt + mentill, d0)
 summary(m2)
 ```
@@ -440,30 +454,66 @@ summary(m2)
 ## F-statistic: 23.4 on 2 and 237 DF,  p-value: 5.25e-10
 ```
 
+What kind of model is this? Additive!
 
-What kind of model is this? 
-Additive!
+Now, let's see what happens when we center `futhrt`:
 
-What would we conclude from this output? 
+```r
+m2_centered = lm(guilt ~ scale(futhrt, scale = FALSE) + mentill, d0)
+summary(m2_centered)
+```
 
+```
+## 
+## Call:
+## lm(formula = guilt ~ scale(futhrt, scale = FALSE) + mentill, 
+##     data = d0)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.4988 -0.5745 -0.0442  0.6528  1.5771 
+## 
+## Coefficients:
+##                              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                    2.3523     0.0718   32.78  < 2e-16 ***
+## scale(futhrt, scale = FALSE)   0.1515     0.0325    4.66  5.2e-06 ***
+## mentillMentally Ill           -0.6212     0.1031   -6.02  6.4e-09 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.773 on 237 degrees of freedom
+## Multiple R-squared:  0.165,	Adjusted R-squared:  0.158 
+## F-statistic: 23.4 on 2 and 237 DF,  p-value: 5.25e-10
+```
 
 ```r
 
+# approximate interpretation of the intercept:
+mean(d0$guilt[d0$mentill == "Normal"])
+```
+
+```
+## [1] 2.292
+```
+
+Again, we can see most of the results stay the same, but the intercept changes. Now, the intercept is the mean level of `guilt` where `futhrt` = 0 (i.e., the mean of future threat), and where `mentill` = 0 (i.e., for Normal people).
+
+What would we conclude from this output? 
+
+```r
 qplot(x = futhrt, y = guilt, data = d0, geom = c("jitter", "smooth"), method = "lm", 
     se = FALSE, color = mentill, main = "Predictors of Perceived Guilt", xlab = "Future Threat", 
     ylab = "Guilt")
 ```
 
-![plot of chunk qplot](figure/qplot.png) 
-
+![plot of chunk q](figure/q.png) 
 
 What does it look like is going on in this plot?
 
-Let's check out a more complicated model
-
+### Interactive model
+Let's check out a more complicated **INTERACTIVE** model:
 
 ```r
-
 m3 = lm(guilt ~ futhrt * mentill, d0)
 summary(m3)
 ```
@@ -491,56 +541,36 @@ summary(m3)
 ## F-statistic: 17.6 on 3 and 236 DF,  p-value: 2.46e-10
 ```
 
+This model is looking at the effect of mental illness where future threat is = 0, the effect of future threat where mental illness = 0 (i.e., for normal people), and the interaction of these two variables.
 
-What would we conclude from this output?
-
-
-```r
-
-with(d0, interaction.plot(futhrt, mentill, guilt, col = 2:3))  # Not the best, plotting mean for each value of the continuous variable "futhrt" 
-```
-
-![plot of chunk plots](figure/plots1.png) 
+Now, again let's try **centering** `futhrt`:
 
 ```r
-
-ggplot(d0, aes(x=futhrt, y=guilt, colour=mentill)) +  # Adding color for mentill
-  geom_point(shape=1, position=position_jitter(width=1,height=.5)) +  
-  geom_smooth(method=lm, se=FALSE) +
-  theme_bw()
-```
-
-![plot of chunk plots](figure/plots2.png) 
-
-
-Let's center this model!
-
-
-```r
-m5c = lm(guilt~ I(futhrt - mean(futhrt)) * mentill, d0)
-summary(m5c)
+m3_centered = lm(guilt ~ scale(futhrt, scale = FALSE) * mentill, d0)
+summary(m3_centered)
 ```
 
 ```
 ## 
 ## Call:
-## lm(formula = guilt ~ I(futhrt - mean(futhrt)) * mentill, data = d0)
+## lm(formula = guilt ~ scale(futhrt, scale = FALSE) * mentill, 
+##     data = d0)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
 ## -1.6044 -0.6728  0.0802  0.6244  1.4101 
 ## 
 ## Coefficients:
-##                                              Estimate Std. Error t value
-## (Intercept)                                    2.3832     0.0724   32.90
-## I(futhrt - mean(futhrt))                       0.2288     0.0470    4.87
-## mentillMentally Ill                           -0.6247     0.1023   -6.11
-## I(futhrt - mean(futhrt)):mentillMentally Ill  -0.1459     0.0646   -2.26
-##                                              Pr(>|t|)    
-## (Intercept)                                   < 2e-16 ***
-## I(futhrt - mean(futhrt))                      2.1e-06 ***
-## mentillMentally Ill                           4.1e-09 ***
-## I(futhrt - mean(futhrt)):mentillMentally Ill    0.025 *  
+##                                                  Estimate Std. Error
+## (Intercept)                                        2.3832     0.0724
+## scale(futhrt, scale = FALSE)                       0.2288     0.0470
+## mentillMentally Ill                               -0.6247     0.1023
+## scale(futhrt, scale = FALSE):mentillMentally Ill  -0.1459     0.0646
+##                                                  t value Pr(>|t|)    
+## (Intercept)                                        32.90  < 2e-16 ***
+## scale(futhrt, scale = FALSE)                        4.87  2.1e-06 ***
+## mentillMentally Ill                                -6.11  4.1e-09 ***
+## scale(futhrt, scale = FALSE):mentillMentally Ill   -2.26    0.025 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -549,24 +579,82 @@ summary(m5c)
 ## F-statistic: 17.6 on 3 and 236 DF,  p-value: 2.46e-10
 ```
 
+When we center, first note that our *interaction term stays the same*. However, whereas before the effect of mental illness wasn't significant, now it is. This is because now we are looking at the effect of mental illness where future threat is equal to 0, where future threat = 0 is the mean value of future threat. 
+
+However, this model centering `futhrt` is looking at the effect of future threat where `mentill` = 0. In order to look at the **main effect** of future threat, we need to also center `mentill`. One way we can do this is with **effect coding**.
+
+### Effect Coding
+
+```r
+# Effect code mentill
+contrasts(d0$mentill) = c(1, -1)
+contrasts(d0$mentill)
+```
+
+```
+##              [,1]
+## Normal          1
+## Mentally Ill   -1
+```
+
 ```r
 
-ggplot(d0, aes(x=scale(futhrt), y=guilt, colour=mentill)) +  # Adding color for mentill
+m3_centered_fmentill = lm(guilt ~ scale(futhrt, scale = FALSE) * mentill, d0)
+summary(m3_centered_fmentill)
+```
+
+```
+## 
+## Call:
+## lm(formula = guilt ~ scale(futhrt, scale = FALSE) * mentill, 
+##     data = d0)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.6044 -0.6728  0.0802  0.6244  1.4101 
+## 
+## Coefficients:
+##                                       Estimate Std. Error t value Pr(>|t|)
+## (Intercept)                             2.0708     0.0511   40.50  < 2e-16
+## scale(futhrt, scale = FALSE)            0.1559     0.0323    4.83  2.5e-06
+## mentill1                                0.3123     0.0511    6.11  4.1e-09
+## scale(futhrt, scale = FALSE):mentill1   0.0729     0.0323    2.26    0.025
+##                                          
+## (Intercept)                           ***
+## scale(futhrt, scale = FALSE)          ***
+## mentill1                              ***
+## scale(futhrt, scale = FALSE):mentill1 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.766 on 236 degrees of freedom
+## Multiple R-squared:  0.183,	Adjusted R-squared:  0.172 
+## F-statistic: 17.6 on 3 and 236 DF,  p-value: 2.46e-10
+```
+
+Now, these results show us the main effect of future threat, the main effect of mental illness, and the interaction.
+
+
+Let's visualize the centered model:
+
+```r
+ggplot(d0, 
+       aes(x=scale(futhrt, scale=FALSE), 
+           y=guilt, colour=mentill)) +  # Adding color for mentill
   geom_point(shape=1, position=position_jitter(width=1,height=.5)) +  
   geom_smooth(method=lm, se=FALSE) +
   theme_bw()
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
 
 
-Note what changed in the coefficients - why would this have changed?
 
+
+### Non-linear trends (quadratic relationships)
 Now let's explore whether there is a quadratic relationship in our data.
 
-
 ```r
-
 m4 = lm(guilt ~ poly(futhrt, 2) + mentill, d0)
 summary(m4)
 ```
@@ -581,11 +669,11 @@ summary(m4)
 ## -1.5672 -0.5875  0.0386  0.5801  1.6691 
 ## 
 ## Coefficients:
-##                     Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)           2.3569     0.0714   33.03  < 2e-16 ***
-## poly(futhrt, 2)1      3.7415     0.7941    4.71  4.2e-06 ***
-## poly(futhrt, 2)2     -1.5108     0.7692   -1.96    0.051 .  
-## mentillMentally Ill  -0.6305     0.1026   -6.14  3.4e-09 ***
+##                  Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)        2.0417     0.0496   41.17  < 2e-16 ***
+## poly(futhrt, 2)1   3.7415     0.7941    4.71  4.2e-06 ***
+## poly(futhrt, 2)2  -1.5108     0.7692   -1.96    0.051 .  
+## mentill1           0.3153     0.0513    6.14  3.4e-09 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -597,22 +685,20 @@ summary(m4)
 
 How might we plot this?
 
-
 ```r
-
-ggplot(d0, aes(x = futhrt, y = guilt, colour = mentill)) + geom_point(shape = 1, 
-    position = position_jitter(width = 1, height = 0.5)) + geom_smooth(method = "loess", 
-    se = FALSE)  # remove 'method=lm', loess smooth fit curve!
+ggplot(d0, aes(x = scale(futhrt, scale = FALSE), y = guilt, colour = mentill)) + 
+    geom_point(shape = 1, position = position_jitter(width = 1, height = 0.5)) + 
+    geom_smooth(method = "loess", se = FALSE)  # remove 'method=lm', loess smooth fit curve!
 ```
 
-![plot of chunk loess](figure/loess.png) 
+![plot of chunk loess ](figure/loess_.png) 
+
+Using **"loess"** as a smoothing term fits a locally weighted line to the data, and thus might help highlight non-linear trends.
 
 
-Interactive model
-
+Now let's add an interactive term to test an **interactive, quadratic** model:
 
 ```r
-
 m5 = lm(guilt ~ poly(futhrt, 2) * mentill, d0)
 summary(m5)
 ```
@@ -627,20 +713,13 @@ summary(m5)
 ## -1.6102 -0.6554  0.0835  0.6150  1.5903 
 ## 
 ## Coefficients:
-##                                      Estimate Std. Error t value Pr(>|t|)
-## (Intercept)                            2.3827     0.0723   32.94  < 2e-16
-## poly(futhrt, 2)1                       5.5515     1.2081    4.60  7.1e-06
-## poly(futhrt, 2)2                      -0.2184     1.1220   -0.19    0.846
-## mentillMentally Ill                   -0.6400     0.1025   -6.25  2.0e-09
-## poly(futhrt, 2)1:mentillMentally Ill  -2.8967     1.6631   -1.74    0.083
-## poly(futhrt, 2)2:mentillMentally Ill  -1.7748     1.6088   -1.10    0.271
-##                                         
-## (Intercept)                          ***
-## poly(futhrt, 2)1                     ***
-## poly(futhrt, 2)2                        
-## mentillMentally Ill                  ***
-## poly(futhrt, 2)1:mentillMentally Ill .  
-## poly(futhrt, 2)2:mentillMentally Ill    
+##                           Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                 2.0627     0.0512   40.26  < 2e-16 ***
+## poly(futhrt, 2)1            4.1032     0.8315    4.93  1.5e-06 ***
+## poly(futhrt, 2)2           -1.1058     0.8044   -1.37    0.171    
+## mentill1                    0.3200     0.0512    6.25  2.0e-09 ***
+## poly(futhrt, 2)1:mentill1   1.4483     0.8315    1.74    0.083 .  
+## poly(futhrt, 2)2:mentill1   0.8874     0.8044    1.10    0.271    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -650,8 +729,9 @@ summary(m5)
 ```
 
 
-So how do we decide which model is best?
 
+### Model comparison (picking the best model)
+So how do we decide which model is best?
 
 ```r
 
@@ -727,7 +807,6 @@ anova(m2, m4)
 
 
 ```r
-
 anova(m4, m5)
 ```
 
@@ -743,3 +822,20 @@ anova(m4, m5)
 
 
 Which model would we use?
+
+
+
+
+## Continuous Interations
+library(MASS)
+data(road)
+str(road)
+
+```r
+with(road, coplot(deaths ~ temp | rural))
+```
+
+```
+## Error: object 'road' not found
+```
+
