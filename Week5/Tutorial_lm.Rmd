@@ -303,10 +303,8 @@ res_murder = lm(Income~scale(Murder, scale=FALSE), data = state)
 summary(res_illit)
 ```
 
-
+What about interactive (or additive) effects of illiteracy and murder rate on income?
 ```{r}
-with(state,coplot(Income~ scale(Murder, scale=FALSE)|scale(Illiteracy, scale=FALSE)))
-
 res_add = lm(Income~ scale(Illiteracy, scale=FALSE) + scale(Murder, scale=FALSE), data = state)
 
 res_inter = lm(Income~ scale(Illiteracy, scale=FALSE) * scale(Murder, scale=FALSE), data = state)
@@ -320,8 +318,30 @@ anova(res_illit, res_add, res_inter)
 Looks like our interactive model performs the best!
 
 
+### Understanding our interaction
+
+For a first step, it can be a good idea to visualize your data
 ```{r}
 with(state,coplot(Income~ scale(Murder, scale=FALSE)|scale(Illiteracy, scale=FALSE)))
 
 with(state,coplot(Income~ scale(Illiteracy, scale=FALSE) | scale(Murder, scale=FALSE)))
 ```
+
+```{r}
+# Slope at the mean of Illiteracy
+summary(lm(Income~I(scale(Illiteracy))*scale(Murder), data=state))
+
+# Simple slope at scale(Illiteracy) + 1SD
+summary(lm(Income~I(scale(Illiteracy)-1)*scale(Murder), data=state))
+
+# Simple slope at scale(Illiteracy) - 1SD
+summary(lm(Income~I(scale(Illiteracy)+1)*scale(Murder), data=state))
+```
+
+1.  At the mean of Illiteracy: Income = 4617.31 + 36.23 * zMurder
+2.  At +1 SD Illiteracy: Income = 4467 - 227.2 * zMurder
+3.  At -1 SD Illiteracy: Income = 4767.6 + 299.7 * zMurder
+
+
+
+
