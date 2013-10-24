@@ -321,11 +321,14 @@ Looks like our interactive model performs the best!
 ### Understanding our interaction
 
 For a first step, it can be a good idea to visualize your data
-```{r, fig.width=5, fig.height=5}
-with(state,coplot(Income~ scale(Murder, scale=FALSE)|scale(Illiteracy, scale=FALSE)))
+```{r, fig.width=7, fig.height=5}
+with(state,coplot(Income~ scale(Murder, scale=FALSE)|scale(Illiteracy, scale=FALSE), number=3, rows=1))
 
 # alternately,
-#with(state,coplot(Income~ scale(Illiteracy, scale=FALSE) | scale(Murder, scale=FALSE)))
+with(state,coplot(Income~ scale(Illiteracy, scale=FALSE) | scale(Murder, scale=FALSE), number=3, rows=1))
+
+# more bins
+with(state,coplot(Income~ scale(Illiteracy, scale=FALSE) | scale(Murder, scale=FALSE), number=6, rows=1))
 ```
 
 ```{r}

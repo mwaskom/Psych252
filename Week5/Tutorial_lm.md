@@ -995,16 +995,28 @@ For a first step, it can be a good idea to visualize your data
 
 ```r
 with(state, coplot(Income ~ scale(Murder, scale = FALSE) | scale(Illiteracy, 
-    scale = FALSE)))
+    scale = FALSE), number = 3, rows = 1))
 ```
 
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20.png) 
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-201.png) 
 
 ```r
 
-# alternately, with(state,coplot(Income~ scale(Illiteracy, scale=FALSE) |
-# scale(Murder, scale=FALSE)))
+# alternately,
+with(state, coplot(Income ~ scale(Illiteracy, scale = FALSE) | scale(Murder, 
+    scale = FALSE), number = 3, rows = 1))
 ```
+
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-202.png) 
+
+```r
+
+# more bins
+with(state, coplot(Income ~ scale(Illiteracy, scale = FALSE) | scale(Murder, 
+    scale = FALSE), number = 6, rows = 1))
+```
+
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-203.png) 
 
 
 
