@@ -288,6 +288,9 @@ ggplot(state,
 
 res_illit = lm(Income~scale(Illiteracy, scale=FALSE), data = state)
 summary(res_illit)
+
+res_illit_poly = lm(Income~poly(Illiteracy, 2), data = state)
+summary(res_illit_poly)
 ```
 
 What is the effect of Murder Rate on Income?
@@ -300,7 +303,10 @@ ggplot(state,
   theme_bw()
 
 res_murder = lm(Income~scale(Murder, scale=FALSE), data = state)
-summary(res_illit)
+summary(res_murder)
+
+res_murder_poly = lm(Income~poly(Murder, 2), data = state)
+summary(res_murder_poly)
 ```
 
 What about interactive (or additive) effects of illiteracy and murder rate on income?
@@ -318,8 +324,33 @@ anova(res_illit, res_add, res_inter)
 Looks like our interactive model performs the best!
 
 
-### Understanding our interaction
+What about polynomial effects?
+```{r}
+# additive, quadratic for both
+res_add_poly = lm(Income~ poly(Illiteracy, 2) + poly(Murder, 2), data = state)
+summary(res_add_poly)
 
+# additive, quadratic for illit
+res_add_polyillit = lm(Income~ poly(Illiteracy, 2) + scale(Murder, scale=FALSE), data = state)
+summary(res_add_polyillit)
+
+# interactive, quadratic for both
+res_inter_poly = lm(Income~ poly(Illiteracy, 2) * poly(Murder, 2), data = state)
+summary(res_inter_poly)
+
+# additive, quadratic for illit
+res_inter_polyillit = lm(Income~ poly(Illiteracy, 2) * scale(Murder, scale=FALSE), data = state)
+summary(res_inter_polyillit)
+```
+
+Model comparison:
+```{r}
+anova(res_inter, res_inter_polyillit)
+```
+Looks like our linear interaction model is still the best.
+
+
+### Understanding our interaction
 For a first step, it can be a good idea to visualize your data
 ```{r, fig.width=7, fig.height=5}
 with(state,coplot(Income~ scale(Murder, scale=FALSE)|scale(Illiteracy, scale=FALSE), number=3, rows=1))

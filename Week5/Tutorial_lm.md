@@ -873,6 +873,34 @@ summary(res_illit)
 ## F-statistic: 11.3 on 1 and 48 DF,  p-value: 0.00151
 ```
 
+```r
+
+res_illit_poly = lm(Income~poly(Illiteracy, 2), data = state)
+summary(res_illit_poly)
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ poly(Illiteracy, 2), data = state)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -965.6 -354.8   -4.5  303.6 1779.4 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)            4435.8       74.1   59.83   <2e-16 ***
+## poly(Illiteracy, 2)1  -1880.0      524.3   -3.59   0.0008 ***
+## poly(Illiteracy, 2)2  -1431.5      524.3   -2.73   0.0089 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 524 on 47 degrees of freedom
+## Multiple R-squared:  0.302,	Adjusted R-squared:  0.272 
+## F-statistic: 10.2 on 2 and 47 DF,  p-value: 0.000216
+```
+
 
 What is the effect of Murder Rate on Income?
 
@@ -890,28 +918,56 @@ ggplot(state,
 ```r
 
 res_murder = lm(Income~scale(Murder, scale=FALSE), data = state)
-summary(res_illit)
+summary(res_murder)
 ```
 
 ```
 ## 
 ## Call:
-## lm(formula = Income ~ scale(Illiteracy, scale = FALSE), data = state)
+## lm(formula = Income ~ scale(Murder, scale = FALSE), data = state)
 ## 
 ## Residuals:
 ##    Min     1Q Median     3Q    Max 
-## -948.9 -376.2  -49.8  347.0 2024.6 
+##  -1142   -484    -19    403   2029 
 ## 
 ## Coefficients:
-##                                  Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)                          4436         79   56.17   <2e-16 ***
-## scale(Illiteracy, scale = FALSE)     -441        131   -3.37   0.0015 ** 
+##                              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                    4435.8       85.4   51.91   <2e-16 ***
+## scale(Murder, scale = FALSE)    -38.3       23.4   -1.64     0.11    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 558 on 48 degrees of freedom
-## Multiple R-squared:  0.191,	Adjusted R-squared:  0.174 
-## F-statistic: 11.3 on 1 and 48 DF,  p-value: 0.00151
+## Residual standard error: 604 on 48 degrees of freedom
+## Multiple R-squared:  0.0529,	Adjusted R-squared:  0.0332 
+## F-statistic: 2.68 on 1 and 48 DF,  p-value: 0.108
+```
+
+```r
+
+res_murder_poly = lm(Income~poly(Murder, 2), data = state)
+summary(res_murder_poly)
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ poly(Murder, 2), data = state)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1054.0  -455.4     1.8   311.5  2030.4 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)          4436         85   52.18   <2e-16 ***
+## poly(Murder, 2)1     -990        601   -1.65     0.11    
+## poly(Murder, 2)2     -732        601   -1.22     0.23    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 601 on 47 degrees of freedom
+## Multiple R-squared:  0.0819,	Adjusted R-squared:  0.0429 
+## F-statistic:  2.1 on 2 and 47 DF,  p-value: 0.134
 ```
 
 
@@ -989,8 +1045,179 @@ anova(res_illit, res_add, res_inter)
 Looks like our interactive model performs the best!
 
 
-### Understanding our interaction
+What about polynomial effects?
 
+```r
+# additive, quadratic for both
+res_add_poly = lm(Income ~ poly(Illiteracy, 2) + poly(Murder, 2), data = state)
+summary(res_add_poly)
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ poly(Illiteracy, 2) + poly(Murder, 2), 
+##     data = state)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -902.9 -385.4    2.3  290.5 1718.1 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)            4435.8       75.2   58.95   <2e-16 ***
+## poly(Illiteracy, 2)1  -2333.1      780.0   -2.99   0.0045 ** 
+## poly(Illiteracy, 2)2  -1473.3      563.9   -2.61   0.0122 *  
+## poly(Murder, 2)1        585.9      763.5    0.77   0.4469    
+## poly(Murder, 2)2        208.2      586.0    0.36   0.7240    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 532 on 45 degrees of freedom
+## Multiple R-squared:  0.311,	Adjusted R-squared:  0.25 
+## F-statistic: 5.09 on 4 and 45 DF,  p-value: 0.00181
+```
+
+```r
+
+# additive, quadratic for illit
+res_add_polyillit = lm(Income ~ poly(Illiteracy, 2) + scale(Murder, scale = FALSE), 
+    data = state)
+summary(res_add_polyillit)
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ poly(Illiteracy, 2) + scale(Murder, scale = FALSE), 
+##     data = state)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -927.3 -390.1    7.2  270.5 1731.4 
+## 
+## Coefficients:
+##                              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                    4435.8       74.5   59.52   <2e-16 ***
+## poly(Illiteracy, 2)1          -2255.5      741.6   -3.04   0.0039 ** 
+## poly(Illiteracy, 2)2          -1408.0      528.0   -2.67   0.0105 *  
+## scale(Murder, scale = FALSE)     20.7       28.7    0.72   0.4754    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 527 on 46 degrees of freedom
+## Multiple R-squared:  0.31,	Adjusted R-squared:  0.265 
+## F-statistic: 6.87 on 3 and 46 DF,  p-value: 0.000638
+```
+
+```r
+
+# interactive, quadratic for both
+res_inter_poly = lm(Income ~ poly(Illiteracy, 2) * poly(Murder, 2), data = state)
+summary(res_inter_poly)
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ poly(Illiteracy, 2) * poly(Murder, 2), 
+##     data = state)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1024.5  -321.4    41.1   302.5  1806.3 
+## 
+## Coefficients:
+##                                       Estimate Std. Error t value Pr(>|t|)
+## (Intercept)                               4665        189   24.67   <2e-16
+## poly(Illiteracy, 2)1                     -1522       2060   -0.74     0.46
+## poly(Illiteracy, 2)2                      -786       1381   -0.57     0.57
+## poly(Murder, 2)1                           573       1371    0.42     0.68
+## poly(Murder, 2)2                          1416        846    1.67     0.10
+## poly(Illiteracy, 2)1:poly(Murder, 2)1   -18070      15193   -1.19     0.24
+## poly(Illiteracy, 2)2:poly(Murder, 2)1     1869       8373    0.22     0.82
+## poly(Illiteracy, 2)1:poly(Murder, 2)2     -196       7300   -0.03     0.98
+## poly(Illiteracy, 2)2:poly(Murder, 2)2     4266       5507    0.77     0.44
+##                                          
+## (Intercept)                           ***
+## poly(Illiteracy, 2)1                     
+## poly(Illiteracy, 2)2                     
+## poly(Murder, 2)1                         
+## poly(Murder, 2)2                         
+## poly(Illiteracy, 2)1:poly(Murder, 2)1    
+## poly(Illiteracy, 2)2:poly(Murder, 2)1    
+## poly(Illiteracy, 2)1:poly(Murder, 2)2    
+## poly(Illiteracy, 2)2:poly(Murder, 2)2    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 519 on 41 degrees of freedom
+## Multiple R-squared:  0.404,	Adjusted R-squared:  0.288 
+## F-statistic: 3.47 on 8 and 41 DF,  p-value: 0.00381
+```
+
+```r
+
+# additive, quadratic for illit
+res_inter_polyillit = lm(Income ~ poly(Illiteracy, 2) * scale(Murder, scale = FALSE), 
+    data = state)
+summary(res_inter_polyillit)
+```
+
+```
+## 
+## Call:
+## lm(formula = Income ~ poly(Illiteracy, 2) * scale(Murder, scale = FALSE), 
+##     data = state)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1027.2  -268.9    21.5   329.3  1845.3 
+## 
+## Coefficients:
+##                                                   Estimate Std. Error
+## (Intercept)                                         4514.2      124.3
+## poly(Illiteracy, 2)1                               -2260.7     1264.1
+## poly(Illiteracy, 2)2                               -1366.8     1018.3
+## scale(Murder, scale = FALSE)                          21.2       30.3
+## poly(Illiteracy, 2)1:scale(Murder, scale = FALSE)   -204.1      281.0
+## poly(Illiteracy, 2)2:scale(Murder, scale = FALSE)    185.8      183.1
+##                                                   t value Pr(>|t|)    
+## (Intercept)                                         36.32   <2e-16 ***
+## poly(Illiteracy, 2)1                                -1.79    0.081 .  
+## poly(Illiteracy, 2)2                                -1.34    0.186    
+## scale(Murder, scale = FALSE)                         0.70    0.488    
+## poly(Illiteracy, 2)1:scale(Murder, scale = FALSE)   -0.73    0.471    
+## poly(Illiteracy, 2)2:scale(Murder, scale = FALSE)    1.01    0.316    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 521 on 44 degrees of freedom
+## Multiple R-squared:  0.354,	Adjusted R-squared:  0.281 
+## F-statistic: 4.82 on 5 and 44 DF,  p-value: 0.00133
+```
+
+
+Model comparison:
+
+```r
+anova(res_inter, res_inter_polyillit)
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: Income ~ scale(Illiteracy, scale = FALSE) * scale(Murder, scale = FALSE)
+## Model 2: Income ~ poly(Illiteracy, 2) * scale(Murder, scale = FALSE)
+##   Res.Df      RSS Df Sum of Sq    F Pr(>F)
+## 1     46 12445502                         
+## 2     44 11951361  2    494140 0.91   0.41
+```
+
+Looks like our linear interaction model is still the best.
+
+
+### Understanding our interaction
 For a first step, it can be a good idea to visualize your data
 
 ```r
@@ -998,7 +1225,7 @@ with(state, coplot(Income ~ scale(Murder, scale = FALSE) | scale(Illiteracy,
     scale = FALSE), number = 3, rows = 1))
 ```
 
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-201.png) 
+![plot of chunk unnamed-chunk-22](figure/unnamed-chunk-221.png) 
 
 ```r
 
@@ -1007,7 +1234,7 @@ with(state, coplot(Income ~ scale(Illiteracy, scale = FALSE) | scale(Murder,
     scale = FALSE), number = 3, rows = 1))
 ```
 
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-202.png) 
+![plot of chunk unnamed-chunk-22](figure/unnamed-chunk-222.png) 
 
 ```r
 
@@ -1016,7 +1243,7 @@ with(state, coplot(Income ~ scale(Illiteracy, scale = FALSE) | scale(Murder,
     scale = FALSE), number = 6, rows = 1))
 ```
 
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-203.png) 
+![plot of chunk unnamed-chunk-22](figure/unnamed-chunk-223.png) 
 
 
 
@@ -1144,6 +1371,6 @@ ggplot(state,
   ggtitle('Interaction between Murder and Illiteracy on Income')
 ```
 
-![plot of chunk unnamed-chunk-22](figure/unnamed-chunk-22.png) 
+![plot of chunk unnamed-chunk-24](figure/unnamed-chunk-24.png) 
 
 

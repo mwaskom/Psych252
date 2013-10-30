@@ -32,7 +32,7 @@ Tutorial 3
 General Linear Model with lm()
 -------------------
 
-This tutorial provides an introduction to using lm() to run a general linear model analysis. 
+This tutorial provides an introduction to using ``lm()`` to run a general linear model analysis. 
 We walk through additive and interactive models, including quadratic terms in your model, 
 model comparison, and interactions with multiple continuous variables.
 [`html <http://www.stanford.edu/class/psych252/tutorials/Tutorial_lm.html>`_]
