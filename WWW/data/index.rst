@@ -85,7 +85,7 @@ Fields:
 families.csv
 ---------------
 
-Data from a study of 68 companies, examining relationships between the quality of family-friendly programs at each company, the percentage of employees with families who use these programs, and employee satisfaction.
+Data from a study of 68 companies, examining relationships between the quality of family-friendly programs at each company, the percentage of employees with families who use these programs, and employee satisfaction (all continuous variables).
 
 :download:`Click to download data </datasets/families.csv>`
 
@@ -94,6 +94,62 @@ Fields:
 * **famprog**: the amount of family-friendly programs from (1 = Nothing at all to 9 = Amazing family-friendliness)
 * **perfam**: the percentage of employees with families in the organization (from 0% to 100%)
 * **empastis**: the average rating of employee satisfaction (1 = Extremely unsatisfied to 7 = Extremely satisfied)
+
+hw4motive.csv
+---------------
+
+Data from 3 groups of 20 students who drank either 0, 2, or 4 cups of coffee and then took a 10-problem statistics quiz. Examines possible mediators of accuracy and hyperactivity.
+
+:download:`Click to download data </datasets/hw4motive.csv>`
+
+Fields:
+
+* **difficulty**: challenge of a task (probability of finishing the task unsuccessfully) (1= low, 5 = high)
+
+* **score**: how well a person does on a task (0 - 10)
+
+* **train**: either a novice or expert, categorical
+
+lifesatis.csv
+---------------
+
+Data with predictors of life satisfaction among 62 working married men between the age of 20 and 70. 
+
+:download:`Click to download data </datasets/lifesatis.csv>`
+
+Fields:
+
+* **id**: Subject ID (1-62)
+
+* **age**: Age (21-68)
+
+* **kids**: number of children (0-8)
+
+* **jobsatis**: current job satisfaction (1 to 7)
+
+* **marsatis**: current marital satisfaction (1 to 7)
+
+* **lifsatis**: current overall life satisfaction (1 to 7)
+
+performance.csv
+---------------
+
+Dataset from an educational psychologist, testing the effectiveness of 3 methods of mathematics instruction in a study, 20 students being trained by each method.
+
+:download:`Click to download data </datasets/performance.csv>`
+
+Fields:
+
+* **method**: method of instruction, 1 = emphasizing 'drill and practice,' 2  =
+emphasizing fun with math, and 3 = control method 
+
+* **satis**: student satisfaction with the method 
+
+* **time**: time each student spent doing or talking about math during the school day (12 to 26)
+
+* **ability**: student's score on a standardized math test a year ago
+
+* **perform**: student's score on a standardized math test after training
 
 caffeine.csv
 ---------------
@@ -108,6 +164,6 @@ Fields:
 
 * **perf**: score on a stats quiz with 10 problems
 
-* *numprob**: number of problems attempted (hyperactivity)
+* **numprob**: number of problems attempted (hyperactivity)
 
 * **accur**: likelihood of getting a problem right if they tried (better success)
