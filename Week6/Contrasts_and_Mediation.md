@@ -182,7 +182,7 @@ Use df from residual SE at bottom of lm output
 Answer: There is a significant interaction between the number of family programs available and the percentage of families who use these programs,
 `b = .007, t(64) = 2.06, p = .04`
 
-**(e) Interpret the answer by examining g the effect of family programs on employee satisfaction for companies who have the average number of employees with families**
+**(e) Interpret the answer by examining the effect of family programs on employee satisfaction for companies who have the average number of employees with families**
 
 Revisit our centered lm:
 
