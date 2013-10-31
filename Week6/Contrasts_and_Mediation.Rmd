@@ -10,8 +10,7 @@ Let's clear out our working space, load in the data, etc.
 ```{r workspace}
 rm(list=ls())
 
-setwd("~/Dropbox/TA/Psych252_MW/WWW/datasets")
-d<-read.csv("families.csv")
+d<-read.csv("http://www.stanford.edu/class/psych252/data/families.csv")
 ```
 
 Taking a look at the data.
@@ -283,8 +282,7 @@ Let's clean up our screens and load in the next data set!
 ```{r}
 rm(list=ls())
 
-setwd("~/Dropbox/TA/Psych252_MW/WWW/datasets")
-d<-read.csv('caffeine.csv')
+d<-read.csv("http://www.stanford.edu/class/psych252/data/caffeine.csv")
 str(d)
 ```
 
