@@ -1150,7 +1150,16 @@ summary(problm1)  # yes, it predicts, c=3.74
 ```
 
 ```r
-c <- problm1$coefficients[2]  # We'll save our coefficients for our Sobel test later!
+c <- problm1$coefficients[2]
+c  # We'll save our coefficients for our Sobel test later!
+```
+
+```
+##  cups 
+## 3.738
+```
+
+```r
 
 problm1 <- lm(perf ~ coffee, data = d)  # Note that we get the same results whether we recode coffee or not, just different coefficients
 summary(problm1)
@@ -1456,21 +1465,23 @@ Conclusion: Coffee and accuracy both contribute to performance and in this case 
 Bootstrapped Mediation
 ------------------------
 
-Using Benoit's script, let's re-run the analysis from before
+Using a modified version of Benoit's script, let's re-run the analysis from before:
 
 ```r
 mediation_bootstrap = function(x, med, y, iterations = 1000) {
     
     # setup some parameters
-    vars = as.data.frame(cbind(x, med, y))
     N = length(x)
-    boot_ab = vector(length = iterations)
+    df = as.data.frame(cbind(x, med, y))
+    boot_ab = vector(length = iterations)  # set up empty vector for storage
     
+    # now go through a loop where we'll randomly sample, and get a a*b value
     for (i in 1:iterations) {
-        data_samp = sample(c(1:N), N, replace = TRUE)
-        iter_a = lm(vars[data_samp, 2] ~ vars[data_samp, 1])$coefficients[2]
-        iter_b = lm(vars[data_samp, 3] ~ vars[data_samp, 2] + vars[data_samp, 
-            1])$coefficients[2]
+        ind_boot = sample(c(1:N), N, replace = TRUE)  # random indices
+        df_boot = df[ind_boot, ]
+        
+        iter_a = lm(df_boot$med ~ df_boot$x)$coefficients[2]  # coeff of x
+        iter_b = lm(df_boot$y ~ df_boot$med + df_boot$x)$coefficients[2]  # coeff of mediator
         
         boot_ab[i] = iter_a * iter_b
     }
@@ -1501,9 +1512,9 @@ boot_ab = mediation_bootstrap(x = d$cups, med = d$numprob, y = d$perf, iteration
 ```
 ## [1] Bootstrap results:
 ##    ab 
-## 2.966 
+## 2.956 
 ##    2.5%   97.5% 
-## -0.1642  6.3153
+## -0.1416  6.2923
 ```
 
 ```r
@@ -1511,6 +1522,16 @@ mean(boot_ab)
 ```
 
 ```
-## [1] 2.966
+## [1] 2.956
+```
+
+```r
+
+# compared to our ab from before:
+a * b
+```
+
+```
+## [1] 3.023
 ```
 
