@@ -50,7 +50,7 @@ Note the package `effects` also gives some cool visualizations of continuous int
 ```{r}
 install.packages('effects')
 library(effects)
-plot(allEffects(lm(empsatis ~ famprog * perfam, data = d)))
+plot(allEffects(lm(empsatis ~ perfam * famprog, data = d)))
 ```
 
 Let's also take a moment to check out our main DV, employee satisfaction.
@@ -449,6 +449,7 @@ Let's perform  the conventional Sobel test, adding in the standard error of a an
 s_ab <- sqrt(b^2*s_a^2+a^2*s_b^2+s_a^2*s_b^2)
 s_ab # standard error of a*b
 
+a*b
 a*b/s_ab
 
 p_s_ab<-pnorm(a*b/s_ab, lower.tail=F)
@@ -493,3 +494,42 @@ p_s_ab2 # p of ratio of a2*b2 over its s.e.
 ```
 
 Conclusion: Coffee and accuracy both contribute to performance and in this case there is no mediation there. However, the effect of coffee is mediated by the number of problems attempted. 
+
+Bootstrapped Mediation
+------------------------
+
+Using Benoit's script, let's re-run the analysis from before
+```{r}
+mediation_bootstrap = function(x, med, y, iterations = 1000){
+  
+  # setup some parameters
+  vars = as.data.frame(cbind(x, med, y))
+  N = length(x)
+  boot_ab = vector(length=iterations)
+  
+  for (i in 1:iterations){
+    data_samp = sample(c(1:N), N, replace=TRUE)
+    iter_a = lm(vars[data_samp,2] ~ vars[data_samp,1])$coefficients[2]
+    iter_b = lm(vars[data_samp,3] ~ vars[data_samp,2] + vars[data_samp,1])$coefficients[2]
+    
+    boot_ab[i] = iter_a * iter_b
+  }
+  
+  # create plot
+  hist(boot_ab,main=paste("Bootstrapped a*b, with",iterations,"iterations"),col="red");
+  abline(v=0, col='black', lty=2, lwd=2)
+  abline(v=c(quantile(boot_ab,c(.025,.975))), col='blue', lty=3)
+  
+  # Print results
+  print("Bootstrap results:",quote=F);
+  print(c(ab=mean(boot_ab)));
+  print(quantile(boot_ab,c(.025,.975)))
+  
+  return(boot_ab)
+}
+```
+
+```{r}
+boot_ab = mediation_bootstrap(x=d$cups, med=d$numprob, y=d$perf, iterations=10000)
+mean(boot_ab)
+```
