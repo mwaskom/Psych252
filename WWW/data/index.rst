@@ -82,4 +82,32 @@ Fields:
 * **futhrt**:  Self-reported belief that the defendant is a future threat to society (scale from 0 [Very Low] to 10 [Very High])
 * **futthcat**:  Self-reported belief that the defendant is a future threat to society (binning together extreme responses [0-2; 3; 4; 5; 6-10])
 
+families.csv
+---------------
 
+Data from a study of 68 companies, examining relationships between the quality of family-friendly programs at each company, the percentage of employees with families who use these programs, and employee satisfaction.
+
+:download:`Click to download data </datasets/families.csv>`
+
+Fields:
+
+* **famprog**: the amount of family-friendly programs from (1 = Nothing at all to 9 = Amazing family-friendliness)
+* **perfam**: the percentage of employees with families in the organization (from 0% to 100%)
+* **empastis**: the average rating of employee satisfaction (1 = Extremely unsatisfied to 7 = Extremely satisfied)
+
+caffeine.csv
+---------------
+
+Data from 3 groups of 20 students who drank either 0, 2, or 4 cups of coffee and then took a 10-problem statistics quiz. Examines possible mediators of accuracy and hyperactivity.
+
+:download:`Click to download data </datasets/caffeine.csv>`
+
+Fields:
+
+* **coffee**: each group had either 0 cups, 2 cups, or 4 cups (coded in dataset as group 1, 2, or 3)
+
+* **perf**: score on a stats quiz with 10 problems
+
+* *numprob**: number of problems attempted (hyperactivity)
+
+* **accur**: likelihood of getting a problem right if they tried (better success)
