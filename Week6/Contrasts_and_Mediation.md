@@ -11,8 +11,7 @@ Let's clear out our working space, load in the data, etc.
 ```r
 rm(list = ls())
 
-setwd("~/Dropbox/TA/Psych252_MW/WWW/datasets")
-d <- read.csv("families.csv")
+d <- read.csv("http://www.stanford.edu/class/psych252/data/families.csv")
 ```
 
 
@@ -30,6 +29,20 @@ str(d)
 ##  $ perfam  : int  66 41 53 54 49 53 70 53 58 43 ...
 ```
 
+```r
+summary(d)
+```
+
+```
+##     famprog        empsatis        perfam    
+##  Min.   :1.00   Min.   :2.51   Min.   :36.0  
+##  1st Qu.:3.00   1st Qu.:3.36   1st Qu.:47.8  
+##  Median :6.00   Median :3.92   Median :55.0  
+##  Mean   :5.41   Mean   :3.94   Mean   :55.3  
+##  3rd Qu.:7.25   3rd Qu.:4.42   3rd Qu.:62.2  
+##  Max.   :9.00   Max.   :5.63   Max.   :88.0
+```
+
 
 Now we know that we have:
 `N = 68` companies in our sample
@@ -44,48 +57,166 @@ Now we know that we have:
 
 **(a) Describe the data**
 
+First let's summarize the data
+
+```r
+library(psych)
+describe(d)
+```
+
+```
+##          var  n  mean    sd median trimmed   mad   min   max range  skew
+## famprog    1 68  5.41  2.52   6.00    5.46  2.97  1.00  9.00  8.00 -0.11
+## empsatis   2 68  3.94  0.77   3.92    3.92  0.81  2.51  5.63  3.12  0.32
+## perfam     3 68 55.29 10.43  55.00   55.00 11.12 36.00 88.00 52.00  0.34
+##          kurtosis   se
+## famprog     -1.27 0.31
+## empsatis    -0.68 0.09
+## perfam       0.07 1.26
+```
+
+
+Now, to look at the relationships between variables, we'll visualize the data w/plots.
 Note the plots in your homework! The plot on the right can only be created if you factor the variables. (We'll do this later, because we probably would want to keep these variables as continuous when working with them.) The coplot you can create using continuous variables!
 
 
 ```r
-with(d, coplot(empsatis ~ famprog | perfam))
+with(d, coplot(empsatis ~ famprog | perfam, rows = 1, number = 5))
 ```
 
 ![plot of chunk coplot](figure/coplot.png) 
 
 
-Let's also take a moment to check out our DV, employee satisfaction.
-
+Note the package `effects` also gives some cool visualizations of continuous interactions:
 
 ```r
-hist(d$empsatis)
+install.packages("effects")
 ```
 
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1.png) 
+```
+## Installing package into
+## '/Applications/RStudio.app/Contents/Resources/R/library' (as 'lib' is
+## unspecified)
+```
+
+```
+## Error: trying to use CRAN without setting a mirror
+```
+
+```r
+library(effects)
+```
+
+```
+## Loading required package: lattice Loading required package: grid Loading
+## required package: colorspace
+```
+
+```r
+plot(allEffects(lm(empsatis ~ perfam * famprog, data = d)))
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
+
+Let's also take a moment to check out our main DV, employee satisfaction.
+
+```r
+require(ggplot2)
+```
+
+```
+## Loading required package: ggplot2
+## 
+## Attaching package: 'ggplot2'
+## 
+## The following object is masked from 'package:psych':
+## 
+## %+%
+```
+
+```r
+
+# Histogram overlaid with kernel density curve
+ggplot(d, aes(x = empsatis)) + geom_histogram(aes(y = ..density..), binwidth = 0.5, 
+    colour = "black", fill = "white") + geom_density(alpha = 0.2, fill = "#FF6666")  # Overlay with transparent density plot
+```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
+
+We can also look at the correlations between all the variables. This will give us a better idea of the **main effects**.
+
+```r
+install.packages("gpairs")
+```
+
+```
+## Installing package into
+## '/Applications/RStudio.app/Contents/Resources/R/library' (as 'lib' is
+## unspecified)
+```
+
+```
+## Error: trying to use CRAN without setting a mirror
+```
+
+```r
+library(gpairs)
+```
+
+```
+## Loading required package: barcode Loading required package: vcd Loading
+## required package: MASS
+```
+
+```r
+gpairs(d, upper.pars = list(scatter = "lm", conditional = "barcode", mosaic = "mosaic"), 
+    lower.pars = list(scatter = "stats", conditional = "boxplot", mosaic = "mosaic"), 
+    stat.pars = list(fontsize = 14, signif = 0.05, verbose = FALSE, use.color = TRUE, 
+        missing = "missing", just = "centre"))
+```
+
+```
+## Warning: Cannot compute exact p-value with ties Warning: Cannot compute
+## exact p-value with ties Warning: Cannot compute exact p-value with ties
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
 
 
 **(c) Main effects: Does the number of programs affect employee satisfaction? Is the percentage of families who use the programs correlated with employee satisfaction?**
 
-We could run a simple regression where `famprog`, the number of family-friendly programs, predicts `empsatis`, employee satisfaction
-
+First, we could run a simple regression where `famprog`, the number of family-friendly programs, predicts `empsatis`, employee satisfaction:
 
 ```r
-with(d, summary(lm(empsatis ~ famprog)))
+# Plot
+qplot(x = scale(famprog, scale = FALSE), y = empsatis, data = d) + stat_smooth(method = lm, 
+    formula = y ~ x)
+```
+
+![plot of chunk simple reg](figure/simple_reg.png) 
+
+```r
+
+# Stats
+e_by_famprog = lm(empsatis ~ scale(famprog, scale = FALSE), data = d)
+summary(e_by_famprog)
 ```
 
 ```
 ## 
 ## Call:
-## lm(formula = empsatis ~ famprog)
+## lm(formula = empsatis ~ scale(famprog, scale = FALSE), data = d)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
 ## -1.6779 -0.5365 -0.0348  0.4285  1.7152 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)   3.5810     0.2182   16.41   <2e-16 ***
-## famprog       0.0670     0.0366    1.83    0.072 .  
+##                               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                     3.9439     0.0915   43.12   <2e-16 ***
+## scale(famprog, scale = FALSE)   0.0670     0.0366    1.83    0.072 .  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -95,30 +226,56 @@ with(d, summary(lm(empsatis ~ famprog)))
 ```
 
 
-Seems like the asnwer is yes, but we have a weak effect. Can we do something to describe the data better? Taking a look at our plot, what do we think might be going on?
+Seems like the answer is yes, but we have a weak (i.e., **marginal**) effect. Can we do something to describe the data better? Taking a look at our plot, what do we think might be going on?
 
-We could use our other predictor `perfam`, and look for an interaction on employee satisfaction.
-
+We could use our other predictor `perfam`, and look for an interaction with family programs on employee satisfaction:
 
 ```r
-with(d, summary(lm(empsatis ~ famprog * perfam)))
+# Plot just perfam
+qplot(x = scale(perfam, scale = FALSE), y = empsatis, data = d) + stat_smooth(method = lm, 
+    formula = y ~ x)
+```
+
+![plot of chunk interaction continuous](figure/interaction_continuous.png) 
+
+```r
+
+e_by_famprogXperfam = lm(empsatis ~ scale(famprog, scale = FALSE) * scale(perfam, 
+    scale = FALSE), data = d)
+summary(e_by_famprogXperfam)
 ```
 
 ```
 ## 
 ## Call:
-## lm(formula = empsatis ~ famprog * perfam)
+## lm(formula = empsatis ~ scale(famprog, scale = FALSE) * scale(perfam, 
+##     scale = FALSE), data = d)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
 ## -1.6592 -0.3919 -0.0431  0.4675  1.5906 
 ## 
 ## Coefficients:
-##                Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)     6.72859    1.32190    5.09  3.4e-06 ***
-## famprog        -0.34384    0.20260   -1.70    0.095 .  
-## perfam         -0.05674    0.02352   -2.41    0.019 *  
-## famprog:perfam  0.00740    0.00359    2.06    0.044 *  
+##                                                            Estimate
+## (Intercept)                                                 3.94433
+## scale(famprog, scale = FALSE)                               0.06526
+## scale(perfam, scale = FALSE)                               -0.01670
+## scale(famprog, scale = FALSE):scale(perfam, scale = FALSE)  0.00740
+##                                                            Std. Error
+## (Intercept)                                                   0.08875
+## scale(famprog, scale = FALSE)                                 0.03553
+## scale(perfam, scale = FALSE)                                  0.00892
+## scale(famprog, scale = FALSE):scale(perfam, scale = FALSE)    0.00359
+##                                                            t value
+## (Intercept)                                                  44.44
+## scale(famprog, scale = FALSE)                                 1.84
+## scale(perfam, scale = FALSE)                                 -1.87
+## scale(famprog, scale = FALSE):scale(perfam, scale = FALSE)    2.06
+##                                                            Pr(>|t|)    
+## (Intercept)                                                  <2e-16 ***
+## scale(famprog, scale = FALSE)                                 0.071 .  
+## scale(perfam, scale = FALSE)                                  0.066 .  
+## scale(famprog, scale = FALSE):scale(perfam, scale = FALSE)    0.044 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -128,52 +285,13 @@ with(d, summary(lm(empsatis ~ famprog * perfam)))
 ```
 
 
-Now that we see the expected interaction how do we interpret the lower order effects? We will see how to get a decent interpretation later. For now we know that it can't possibly mean that there is a negative relationship between famprog and satisfaction because we saw the data and the model above. 
+Now that we see the expected interaction how do we interpret the simple effects? We will see how to get a decent interpretation later. For now we know that it can't possibly mean that there is a negative relationship between famprog and satisfaction because we saw the data and the model above. 
 
-Let's try centering both of our variables and see if we can get a better intuition.
-
-
-```r
-with(d, summary(lm(empsatis ~ scale(famprog, scale = F) * scale(perfam, scale = F))))
-```
-
-```
-## 
-## Call:
-## lm(formula = empsatis ~ scale(famprog, scale = F) * scale(perfam, 
-##     scale = F))
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -1.6592 -0.3919 -0.0431  0.4675  1.5906 
-## 
-## Coefficients:
-##                                                    Estimate Std. Error
-## (Intercept)                                         3.94433    0.08875
-## scale(famprog, scale = F)                           0.06526    0.03553
-## scale(perfam, scale = F)                           -0.01670    0.00892
-## scale(famprog, scale = F):scale(perfam, scale = F)  0.00740    0.00359
-##                                                    t value Pr(>|t|)    
-## (Intercept)                                          44.44   <2e-16 ***
-## scale(famprog, scale = F)                             1.84    0.071 .  
-## scale(perfam, scale = F)                             -1.87    0.066 .  
-## scale(famprog, scale = F):scale(perfam, scale = F)    2.06    0.044 *  
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 0.732 on 64 degrees of freedom
-## Multiple R-squared:  0.131,	Adjusted R-squared:  0.0903 
-## F-statistic: 3.22 on 3 and 64 DF,  p-value: 0.0286
-```
-
-
-Do the lower order coefficients conform to our intuitions better now?
-
-Compare the p-value of `famprog` with that obtained without an interaction term.
+Compare the p-value of `famprog` with that obtained without an interaction term!
 
 **(c) Do family-friendly programs improve employee satisfaction overall?**
 
-Answer: Yes, there is a marginal positive main effect of the number of family programs on employee satisfaction, and we would give the b, t, df, and p
+Answer: Yes, there is a marginal positive main effect of the number of family programs on employee satisfaction, and we would report the b, t, df, and p, and then give a short interpretation of the results.
 Use df from residual SE at bottom of lm output
 `b = .07, t(64) = 1.84, p = .07`
 
@@ -188,14 +306,16 @@ Revisit our centered lm:
 
 
 ```r
-with(d, summary(lm(empsatis ~ scale(famprog, scale = F) * scale(perfam, scale = F))))
+at_mean = lm(empsatis ~ scale(famprog, scale = F) * scale(perfam, scale = F), 
+    data = d)
+summary(at_mean)
 ```
 
 ```
 ## 
 ## Call:
 ## lm(formula = empsatis ~ scale(famprog, scale = F) * scale(perfam, 
-##     scale = F))
+##     scale = F), data = d)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -233,15 +353,16 @@ Say we want to know about companies that have a lot of employees with families w
 
 
 ```r
-with(d, summary(lm(empsatis ~ scale(famprog, scale = F) * I(scale(perfam, scale = F) - 
-    sd(perfam)))))
+at_plus1SD = lm(empsatis ~ scale(famprog, scale = F) * I(scale(perfam, scale = F) - 
+    sd(perfam)), data = d)
+summary(at_plus1SD)
 ```
 
 ```
 ## 
 ## Call:
 ## lm(formula = empsatis ~ scale(famprog, scale = F) * I(scale(perfam, 
-##     scale = F) - sd(perfam)))
+##     scale = F) - sd(perfam)), data = d)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -286,19 +407,20 @@ So for the number of family programs at +1SD above the mean of the percentage of
 
 *Remember that we subtract one SD to describe the effect at one SD above the mean! You're subtracting these levels from your centered variable, so in the case of -1 SD, so +1 SD*
 
-Now, for companies with few families who use these progrmas, we'll look at -1SD below the mean of the percentage of families who use these programs
+Now, for companies with few families who use these programs, we'll look at -1SD below the mean of the percentage of families who use these programs
 
 
 ```r
-with(d, summary(lm(empsatis ~ scale(famprog, scale = F) * I(scale(perfam, scale = F) + 
-    sd(perfam)))))
+at_minus1SD = lm(empsatis ~ scale(famprog, scale = F) * I(scale(perfam, scale = F) + 
+    sd(perfam)), data = d)
+summary(at_minus1SD)
 ```
 
 ```
 ## 
 ## Call:
 ## lm(formula = empsatis ~ scale(famprog, scale = F) * I(scale(perfam, 
-##     scale = F) + sd(perfam)))
+##     scale = F) + sd(perfam)), data = d)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -344,6 +466,36 @@ with(d, summary(lm(empsatis ~ scale(famprog, scale = F) * I(scale(perfam, scale 
 Answer: List the simple effects at each level.
 
 For companies where few families use the family programs, the number of programs does not affect employee satisfaction, `b = -.01, t(64) = -.23, p >.80.` However, for companies where a lot of families use the family programs, the number of family programs is associated with higher employee satisfaction, `b = .14, t(64) = 2.70, p = .007.`
+
+We can also plot these results to visualize the interaction:
+
+
+```r
+ggplot(d, 
+       aes(x=scale(famprog), 
+           y=empsatis)) +  # Adding color for mentill
+  geom_point(shape=1) +  
+  theme_bw() + 
+  # effect of famprog on empsatis @mean perfam
+  geom_abline(aes(intercept=at_mean$coefficients[1], 
+                  slope=at_mean$coefficients[2]), colour='black') +
+  # effect of famprog on empsatis -1 SD perfam
+  geom_abline(aes(intercept=at_minus1SD$coefficients[1], 
+                  slope=at_minus1SD$coefficients[2]), colour='red') +
+  # effect of famprog on empsatis +1 SD perfam
+  geom_abline(aes(intercept=at_plus1SD$coefficients[1], 
+                  slope=at_plus1SD$coefficients[2]), colour='green')
+```
+
+```
+## Warning: row names were found from a short variable and have been
+## discarded Warning: row names were found from a short variable and have
+## been discarded Warning: row names were found from a short variable and
+## have been discarded
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
+
 
 **(f) What do you conclude? Write out the story. Remember to use the appropriate numbers to make the story as useful as possible!**
 
@@ -393,6 +545,18 @@ print(quantfp2)
 
 ```r
 d$famprogcat = findInterval(d$famprog, quantfp2)
+str(d)
+```
+
+```
+## 'data.frame':	68 obs. of  4 variables:
+##  $ famprog   : int  5 9 1 9 3 2 2 2 6 5 ...
+##  $ empsatis  : num  3.29 5.63 3.92 2.51 5.28 ...
+##  $ perfam    : int  66 41 53 54 49 53 70 53 58 43 ...
+##  $ famprogcat: int  0 1 0 1 0 0 0 0 1 0 ...
+```
+
+```r
 
 table(d$famprogcat)
 ```
@@ -439,8 +603,22 @@ table(d$Fcat)
 ##       33       35
 ```
 
+```r
+str(d)
+```
 
-To make three groups, we'll use the `quantile` function to divide our variable `perfam`, the percentage of employees with families in the orgnanization, into thirds (*note that we've specified our probabilities as .33 and .66 accordingly). Again we change it into a categorical variable using the `findInterval` function.  This will allow us to have a categorical variable with three equal groups. 
+```
+## 'data.frame':	68 obs. of  6 variables:
+##  $ famprog   : int  5 9 1 9 3 2 2 2 6 5 ...
+##  $ empsatis  : num  3.29 5.63 3.92 2.51 5.28 ...
+##  $ perfam    : int  66 41 53 54 49 53 70 53 58 43 ...
+##  $ famprogcat: int  0 1 0 1 0 0 0 0 1 0 ...
+##  $ FPcat     : Factor w/ 2 levels "lowprog","highprog": 1 2 1 2 1 1 1 1 2 1 ...
+##  $ Fcat      : chr  "highprog" "lowprog" "highprog" "lowprog" ...
+```
+
+
+To make three groups, we'll use the `quantile` function to divide our variable `perfam`, the percentage of employees with families in the organization, into thirds (*note that we've specified our probabilities as .33 and .66 accordingly). Again we change it into a categorical variable using the `findInterval` function.  This will allow us to have a categorical variable with three equal groups. 
 
 
 ```r
@@ -463,6 +641,21 @@ table(d$perfamcat)
 ## 
 ##  0  1  2 
 ## 23 20 25
+```
+
+```r
+str(d)
+```
+
+```
+## 'data.frame':	68 obs. of  7 variables:
+##  $ famprog   : int  5 9 1 9 3 2 2 2 6 5 ...
+##  $ empsatis  : num  3.29 5.63 3.92 2.51 5.28 ...
+##  $ perfam    : int  66 41 53 54 49 53 70 53 58 43 ...
+##  $ famprogcat: int  0 1 0 1 0 0 0 0 1 0 ...
+##  $ FPcat     : Factor w/ 2 levels "lowprog","highprog": 1 2 1 2 1 1 1 1 2 1 ...
+##  $ Fcat      : chr  "highprog" "lowprog" "highprog" "lowprog" ...
+##  $ perfamcat : int  2 0 1 1 0 1 2 1 1 0 ...
 ```
 
 ```r
@@ -538,7 +731,7 @@ with(d, {
 
 How can we make bar graphs?  (Since we're using two categorical predictors)
 
-We'll also add error bars! Since they're easier to eyeball (remember the paper Benoit mentioned in class!), we'll include the 95% confidence interval, though I'll give you a formula for the standard error that you could use too.
+We'll also add error bars! We'll include formulas for the 95% confidence interval and the standard error that you could use.
 
 
 ```r
@@ -555,23 +748,23 @@ ci95 <- function(x) {
 
 ```r
 ms <- aggregate(empsatis ~ FPcat + PerCat, data=d, mean)
-ms$errs <- aggregate(empsatis ~ FPcat + PerCat, data=d, ci95)$empsatis
+# note for the errs, you could use the formula for ci95 or sem
+ms$errs <- aggregate(empsatis ~ FPcat + PerCat, data=d, sem)$empsatis
 print(ms)
 ```
 
 ```
 ##      FPcat     PerCat empsatis   errs
-## 1  lowprog    low use    4.063 0.6053
-## 2 highprog    low use    4.223 0.5312
-## 3  lowprog middle use    3.794 0.2708
-## 4 highprog middle use    3.887 0.4215
-## 5  lowprog   high use    3.498 0.2805
-## 6 highprog   high use    4.150 0.4123
+## 1  lowprog    low use    4.063 0.3088
+## 2 highprog    low use    4.223 0.2710
+## 3  lowprog middle use    3.794 0.1382
+## 4 highprog middle use    3.887 0.2150
+## 5  lowprog   high use    3.498 0.1431
+## 6 highprog   high use    4.150 0.2103
 ```
 
 ```r
 
-library(ggplot2)
 ggplot(ms, aes(x=FPcat, y=empsatis, fill=PerCat)) + 
   geom_bar(position=position_dodge(), stat="identity", colour="black", size=.3) + # Use black outlines
   geom_errorbar(aes(ymin = ms$empsatis-ms$errs, ymax=ms$empsatis+ms$errs), width=.2, position=position_dodge(width=.9)) +
@@ -587,7 +780,7 @@ Let's revisit our data, but just take a look at the companies that had a low num
 
 
 ```r
-l <- subset(d, FPcat == "lowprog")
+l = subset(d, FPcat == "lowprog")
 str(l)
 ```
 
@@ -609,7 +802,7 @@ What if we change our contrasts? What predictions might we make using the data?
 
 
 ```r
-plot(l$PerCat, l$empsatis)
+qplot(PerCat, empsatis, data = d, geom = "boxplot")
 ```
 
 ![plot of chunk contrasts](figure/contrasts.png) 
@@ -623,7 +816,33 @@ levels(l$PerCat)
 ```
 
 ```r
-contrasts(l$PerCat) = cbind(c(-1, -1, 2), c(-1, 1, 0))  #which groups are these contrasts comparing?
+
+# here' are the's the default coding:
+contrasts(l$PerCat)
+```
+
+```
+##            middle use high use
+## low use             0        0
+## middle use          1        0
+## high use            0        1
+```
+
+```r
+
+# now let's change it
+contrasts(l$PerCat) = cbind(c(1, 1, -2), c(1, -1, 0))  #which groups are these contrasts comparing?
+contrasts(l$PerCat)
+```
+
+```
+##            [,1] [,2]
+## low use       1    1
+## middle use    1   -1
+## high use     -2    0
+```
+
+```r
 
 with(l, summary(lm(empsatis ~ PerCat)))
 ```
@@ -640,8 +859,8 @@ with(l, summary(lm(empsatis ~ PerCat)))
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
 ## (Intercept)   3.7852     0.1166   32.46   <2e-16 ***
-## PerCat1      -0.1434     0.0806   -1.78    0.085 .  
-## PerCat2      -0.1346     0.1459   -0.92    0.364    
+## PerCat1       0.1434     0.0806    1.78    0.085 .  
+## PerCat2       0.1346     0.1459    0.92    0.364    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -758,16 +977,15 @@ print(c2)
 ```
 
 
+
 ## Question E - Mediation!
 
 Let's clean up our screens and load in the next data set!
 
-
 ```r
 rm(list = ls())
 
-setwd("~/Dropbox/TA/Psych252_MW/WWW/datasets")
-d <- read.csv("caffeine.csv")
+d = read.csv("http://www.stanford.edu/class/psych252/data/caffeine.csv")
 str(d)
 ```
 
@@ -794,14 +1012,22 @@ What mediational question might we ask with these data?
 
 What should we do first?
 
+Let's visualize the data:
 
 ```r
-hist(d$perf)
+# Histogram overlaid with kernel density curve
+ggplot(d, aes(x = perf)) + geom_histogram(aes(y = ..density..), binwidth = 5, 
+    colour = "black", fill = "white") + geom_density(alpha = 0.2, fill = "#FF6666")  # Overlay with transparent density plot
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
+```
+## Warning: Removed 2 rows containing non-finite values (stat_density).
+```
+
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
 
 ```r
+
 table(d$coffee)
 ```
 
@@ -816,6 +1042,21 @@ We should probably recode coffee cups into number of coffee cups!
 
 
 ```r
+summary(d)
+```
+
+```
+##      coffee       perf          accur          numprob     
+##  Min.   :1   Min.   : 5.0   Min.   :0.240   Min.   : 6.00  
+##  1st Qu.:1   1st Qu.:31.0   1st Qu.:0.426   1st Qu.: 7.00  
+##  Median :2   Median :40.0   Median :0.510   Median : 8.00  
+##  Mean   :2   Mean   :42.4   Mean   :0.511   Mean   : 7.95  
+##  3rd Qu.:3   3rd Qu.:53.5   3rd Qu.:0.594   3rd Qu.: 9.00  
+##  Max.   :3   Max.   :89.0   Max.   :0.749   Max.   :10.00  
+##  NA's   :2   NA's   :2      NA's   :2       NA's   :2
+```
+
+```r
 d$cups = 0 * as.numeric(d$coffee == 1) + 2 * as.numeric(d$coffee == 2) + 4 * 
     as.numeric(d$coffee == 3)
 table(d$cups)
@@ -828,10 +1069,29 @@ table(d$cups)
 ```
 
 
+
+```r
+ggplot(d, 
+       aes(x=cups, 
+           y=perf, size=numprob)) +  # Adding color for mentill
+  geom_point(shape=1, position=position_jitter(width=.5)) +  
+  geom_smooth(method=lm, se=TRUE) +
+  theme_bw()
+```
+
+```
+## Warning: Removed 2 rows containing missing values (stat_smooth). Warning:
+## Removed 2 rows containing missing values (geom_point).
+```
+
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
+
+
 First question: Does the number of problems attempted (hyperactivity) mediate the effect of coffee on performance?
+What is our x (IV)?
+Our y (DV)? Our mediator?
 
 We need to run three models. There is one model that we never run (the effect of the mediator on the DV, without the IV included):
-
 
 ```r
 with(d, summary(lm(perf ~ numprob)))
@@ -861,7 +1121,6 @@ with(d, summary(lm(perf ~ numprob)))
 
 
 The first model we need to look at is the direct path, does coffee predict performance?  If not, we can abandon this whole endeavor!
-
 
 ```r
 problm1 <- lm(perf ~ cups, data = d)
@@ -952,12 +1211,24 @@ summary(problm2)  # yes, a=0.52
 
 ```r
 a <- summary(problm2)$coefficients[2, 1]
+a
+```
+
+```
+## [1] 0.525
+```
+
+```r
 s_a <- summary(problm2)$coefficients[2, 2]
+s_a
+```
+
+```
+## [1] 0.06462
 ```
 
 
 Our final model, Model 3, is the effect of coffee on performance mediated by the effect of the number of problems.
-
 
 ```r
 problm3 <- lm(perf ~ cups + numprob, data = d)
@@ -990,15 +1261,54 @@ summary(problm3)
 ```r
 
 c_prime <- summary(problm3)$coefficients[2, 1]
+c_prime
+```
+
+```
+## [1] 0.7142
+```
+
+```r
 b <- summary(problm3)$coefficients[3, 1]
+b
+```
+
+```
+## [1] 5.759
+```
+
+```r
 s_b <- summary(problm3)$coefficients[3, 2]
+s_b
+```
+
+```
+## [1] 2.721
+```
+
+```r
+
+# note, we can also get c_prime by subtracting a * b from our original c:
+c_prime
+```
+
+```
+## [1] 0.7142
+```
+
+```r
+c - a * b
+```
+
+```
+##   cups 
+## 0.7142
 ```
 
 
 The direct effect of coffee (c) disappeared and the number of problems attempted (b) is significant. We could answer yes, there is mediation, but let's be more formal.
 
 Let's perform  the conventional Sobel test, adding in the standard error of a and standard error of b.
-
 
 ```r
 s_ab <- sqrt(b^2 * s_a^2 + a^2 * s_b^2 + s_a^2 * s_b^2)
@@ -1010,6 +1320,24 @@ s_ab  # standard error of a*b
 ```
 
 ```r
+
+a * b
+```
+
+```
+## [1] 3.023
+```
+
+```r
+a * b/s_ab
+```
+
+```
+## [1] 2.034
+```
+
+```r
+
 p_s_ab <- pnorm(a * b/s_ab, lower.tail = F)
 p_s_ab  # p of ratio of a*b over its s.e.
 ```
@@ -1124,3 +1452,65 @@ p_s_ab2  # p of ratio of a2*b2 over its s.e.
 
 
 Conclusion: Coffee and accuracy both contribute to performance and in this case there is no mediation there. However, the effect of coffee is mediated by the number of problems attempted. 
+
+Bootstrapped Mediation
+------------------------
+
+Using Benoit's script, let's re-run the analysis from before
+
+```r
+mediation_bootstrap = function(x, med, y, iterations = 1000) {
+    
+    # setup some parameters
+    vars = as.data.frame(cbind(x, med, y))
+    N = length(x)
+    boot_ab = vector(length = iterations)
+    
+    for (i in 1:iterations) {
+        data_samp = sample(c(1:N), N, replace = TRUE)
+        iter_a = lm(vars[data_samp, 2] ~ vars[data_samp, 1])$coefficients[2]
+        iter_b = lm(vars[data_samp, 3] ~ vars[data_samp, 2] + vars[data_samp, 
+            1])$coefficients[2]
+        
+        boot_ab[i] = iter_a * iter_b
+    }
+    
+    # create plot
+    hist(boot_ab, main = paste("Bootstrapped a*b, with", iterations, "iterations"), 
+        col = "red")
+    abline(v = 0, col = "black", lty = 2, lwd = 2)
+    abline(v = c(quantile(boot_ab, c(0.025, 0.975))), col = "blue", lty = 3)
+    
+    # Print results
+    print("Bootstrap results:", quote = F)
+    print(c(ab = mean(boot_ab)))
+    print(quantile(boot_ab, c(0.025, 0.975)))
+    
+    return(boot_ab)
+}
+```
+
+
+
+```r
+boot_ab = mediation_bootstrap(x = d$cups, med = d$numprob, y = d$perf, iterations = 10000)
+```
+
+![plot of chunk unnamed-chunk-22](figure/unnamed-chunk-22.png) 
+
+```
+## [1] Bootstrap results:
+##    ab 
+## 2.966 
+##    2.5%   97.5% 
+## -0.1642  6.3153
+```
+
+```r
+mean(boot_ab)
+```
+
+```
+## [1] 2.966
+```
+
