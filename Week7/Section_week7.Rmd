@@ -1,0 +1,226 @@
+Section Week 7 - Partial correlations, Practice with contrasts, 2x3 ANOVA
+========================================================
+
+### Quiz 2 Feedback
+
+- Read questions carefully and give an attempted answer for every question
+
+- Manage your time progressing through the quiz
+
+- When testing something: 
+1). state the name of the test, 
+2). **Give formula or R command**, 
+3). Show your work, rather than just writing a number, so that in case you are wrong, we can still give lots of partial credit!
+
+- Calculate statistic and critical value or p value
+
+- Reject the null (or not)
+
+- Informal conclusion
+
+- When writing up results: 
+1). use a few numbers, *b = 3.21, p = 0.012*, 
+2). Formal words: There was a significant quadratic effect of smiling on creepiness
+3). Informal words: Those who smile more tend to be less creepy, but there is a point at which smiling too much causes an increase in creepiness.
+
+### Partial Correlations
+
+Remember that both the **Baron & Kenny method** and a test for **partial correlation** can test causal hypotheses.
+
+Let's compare a test with partial correlation to mediation.  Let's quickly review our findings from the **coffee problem** from Homework 3.
+
+**Causal Models**
+
+**IV**: *Coffee* - 20 subjects in each group either had 0 cups, 2 cups, or 4 cups
+
+**DV**: *Performance* - on a stats quiz with 10 problems, 5-89 points
+
+**Possible Mediator 1**: *Number of problems attempted* (hyperactivity)
+
+**Possible Mediator 2**: *Accuracy* - how likely they were to get a problem right if they tried (better success)
+
+```{r coffee data}
+d<-read.csv("http://www.stanford.edu/class/psych252/data/caffeine.csv")
+str(d)
+
+d$cups = 0*as.numeric(d$coffee==1) + 2*as.numeric(d$coffee==2) + 4*as.numeric(d$coffee==3) 
+table(d$cups)
+```
+
+Cups of Coffee $\longrightarrow$ Hyperactivity $\longrightarrow$ Performance
+
+What's the model we don't need?
+
+*Mediator predicting our DV on its own. Just ignore this guy.*
+
+```{r}
+with(d, summary(lm(perf~numprob)))
+```
+
+```{r mediation models}
+with(d, summary(lm(perf~cups))) #c
+with(d, summary(lm(numprob~cups))) #a
+with(d, summary(lm(perf~cups+numprob))) #b and c'
+```
+
+Now let's compare this test of our causal model with a partial correlation test.  Partial correlations find the correlation between two variables after removing the effects of other variables.
+
+x = **IV** *(cups of coffee)*
+
+y = **DV** *(performance)*
+
+z = **third variable** *(mediator)*
+
+
+First, we'll need to find out what our correlations are.
+
+```{r get corrs}
+with(d, cor.test(cups,perf)) -> a; print(a)
+with(d, cor.test(cups,numprob)) -> b; print(b)
+with(d, cor.test(numprob,perf)) -> c; print(c)
+```
+
+What's the formula for a partial correlation?
+
+$$\textrm{Partial Correlation }: r(xy.z) = \frac{{r_{xy} - r_{xz} * r_{yz}}}{\sqrt{(1-r_{xz}^2) * (1-r_{yz}^2)}}$$
+
+```{r partial correlation}
+n <- 60
+xy<- as.numeric(a$estimate)
+xz<- as.numeric(b$estimate)
+yz<- as.numeric(c$estimate)
+
+r_xy_z<-(xy-(xz*yz))/(sqrt((1-xz^2)*(1-yz^2))); print(r_xy_z)
+t2 <- r_xy_z*sqrt((n-2)/(1-r_xy_z^2)); print(t2)
+ptr<-pt(t2,n-2, lower.tail=FALSE); print(ptr) 
+```
+
+Now let's try wth accuracy, which we know isn't a mediator! 
+
+Cups of Coffee $\leadsto$ Accuracy $\longrightarrow$ Performance
+
+Quick review of what we found last time:
+
+```{r med mod acc}
+with(d, summary(lm(perf~cups))) #c
+with(d, summary(lm(accur~cups))) #a
+with(d, summary(lm(perf~cups+accur))) #b and c'
+```
+
+```{r get corrs acc}
+with(d, cor.test(cups,perf)) -> a; print(a)
+with(d, cor.test(cups,accur)) -> b; print(b)
+with(d, cor.test(accur,perf)) -> c; print(c)
+```
+
+```{r pcorr acc}
+n <- 60
+xy<- as.numeric(a$estimate)
+xz<- as.numeric(b$estimate)
+yz<- as.numeric(c$estimate)
+
+r_xy_z<-(xy-(xz*yz))/(sqrt((1-xz^2)*(1-yz^2))); print(r_xy_z)
+t2 <- r_xy_z*sqrt((n-2)/(1-r_xy_z^2)); print(t2)
+ptr<-pt(t2,n-2,lower.tail=FALSE); print(ptr) 
+```
+
+Let's do this using `library(psych)`
+
+```{r}
+library(psych)
+?partial.r
+
+```
+
+For number of problems attempted:
+
+```{r}
+subset(d,select=c('cups','perf','numprob')) -> da
+partial.r(da, 1:2, 3)
+```
+
+For accuracy:
+
+```{r}
+subset(d,select=c('cups','perf','accur')) -> da1
+partial.r(da1, 1:2, 3)
+```
+
+So far, we've considered causal models like this:
+
+What if cups of coffee predicted both the number of problems attempted and performance, but performance and the number of problems weren't related? So instead of this model:
+
+#### Cups of Coffee $\longrightarrow$ Hyperactivity $\longrightarrow$ Performance
+
+We were interested in this model:
+
+#### Cups of Coffee $\longrightarrow$ Hyperactivity
+
+$\downarrow$
+
+#### Performance
+
+```{r}
+n <- 60
+xy<- .26
+xz<- .32
+yz<- .03
+
+r_xy_z<-(xy-(xz*yz))/(sqrt((1-xz^2)*(1-yz^2))); print(r_xy_z)
+t2 <- r_xy_z*sqrt((n-2)/(1-r_xy_z^2)); print(t2)
+ptr<-pt(t2,n-2, lower.tail=FALSE); print(ptr) 
+```
+
+### Practice with Contrasts
+
+Let's practice interpreting contrasts!
+
+Remember our handy function from last time to test for **orthogonality**? 
+
+```{r}
+c_orth_4 <- function(x) {
+  a <- (x[1,1]*x[1,2])+(x[2,1]*x[2,2])+(x[3,1]*x[3,2])+(x[4,1]*x[4,2]);
+  b <- (x[1,2]*x[1,3])+(x[2,2]*x[2,3])+(x[3,2]*x[3,3])+(x[4,2]*x[4,3]);
+  c <- (x[1,1]*x[1,3])+(x[2,1]*x[2,3])+(x[3,1]*x[3,3])+(x[4,1]*x[4,3]);
+  d <- cbind(a,b,c); rownames(d)=c('Contrasts'); print(d)
+  e <- a+b+c; names(e)=c('Sum'); print(e) }
+```
+
+Orthogonal contrasts possible for 4 groups! *Remember that you can have k-1 contrasts, if k is the number of groups that you have*
+
+There are three different sets of orthogonal contrasts that are useful for comparing 4 different groups. These are useful in different situations. Let's consider a series of experiments where we're interested in what predicts whether a grad student is willing to register early for a conference. What do each of these sets of contrasts test?
+
+#### When our IV is quantitative:
+
+For instance, let's say that we're looking at level of trait anxiety on likelihood of reigstering early for a conference. 
+
+```{r}
+c1 <- cbind(c(-3,-1,1,3), c(1,-1,-1,1), c(-1,3,-3,1)); c_orth_4(c1)
+rownames(c1) <- c(1,2,3,4); print(c1)
+```
+
+#### When we have two levels of one factor, and two levels of another factor.
+
+Let's say that Factor A is fee for late registration (low vs. high)
+and Factor B is the number of days before the deadline a warning is issued (one week vs. 1 day)
+on likelihood of early registration
+
+```{r}
+c2 <- cbind(c(1,1,-1,-1), c(1,-1,0,0), c(0,0,1,-1)); c_orth_4(c2)
+rownames(c2) <- c('reg1','reg2','days1','days2'); print(c2)
+```
+
+#### When we're using a 2x2 factorial design:
+
+Again, let's say that Factor A is gender (male vs. female)
+and Factor B is framing of an issue (loss vs. gain)
+on likelihood of early registration
+
+```{r}
+c3 <- cbind(c(-1,1,-1,1), c(-1,-1,1,1), c(1,-1,-1,1)); c_orth_4(c3)
+rownames(c3) <- c('men/loss','women/loss','men/gain','women/gain'); print(c3)
+```
+
+### 2x3 ANOVA
+
+Slides
