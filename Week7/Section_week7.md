@@ -1,4 +1,4 @@
-Section Week 7 - Partial correlations, Practice with contrasts, 2x3 ANOVA
+Section Week 7 - Partial correlations, Practice with contrasts, 2x3 ANOVA, Contrasts by hand
 ========================================================
 
 ## Quiz 2 Feedback
@@ -418,14 +418,7 @@ with(d, summary(lm(perf ~ cups + accur)))  #b and c'
 
 
 ```r
-with(d, cor.test(cups, perf)) <- a
-```
-
-```
-## Error: could not find function "with<-"
-```
-
-```r
+a = with(d, cor.test(cups, perf))
 print(a)
 ```
 
@@ -444,14 +437,7 @@ print(a)
 ```
 
 ```r
-with(d, cor.test(cups, accur)) <- b
-```
-
-```
-## Error: could not find function "with<-"
-```
-
-```r
+b = with(d, cor.test(cups, accur))
 print(b)
 ```
 
@@ -459,25 +445,18 @@ print(b)
 ## 
 ## 	Pearson's product-moment correlation
 ## 
-## data:  cups and numprob
-## t = 8.124, df = 58, p-value = 3.789e-11
+## data:  cups and accur
+## t = -0.0166, df = 58, p-value = 0.9868
 ## alternative hypothesis: true correlation is not equal to 0
 ## 95 percent confidence interval:
-##  0.5838 0.8298
+##  -0.2560  0.2519
 ## sample estimates:
-##    cor 
-## 0.7296
+##       cor 
+## -0.002184
 ```
 
 ```r
-with(d, cor.test(accur, perf)) <- c
-```
-
-```
-## Error: could not find function "with<-"
-```
-
-```r
+c = with(d, cor.test(accur, perf))
 print(c)
 ```
 
@@ -485,14 +464,14 @@ print(c)
 ## 
 ## 	Pearson's product-moment correlation
 ## 
-## data:  numprob and perf
-## t = 3.511, df = 58, p-value = 0.0008722
+## data:  accur and perf
+## t = 2.373, df = 58, p-value = 0.021
 ## alternative hypothesis: true correlation is not equal to 0
 ## 95 percent confidence interval:
-##  0.1843 0.6079
+##  0.04706 0.51264
 ## sample estimates:
 ##    cor 
-## 0.4186
+## 0.2974
 ```
 
 
@@ -508,7 +487,7 @@ print(r_xy_z)
 ```
 
 ```
-## [1] 0.04826
+## [1] 0.352
 ```
 
 ```r
@@ -517,7 +496,7 @@ print(t2)
 ```
 
 ```
-## [1] 0.368
+## [1] 2.864
 ```
 
 ```r
@@ -526,7 +505,7 @@ print(ptr)
 ```
 
 ```
-## [1] 0.3571
+## [1] 0.002908
 ```
 
 
@@ -1151,7 +1130,37 @@ anova(lm1)
 
 ```r
 
-# Calculate t-stat
+# some extra values..
+SSgroup = sum(((ns[, 2] * means[, 2])^2)/ns[, 2]) - C_val
+SSgroup
+```
+
+```
+## [1] 20.01
+```
+
+```r
+MSgroup = SSgroup/(k - 1)
+MSgroup
+```
+
+```
+## [1] 10.01
+```
+
+```r
+Fstat = MSgroup/MSerror
+Fstat
+```
+
+```
+## [1] 4.827
+```
+
+```r
+
+
+# Calculate t-stat for contrast
 contrast1^2
 ```
 
