@@ -338,7 +338,13 @@ MSerror = SSerror/(N-k); MSerror
 # compare error to anova table from lm output
 anova(lm1)
 
-# Calculate t-stat
+# some extra values..
+SSgroup = sum(((ns[,2]*means[,2])^2)/ns[,2]) - C_val; SSgroup
+MSgroup = SSgroup/(k-1); MSgroup
+Fstat = MSgroup/MSerror; Fstat
+
+
+# Calculate t-stat for contrast
 contrast1^2
 (contrast1^2)/ns[,2]
 

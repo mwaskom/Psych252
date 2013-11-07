@@ -353,11 +353,8 @@ Let's clean up our screens and load in the next data set!
 ```{r}
 rm(list=ls())
 
-<<<<<<< HEAD
 d = read.csv('http://www.stanford.edu/class/psych252/data/caffeine.csv')
-=======
-d<-read.csv("http://www.stanford.edu/class/psych252/data/caffeine.csv")
->>>>>>> 1234a2a7950d9c2e4778137741b751886a3f4f36
+
 str(d)
 ```
 
