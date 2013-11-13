@@ -167,3 +167,22 @@ Fields:
 * **numprob**: number of problems attempted (hyperactivity)
 
 * **accur**: likelihood of getting a problem right if they tried (better success)
+
+kv0.csv
+---------------
+
+Repeated measures design with features both between-subject factors (2 attention conditions) and within-subject factors (# of possible solutions to a word task, solving anagrams). The dependent variable was score on a memory test (higher numbers reflect better performance). There were 10 study participants divided between the two conditions; they each completed three problems in each category of # of possible solutions (1, 2, or 3).
+
+:download:`Click to download data </datasets/kv0.csv>`
+
+Fields:
+
+* **subidr**: Subject ID
+
+* **attnr**: 1 = divided attention condition; 2 = focused attention condition
+
+* **num1**: only one solution to the anagram
+
+* **num2**: two possible solutions to the anagram
+
+* **num3**: three possible solutions to the anagram
