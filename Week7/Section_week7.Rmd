@@ -129,9 +129,9 @@ with(d, summary(lm(perf~cups+accur))) #b and c'
 ```
 
 ```{r get corrs acc}
-a = with(d, cor.test(cups,perf)); print(a)
-b = with(d, cor.test(cups,accur)); print(b)
-c = with(d, cor.test(accur,perf)); print(c)
+a = with(d, cor.test(cups,perf)); print(a) #x & y
+b = with(d, cor.test(cups,accur)); print(b) #x & mediator
+c = with(d, cor.test(accur,perf)); print(c) #mediator $ y
 ```
 
 ```{r pcorr acc}

@@ -419,7 +419,7 @@ with(d, summary(lm(perf ~ cups + accur)))  #b and c'
 
 ```r
 a = with(d, cor.test(cups, perf))
-print(a)
+print(a)  #x & y
 ```
 
 ```
@@ -438,7 +438,7 @@ print(a)
 
 ```r
 b = with(d, cor.test(cups, accur))
-print(b)
+print(b)  #x & mediator
 ```
 
 ```
@@ -457,7 +457,7 @@ print(b)
 
 ```r
 c = with(d, cor.test(accur, perf))
-print(c)
+print(c)  #mediator $ y
 ```
 
 ```
