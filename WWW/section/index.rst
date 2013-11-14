@@ -8,7 +8,7 @@ Overview of chi-square tests; data examination and transformation; multiple regr
 correlations between multiple variables; dummy/contrast/effect coding; centering continuous variables
 
 [`html <http://www.stanford.edu/class/psych252/section/Section3.html>`_]
-[`Rmd <http://www.stanford.edu/class/psych252/section/Section3.rmd>`_] 
+[`Rmd <http://www.stanford.edu/class/psych252/section/Section3.Rmd>`_] 
 
 
 Week 4
@@ -19,4 +19,15 @@ building an intuition about standard error around a linear regression estimate;
 example code for some questions from HW 3.
 
 [`html <http://www.stanford.edu/class/psych252/section/Section4.html>`_]
-[`Rmd <http://www.stanford.edu/class/psych252/section/Section4.rmd>`_] 
+[`Rmd <http://www.stanford.edu/class/psych252/section/Section4.Rmd>`_] 
+
+
+Week 6
+---------------
+
+Visualizing data; running lm() analyses and changing contrasts; 
+example mediation analyses, with code for bootstrapping;
+example code for some questions from HW 4.
+
+[`html <http://www.stanford.edu/class/psych252/section/Contrasts_and_Mediation.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/section/Contrasts_and_Mediation.Rmd>`_]

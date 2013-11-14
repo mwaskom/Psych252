@@ -1,6 +1,6 @@
 Section Week 8 - Linear Mixed Models
 ========================================================
-Winter, B. (2013). Linear models and linear mixed effects models in R with linguistic applications. arXiv:1308.5499. [Link](http://arxiv.org/pdf/1308.5499.pdf)
+Much of the content adapted from **Winter, B. (2013). Linear models and linear mixed effects models in R with linguistic applications. arXiv:1308.5499.** [Link](http://arxiv.org/pdf/1308.5499.pdf)
 
 
 How is a linear mixed effects model different from the linear models we know already?
@@ -837,7 +837,7 @@ Now we'll try working with the data from upcoming homework 5 (that was also used
 
 Let's read about our data in `kv0.csv`!
 
-Our study design here features both between-subject factors (2 attention conditions) and within-subject factors (# of possible solutions to a word task, solving anagrams). The dependent variable was score on a memory test (higher numbers reflect better performance). There were 10 study participants divided between the two conditions; they each completed three problems in each category of # of possible solutions (1, 2, or 3).
+Our study design here features both **between-subject** factors (2 attention conditions) and **within-subject** factors (# of possible solutions to a word task, solving anagrams). The dependent variable was score on a memory test (higher numbers reflect better performance). There were 10 study participants divided between the two conditions; they each completed three problems in each category of # of possible solutions (1, 2, or 3).
 
 This is a *repeated measures design*.  
 
@@ -845,26 +845,21 @@ The question we want to answer is: **How does score depend on attention and numb
 
 Variables:
 
-* **subidr**: Subject ID
+- **subidr**: Subject ID
 
-* **attnr**: 1 = divided attention condition; 2 = focused attention condition
+- **attnr**: 1 = divided attention condition; 2 = focused attention condition
 
-* **num1**: only one solution to the anagram
+- **num1**: only one solution to the anagram
 
-* **num2**: two possible solutions to the anagram
+- **num2**: two possible solutions to the anagram
 
-* **num3**: three possible solutions to the anagram
+- **num3**: three possible solutions to the anagram
 
 Let's read in our data!
 
 
 ```r
 d0 <- read.csv("http://www.stanford.edu/class/psych252/data/kv0.csv")
-
-# load libraries needed for the lmer mixed-models and by subject plots
-library(lme4)
-library(ggplot2)
-
 
 str(d0)
 ```
@@ -876,6 +871,12 @@ str(d0)
 ##  $ num1  : int  2 3 3 5 4 5 5 5 2 6 ...
 ##  $ num2  : num  4 4 5 7 5 5 4.5 7 3 5 ...
 ##  $ num3  : int  7 5 6 5 8 6 6 8 7 6 ...
+```
+
+```r
+
+# Make sure to factor subject!
+d0$subidr = factor(d0$subidr)
 ```
 
 
@@ -901,6 +902,24 @@ head(d1)
 ## 4.1      4 divided   1     5
 ## 5.1      5 divided   1     4
 ## 6.1      6 divided   1     5
+```
+
+```r
+str(d1)
+```
+
+```
+## 'data.frame':	60 obs. of  4 variables:
+##  $ subidr: Factor w/ 20 levels "1","2","3","4",..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ attnr : Factor w/ 2 levels "divided","focused": 1 1 1 1 1 1 1 1 1 1 ...
+##  $ num   : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ score : num  2 3 3 5 4 5 5 5 2 6 ...
+##  - attr(*, "reshapeLong")=List of 4
+##   ..$ varying:List of 1
+##   .. ..$ : chr  "num1" "num2" "num3"
+##   ..$ v.names: chr "score"
+##   ..$ idvar  : chr "subidr"
+##   ..$ timevar: chr "num"
 ```
 
 
@@ -972,7 +991,7 @@ str(dl)
 
 ```
 ## 'data.frame':	60 obs. of  4 variables:
-##  $ id   : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ id   : Factor w/ 20 levels "1","2","3","4",..: 1 2 3 4 5 6 7 8 9 10 ...
 ##  $ attn : Factor w/ 2 levels "divided","focused": 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ num  : Factor w/ 3 levels "num1","num2",..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ score: num  2 3 3 5 4 5 5 5 2 6 ...
@@ -996,8 +1015,19 @@ We also need to rescale `id` to 1:10 within each level of `attn`, since the subj
 
 
 ```r
-dl$cond.id <- as.numeric(dl$id)
-dl$cond.id[dl$attn == "focused"] = dl$cond.id[dl$attn == "focused"] - 10
+dl$subj.id <- as.numeric(dl$id)
+dl$subj.id[dl$attn == "focused"] = dl$subj.id[dl$attn == "focused"] - 10
+head(dl)
+```
+
+```
+##   id    attn num score subj.id
+## 1  1 divided   1     2       1
+## 2  2 divided   1     3       2
+## 3  3 divided   1     3       3
+## 4  4 divided   1     5       4
+## 5  5 divided   1     4       5
+## 6  6 divided   1     5       6
 ```
 
 
@@ -1011,22 +1041,22 @@ Start with a simple regression and random intercept for subject
 
 
 ```r
-res1 <- lmer(score ~ num + (1 | cond.id), dl)
+res1 = lmer(score ~ num + (1 | subj.id), dl)
 summary(res1)
 ```
 
 ```
 ## Linear mixed model fit by REML ['lmerMod']
-## Formula: score ~ num + (1 | cond.id) 
+## Formula: score ~ num + (1 | subj.id) 
 ##    Data: dl 
 ## 
 ## REML criterion at convergence: 223.7 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev.
-##  cond.id  (Intercept) 0.0752   0.274   
+##  subj.id  (Intercept) 0.0752   0.274   
 ##  Residual             2.3566   1.535   
-## Number of obs: 60, groups: cond.id, 10
+## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error t value
@@ -1051,7 +1081,7 @@ Let's visualize what we're modeling with the random intercept model.
 ```r
 (ggplot(dl, aes(x=num, y=score))
      #tell ggplot what data is, and x and y variables
-     +facet_wrap(~cond.id,ncol=5,scales='free')
+     +facet_wrap(~subj.id, ncol=5, scales='free')
      #add a wrapping by unique combos of 2 variable
      #set num columns, and vary scales per facet.
      +geom_point()
@@ -1070,23 +1100,23 @@ Random intercept and random slope model:
 
 
 ```r
-res2 <- lmer(score ~ num + (1 + num | cond.id), dl)
+res2 = lmer(score ~ num + (1 + num | subj.id), dl)
 summary(res2)
 ```
 
 ```
 ## Linear mixed model fit by REML ['lmerMod']
-## Formula: score ~ num + (1 + num | cond.id) 
+## Formula: score ~ num + (1 + num | subj.id) 
 ##    Data: dl 
 ## 
 ## REML criterion at convergence: 222.8 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev. Corr 
-##  cond.id  (Intercept) 1.104    1.051         
+##  subj.id  (Intercept) 1.104    1.051         
 ##           num         0.105    0.323    -1.00
 ##  Residual             2.210    1.486         
-## Number of obs: 60, groups: cond.id, 10
+## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error t value
@@ -1103,6 +1133,470 @@ Note that we now have more coefficients in the random effects table and our main
 
 Is the variance in terms of intercept and slope enough that we need both random terms? We can formally answer this question using `anova` as seen above. 
 
-anova(res1, res2)
 
-It seems like the model with the random slope does account for significantly more variance! Now you have a research and/or moral dilemma. Do you try to figure out what's causing the variance in slope and intercept? Do you push the simpler but worse model?
+```r
+anova(res1, res2)
+```
+
+```
+## Data: dl
+## Models:
+## res1: score ~ num + (1 | subj.id)
+## res2: score ~ num + (1 + num | subj.id)
+##      Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## res1  4 229 238   -111      221                        
+## res2  6 233 245   -110      221  0.71      2        0.7
+```
+
+
+It seems like the model with the random slope does account for significantly more variance! Now you have a research and/or moral dilemma. Do you try to figure out what's causing the variance in slope and intercept? Do you push the simpler but worse model? Or, could there be something else going on?
+
+
+```r
+str(dl)
+```
+
+```
+## 'data.frame':	60 obs. of  5 variables:
+##  $ id     : Factor w/ 20 levels "1","2","3","4",..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ attn   : Factor w/ 2 levels "divided","focused": 1 1 1 1 1 1 1 1 1 1 ...
+##  $ num    : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ score  : num  2 3 3 5 4 5 5 5 2 6 ...
+##  $ subj.id: num  1 2 3 4 5 6 7 8 9 10 ...
+```
+
+```r
+ggplot(dl, aes(x = num, y = score, cond = attn, color = attn)) + facet_wrap(~subj.id, 
+    ncol = 5, scales = "fixed") + geom_point() + theme_bw() + stat_smooth(method = "lm")
+```
+
+![plot of chunk unnamed-chunk-24](figure/unnamed-chunk-24.png) 
+
+
+
+
+
+```r
+# Set up contrast for attention
+contrasts(dl$attn) = c(-1, 1)
+contrasts(dl$attn)
+```
+
+```
+##         [,1]
+## divided   -1
+## focused    1
+```
+
+```r
+
+res3a = lmer(score ~ scale(num, scale = FALSE) + attn + (1 | subj.id), REML = FALSE, 
+    dl)
+summary(res3a)
+```
+
+```
+## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Formula: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id) 
+##    Data: dl 
+## 
+##      AIC      BIC   logLik deviance 
+##   208.45   218.92   -99.22   198.45 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  subj.id  (Intercept) 0.178    0.422   
+##  Residual             1.459    1.208   
+## Number of obs: 60, groups: subj.id, 10
+## 
+## Fixed effects:
+##                           Estimate Std. Error t value
+## (Intercept)                  5.958      0.205   29.03
+## scale(num, scale = FALSE)    0.600      0.191    3.14
+## attn1                        0.842      0.156    5.40
+## 
+## Correlation of Fixed Effects:
+##             (Intr) s(,s=F
+## s(,s=FALSE) 0.000        
+## attn1       0.000  0.000
+```
+
+```r
+
+res3b = lmer(score ~ scale(num, scale = FALSE) + (1 | subj.id), REML = FALSE, 
+    dl)
+summary(res3b)
+```
+
+```
+## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Formula: score ~ scale(num, scale = FALSE) + (1 | subj.id) 
+##    Data: dl 
+## 
+##      AIC      BIC   logLik deviance 
+##    229.4    237.8   -110.7    221.4 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  subj.id  (Intercept) 0.0363   0.19    
+##  Residual             2.3095   1.52    
+## Number of obs: 60, groups: subj.id, 10
+## 
+## Fixed effects:
+##                           Estimate Std. Error t value
+## (Intercept)                  5.958      0.205    29.0
+## scale(num, scale = FALSE)    0.600      0.240     2.5
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## s(,s=FALSE) 0.000
+```
+
+```r
+
+anova(res3b, res3a)
+```
+
+```
+## Data: dl
+## Models:
+## res3b: score ~ scale(num, scale = FALSE) + (1 | subj.id)
+## res3a: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
+##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)    
+## res3b  4 229 238 -110.7      221                            
+## res3a  5 208 219  -99.2      198  22.9      1    1.7e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Including attn in the model significantly improves model fit.
+
+
+```r
+res4b = lmer(score ~ scale(num, scale = FALSE) + attn + (1 + num | subj.id), 
+    REML = TRUE, dl)
+summary(res4b)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: score ~ scale(num, scale = FALSE) + attn + (1 + num | subj.id) 
+##    Data: dl 
+## 
+## REML criterion at convergence: 200.3 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev. Corr 
+##  subj.id  (Intercept) 1.767    1.329         
+##           num         0.167    0.409    -1.00
+##  Residual             1.370    1.171         
+## Number of obs: 60, groups: subj.id, 10
+## 
+## Fixed effects:
+##                           Estimate Std. Error t value
+## (Intercept)                  5.958      0.221   26.92
+## scale(num, scale = FALSE)    0.600      0.226    2.66
+## attn1                        0.842      0.151    5.57
+## 
+## Correlation of Fixed Effects:
+##             (Intr) s(,s=F
+## s(,s=FALSE) -0.419       
+## attn1        0.000  0.000
+```
+
+```r
+
+res4c = lmer(score ~ scale(num, scale = FALSE) + attn + (1 + attn | subj.id), 
+    REML = TRUE, dl)
+summary(res4c)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: score ~ scale(num, scale = FALSE) + attn + (1 + attn | subj.id) 
+##    Data: dl 
+## 
+## REML criterion at convergence: 202.5 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev. Corr
+##  subj.id  (Intercept) 0.234    0.484        
+##           attn1       0.103    0.321    0.21
+##  Residual             1.404    1.185        
+## Number of obs: 60, groups: subj.id, 10
+## 
+## Fixed effects:
+##                           Estimate Std. Error t value
+## (Intercept)                  5.958      0.216   27.54
+## scale(num, scale = FALSE)    0.600      0.187    3.20
+## attn1                        0.842      0.184    4.58
+## 
+## Correlation of Fixed Effects:
+##             (Intr) s(,s=F
+## s(,s=FALSE) 0.000        
+## attn1       0.081  0.000
+```
+
+```r
+
+res4a = lmer(score ~ scale(num, scale = FALSE) + attn + (1 | subj.id), REML = TRUE, 
+    dl)
+summary(res4a)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id) 
+##    Data: dl 
+## 
+## REML criterion at convergence: 203 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  subj.id  (Intercept) 0.215    0.463   
+##  Residual             1.520    1.233   
+## Number of obs: 60, groups: subj.id, 10
+## 
+## Fixed effects:
+##                           Estimate Std. Error t value
+## (Intercept)                  5.958      0.216   27.54
+## scale(num, scale = FALSE)    0.600      0.195    3.08
+## attn1                        0.842      0.159    5.29
+## 
+## Correlation of Fixed Effects:
+##             (Intr) s(,s=F
+## s(,s=FALSE) 0.000        
+## attn1       0.000  0.000
+```
+
+```r
+
+anova(res4a, res4b)
+```
+
+```
+## Data: dl
+## Models:
+## res4a: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
+## res4b: score ~ scale(num, scale = FALSE) + attn + (1 + num | subj.id)
+##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## res4a  5 208 219  -99.2      198                        
+## res4b  7 210 224  -97.9      196  2.69      2       0.26
+```
+
+```r
+anova(res4a, res4c)
+```
+
+```
+## Data: dl
+## Models:
+## res4a: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
+## res4c: score ~ scale(num, scale = FALSE) + attn + (1 + attn | subj.id)
+##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## res4a  5 208 219  -99.2      198                        
+## res4c  7 212 227  -99.0      198  0.41      2       0.82
+```
+
+```r
+
+# res4a is still the best!
+summary(res4a)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id) 
+##    Data: dl 
+## 
+## REML criterion at convergence: 203 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  subj.id  (Intercept) 0.215    0.463   
+##  Residual             1.520    1.233   
+## Number of obs: 60, groups: subj.id, 10
+## 
+## Fixed effects:
+##                           Estimate Std. Error t value
+## (Intercept)                  5.958      0.216   27.54
+## scale(num, scale = FALSE)    0.600      0.195    3.08
+## attn1                        0.842      0.159    5.29
+## 
+## Correlation of Fixed Effects:
+##             (Intr) s(,s=F
+## s(,s=FALSE) 0.000        
+## attn1       0.000  0.000
+```
+
+
+
+```r
+res5a = lmer(score ~ scale(num, scale = FALSE) + attn + (1 | subj.id), REML = FALSE, 
+    dl)
+
+res5b = lmer(score ~ scale(num, scale = FALSE) * attn + (1 | subj.id), REML = FALSE, 
+    dl)
+
+anova(res5a, res5b)
+```
+
+```
+## Data: dl
+## Models:
+## res5a: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
+## res5b: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id)
+##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)    
+## res5a  5 208 219  -99.2      198                            
+## res5b  6 200 212  -93.7      188    11      1    0.00092 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+
+summary(res5b)
+```
+
+```
+## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Formula: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id) 
+##    Data: dl 
+## 
+##      AIC      BIC   logLik deviance 
+##   199.45   212.02   -93.73   187.45 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  subj.id  (Intercept) 0.226    0.475   
+##  Residual             1.171    1.082   
+## Number of obs: 60, groups: subj.id, 10
+## 
+## Fixed effects:
+##                                 Estimate Std. Error t value
+## (Intercept)                        5.958      0.205   29.03
+## scale(num, scale = FALSE)          0.600      0.171    3.51
+## attn1                              0.842      0.140    6.02
+## scale(num, scale = FALSE):attn1   -0.600      0.171   -3.51
+## 
+## Correlation of Fixed Effects:
+##              (Intr) sc(,s=FALSE) attn1
+## sc(,s=FALSE) 0.000                    
+## attn1        0.000  0.000             
+## s(,s=FALSE): 0.000  0.000        0.000
+```
+
+The interaction is significant!
+
+
+
+```r
+res6a = lmer(score ~ scale(num, scale = FALSE) * attn + (1 | subj.id), REML = TRUE, 
+    dl)
+
+res6b = lmer(score ~ scale(num, scale = FALSE) * attn + (1 + num | subj.id), 
+    REML = TRUE, dl)
+
+res6c = lmer(score ~ scale(num, scale = FALSE) * attn + (1 + attn | subj.id), 
+    REML = TRUE, dl)
+
+anova(res6a, res6b)
+```
+
+```
+## Data: dl
+## Models:
+## res6a: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id)
+## res6b: score ~ scale(num, scale = FALSE) * attn + (1 + num | subj.id)
+##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## res6a  6 200 212  -93.7      188                        
+## res6b  8 199 216  -91.7      183  4.05      2       0.13
+```
+
+```r
+anova(res6a, res6c)
+```
+
+```
+## Data: dl
+## Models:
+## res6a: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id)
+## res6c: score ~ scale(num, scale = FALSE) * attn + (1 + attn | subj.id)
+##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## res6a  6 200 212  -93.7      188                        
+## res6c  8 202 219  -92.9      186  1.62      2       0.44
+```
+
+```r
+
+summary(res6a)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id) 
+##    Data: dl 
+## 
+## REML criterion at convergence: 194.1 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  subj.id  (Intercept) 0.26     0.51    
+##  Residual             1.25     1.12    
+## Number of obs: 60, groups: subj.id, 10
+## 
+## Fixed effects:
+##                                 Estimate Std. Error t value
+## (Intercept)                        5.958      0.216   27.54
+## scale(num, scale = FALSE)          0.600      0.177    3.40
+## attn1                              0.842      0.144    5.84
+## scale(num, scale = FALSE):attn1   -0.600      0.177   -3.40
+## 
+## Correlation of Fixed Effects:
+##              (Intr) sc(,s=FALSE) attn1
+## sc(,s=FALSE) 0.000                    
+## attn1        0.000  0.000             
+## s(,s=FALSE): 0.000  0.000        0.000
+```
+
+```r
+
+# compare to lm
+summary(lm(score ~ scale(num, scale = FALSE) * attn, data = dl))
+```
+
+```
+## 
+## Call:
+## lm(formula = score ~ scale(num, scale = FALSE) * attn, data = dl)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -2.117 -0.800 -0.117  1.113  2.200 
+## 
+## Coefficients:
+##                                 Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                        5.958      0.158   37.72  < 2e-16 ***
+## scale(num, scale = FALSE)          0.600      0.193    3.10    0.003 ** 
+## attn1                              0.842      0.158    5.33  1.8e-06 ***
+## scale(num, scale = FALSE):attn1   -0.600      0.193   -3.10    0.003 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 1.22 on 56 degrees of freedom
+## Multiple R-squared:  0.46,	Adjusted R-squared:  0.431 
+## F-statistic: 15.9 on 3 and 56 DF,  p-value: 1.37e-07
+```
+
+
+
+```r
+ggplot(dl, aes(x = num, y = score, cond = attn, color = attn)) + geom_point() + 
+    theme_bw() + geom_jitter(position = position_jitter(width = 0.2)) + stat_smooth(method = "lm")
+```
+
+![plot of chunk unnamed-chunk-29](figure/unnamed-chunk-29.png) 
+
+
+There is a significant interaction between number of solutions to the puzzle and attention condition, t = -3.399, such that as the number of solutions to the puzzle decreases (i.e., as the puzzle gets harder) the effect of attention condition on score changes; specifically, when the number of solutions is lowest, divided attention results in a lower score than focused attention. In contrast, when there are more solutions to the puzzle, there is less of a score difference between the divided attention and focused attention conditions.
+
