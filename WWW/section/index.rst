@@ -31,3 +31,13 @@ example code for some questions from HW 4.
 
 [`html <http://www.stanford.edu/class/psych252/section/Contrasts_and_Mediation.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/section/Contrasts_and_Mediation.Rmd>`_]
+
+
+Week 7
+---------------
+  
+Partial correlations; practice making orthogonal contrasts; 
+2x3 ANOVA; testing significance of contrasts by hand
+  
+[`html <http://www.stanford.edu/class/psych252/section/Section_week7.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/section/Section_week7.Rmd>`_] 
