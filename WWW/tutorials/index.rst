@@ -68,3 +68,13 @@ basis for logistic regression.
 [`html <http://www.stanford.edu/class/psych252/tutorials/binomial_probability.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/binomial_probability.Rmd>`_]
 
+
+Model Comparison Guidelines
+---------------------------
+
+Paul's guide for comparing mixed effects models (and fixed effects models); how to 
+determine whether to use ML or REML when fitting your model; comparing models based on 
+deviance, or using AIC.
+
+[`png <http://www.stanford.edu/class/psych252/tutorials/model_comparisons.png>`_]
+
