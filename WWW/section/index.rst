@@ -41,3 +41,13 @@ Partial correlations; practice making orthogonal contrasts;
   
 [`html <http://www.stanford.edu/class/psych252/section/Section_week7.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/section/Section_week7.Rmd>`_] 
+
+
+Week 8
+---------------
+  
+An introduction to mixed effects models; visualizing data by subject; model fitting and 
+comparison with `lmer` (from `lme4` package)
+  
+[`html <http://www.stanford.edu/class/psych252/section/Mixed_models_tutorial.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/section/Mixed_models_tutorial.Rmd>`_] 
