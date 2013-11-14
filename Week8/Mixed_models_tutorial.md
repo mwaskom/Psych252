@@ -1,5 +1,7 @@
 Section Week 8 - Linear Mixed Models
 ========================================================
+Winter, B. (2013). Linear models and linear mixed effects models in R with linguistic applications. arXiv:1308.5499. [Link](http://arxiv.org/pdf/1308.5499.pdf)
+
 
 How is a linear mixed effects model different from the linear models we know already?
 
@@ -19,85 +21,11 @@ With this kind of data, since each subject gave multiple responses, we can immed
 
 The way we’re going to deal with this situation is to add a random effect for subject. This allows us to resolve this non-independence by assuming a different “baseline” pitch value for each subject. So, subject 1 may have a mean voice pitch of 233 Hz across different utterances, and subject 2 may have a mean voice pitch of 210 Hz. In our model, we account through these individual differences in voice pitch using random effects for subjects.
 
-What would this look like visually? *Refer to graph on Powerpiont.*
-
-Subjects F1 to F9 are female subjects. Subjects M1 to M7 are male subjects. You immediately see that males have lower voices than females (as is to be expected). But on top of that, within the male and the female groups, you see lots of 
-individual variation, with some people having relatively higher values for their sex and others having relatively lower values. 
- 
-We can model these individual differences by assuming different **random intercepts** for each subject. That is, each subject is assigned a different intercept value, and the mixed model estimates these intercepts for you.
-
-Now you begin to see why the mixed model is called a “mixed” model. The linear models that we considered so far have been “fixed-effects-only” models that had one or more fixed effects and a general error term “ε”. With the linear model, we essentially divided the world into things that we somehow understand or that are somehow systematic (the *fixed effects*, or the explanatory variables); and *random error*, things that we cannot control for or that we don’t understand (ε). But crucially, this latter part, the unsystematic part of the model, did not have any interesting structure. We simply had a general across-the-board error term. 
-
-In the mixed model, we add one or more random effects to our fixed effects. These random effects essentially give structure to the error term “ε”. In the case of our model here, we add a random effect for “subject”, and this characterizes idiosyncratic variation that is due to individual differences. 
-
-A *random effect* is generally something that can be expected to have a non-systematic, idiosyncratic, unpredictable, or "random" influence on your data. In experiments, that's often something like your subject or item, and you want to generalize over the idiosyncracies of individual subjects and items.
-
-*Fixed effects*, on the other hand, are expected to have a systematic and predictable influence on your data.
- 
-The mixture of fixed and random effects is what makes the mixed model a "mixed model."
-
-*What are some examples of fixed and random effects that you might see in mixed modeling?*
-
-- **Fixed effects:** the independent variables that might normally be included in your analyses. For instance: gender, age, your study conditions
-
-- **Random effects:** the variables that are specific to your data sample. For instance: speaker, word, listener, item, scenario
-
-## Random Intercepts
-
-Turning back to our model, our old formula was:
-
-`pitch ~ condition + gender + ε`
-
-Our updated formula looks like this: 
-
-`pitch ~ condition + gender + (1|subject) + ε`
-
-“`(1|subject)`” is the R syntax for a *random intercept*. What this is saying is “assume an intercept that’s different for each subject” … and “1” stands for the intercept here. You can think of this formula as telling your model that it should expect that there’s going to be multiple responses per subject, and these responses will depend on each subject’s baseline level. This effectively resolves the non-independence that stems from having multiple responses by the same subject.
-
-Note that the formula still contains a general error term “ε”. This is necessary because even if we accounted for individual by-subject variation, there’s still going to be “random” differences between different utterances from the same subject.
-
-In the study we've been discussing, there’s an additional source of non-independence beyond subject differences in voice pitch that needs to be accounted for: Let's say we had different items. One item, for example, was an “asking for a favor” scenario. Here, subjects had to imagine asking a professor for a favor (polite condition), or asking a peer for a favor (informal condition). Another item was an “excusing for coming too late” scenario, which was similarly divided between polite and informal. In total, there were 7 such different items. 
- 
-Similar to the case of by-subject variation, we also expect by-item variation. For example, there might be something special about “excusing for coming too late” which leads to overall higher pitch (maybe because it’s more embarrassing than asking for a favor), regardless of the influence of politeness. And whatever it is that makes one item different from another, the responses of the different subjects in our experiment might similarly be affected by this random factor that is due to item-specific idiosyncrasies. That is, if “excusing for coming to late” leads to high pitch (for whatever reason), it’s going to do so for subject 1, subject 2, subject 3 and so on. Thus, the different responses to one item cannot be regarded as independent, or, in other words, there’s something similar to multiple responses to 
-the same item – even if they come from different people. Again, if we did not account for these interdependencies, we would violate the independence assumption. 
-
-We do this by adding an additional random effect: 
- 
-`pitch ~ condition + gender + (1|subject) + (1|scenario) + ε` 
- 
-So, on top of *different intercepts for different subjects*, we now also have *different intercepts for different items*. We now “resolved” those non-independencies (our model knows that there are multiple responses per subject and per item), and we accounted for by-subject and by-item variation in overall pitch levels. 
-
-Now let's look at an example with some data borrowed from Winter and Grawunder (2012) - we have a subset of actual data for the study that was described that we get to play around with!
-
-First we need to load in the appropriate packages and dataset:
-
+We'll look at an example with some data borrowed from **Winter and Grawunder (2012)**:
 
 ```r
-install.packages("lme4")
-```
+d = read.csv("http://www.bodowinter.com/tutorial/politeness_data.csv")
 
-```
-## Error: trying to use CRAN without setting a mirror
-```
-
-```r
-library(lme4)
-```
-
-```
-## Loading required package: lattice Loading required package: Matrix
-```
-
-```r
-
-d <- read.csv("http://www.bodowinter.com/tutorial/politeness_data.csv")
-```
-
-
-Let's check out our data a little bit!
-
-
-```r
 str(d)
 ```
 
@@ -168,11 +96,141 @@ table(d$subject, d$gender)
 ```
 
 
-How can we find missing data and outliers?
-
+Now let's visualize the data:
 
 ```r
+library(ggplot2)
+qplot(condition, pitch, facets = . ~ subject, colour = subject, geom = "boxplot", 
+    data = d) + theme_bw()
+```
 
+```
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
+
+Subjects "F#" are female subjects. Subjects "M#" are male subjects. You immediately see that males have lower voices than females (as is to be expected). But on top of that, within the male and the female groups, you see lots of 
+individual variation, with some people having relatively higher values for their sex and others having relatively lower values. 
+ 
+We can model these individual differences by assuming different **random intercepts** for each subject. That is, each subject is assigned a different intercept value, and the mixed model estimates these intercepts for you.
+
+Get an idea for the different subject means
+
+```r
+with(d, aggregate(pitch ~ subject, FUN = "mean"))
+```
+
+```
+##   subject pitch
+## 1      F1 232.0
+## 2      F2 258.2
+## 3      F3 250.7
+## 4      M3 169.0
+## 5      M4 146.0
+## 6      M7 102.2
+```
+
+
+And, there is within-subject correlation of pitches:
+
+```r
+pol_subj = subset(d, subject == "F1" & condition == "pol")
+inf_subj = subset(d, subject == "F1" & condition == "inf")
+
+qplot(pol_subj$pitch, inf_subj$pitch)
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+
+Now you begin to see why the mixed model is called a “mixed” model. The linear models that we considered so far have been “fixed-effects-only” models that had one or more fixed effects and a general error term “ε”. With the linear model, we essentially divided the world into things that we somehow understand or that are somehow systematic (the *fixed effects*, or the explanatory variables); and *random error*, things that we cannot control for or that we don’t understand (ε). But crucially, this latter part, the unsystematic part of the model, did not have any interesting structure. We simply had a general across-the-board error term. 
+
+In the mixed model, we add one or more random effects to our fixed effects. These random effects essentially give structure to the error term “ε”. In the case of our model here, we add a random effect for “subject”, and this characterizes idiosyncratic variation that is due to individual differences. 
+
+A *random effect* is generally something that can be expected to have a non-systematic, idiosyncratic, unpredictable, or "random" influence on your data. In experiments, that's often something like your subject or item, and you want to generalize over the idiosyncracies of individual subjects and items.
+
+*Fixed effects*, on the other hand, are expected to have a systematic and predictable influence on your data.
+ 
+The mixture of fixed and random effects is what makes the mixed model a "mixed model."
+
+*What are some examples of fixed and random effects that you might see in mixed modeling?*
+
+- **Fixed effects:** the independent variables that might normally be included in your analyses. For instance: gender, age, your study conditions
+
+- **Random effects:** the variables that are specific to your data sample. For instance: speaker, word, listener, items (i.e., individual stimuli), scenario
+
+## Random Intercepts
+
+Turning back to our model, our old formula was:
+
+`pitch ~ condition + gender + ε`
+
+Our updated formula looks like this: 
+
+`pitch ~ condition + gender + (1|subject) + ε`
+
+“`(1|subject)`” is the R syntax for a *random intercept*. What this is saying is “assume an intercept that’s different for each subject” … and “1” stands for the intercept here. You can think of this formula as telling your model that it should expect that there’s going to be multiple responses per subject, and these responses will depend on each subject’s baseline level. This effectively resolves the non-independence that stems from having multiple responses by the same subject.
+
+Note that the formula still contains a general error term “ε”. This is necessary because even if we accounted for individual by-subject variation, there’s still going to be “random” differences between different utterances from the same subject.
+
+In the study we've been discussing, there’s an additional source of non-independence beyond subject differences in voice pitch that needs to be accounted for: Let's say we had different items. One item, for example, was an “asking for a favor” scenario. Here, subjects had to imagine asking a professor for a favor (polite condition), or asking a peer for a favor (informal condition). Another item was an “excusing for coming too late” scenario, which was similarly divided between polite and informal. In total, there were 7 such different items. 
+ 
+Similar to the case of by-subject variation, we also expect by-item variation. For example, there might be something special about “excusing for coming too late” which leads to overall higher pitch (maybe because it’s more embarrassing than asking for a favor), regardless of the influence of politeness. And whatever it is that makes one item different from another, the responses of the different subjects in our experiment might similarly be affected by this random factor that is due to item-specific idiosyncrasies. That is, if “excusing for coming to late” leads to high pitch (for whatever reason), it’s going to do so for subject 1, subject 2, subject 3 and so on. Thus, the different responses to one item cannot be regarded as independent, or, in other words, there’s something similar to multiple responses to 
+the same item – even if they come from different people. Again, if we did not account for these interdependencies, we would violate the independence assumption. 
+
+We do this by adding an additional random effect: 
+ 
+`pitch ~ condition + gender + (1|subject) + (1|scenario) + ε` 
+ 
+
+```r
+qplot(1, pitch, facets = condition ~ scenario, colour = scenario, geom = "boxplot", 
+    data = d) + theme_bw()
+```
+
+```
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
+
+ 
+So, on top of *different intercepts for different subjects*, we now also have *different intercepts for different items*. We now “resolved” those non-independencies (our model knows that there are multiple responses per subject and per item), and we accounted for by-subject and by-item variation in overall pitch levels. 
+
+
+First we need to load in the package for lmer, `lme4`:
+
+```r
+# install.packages('lme4')
+library(lme4)
+```
+
+```
+## Warning: package 'lme4' was built under R version 3.0.2
+```
+
+```
+## Loading required package: lattice Loading required package: Matrix
+```
+
+```
+## Warning: package 'Matrix' was built under R version 3.0.2
+```
+
+```
+## Attaching package: 'lme4'
+## 
+## The following object is masked from 'package:ggplot2':
+## 
+## fortify
+```
+
+
+How can we find missing data and outliers?
+
+```r
 # How to find missing values?
 which(is.na(d$pitch) == T)
 ```
@@ -188,7 +246,7 @@ bp <- with(d, boxplot(pitch ~ condition * gender, col = c("white", "lightgray"),
     condition))
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
 
 ```r
 
@@ -200,7 +258,7 @@ bp$out
 ```
 
 ```r
-subset(d, pitch == 154.8)
+subset(d, pitch == bp$out)
 ```
 
 ```
@@ -209,8 +267,7 @@ subset(d, pitch == 154.8)
 ```
 
 
-Let's start exploring some models!
-
+Let's start exploring some mixed models!
 
 ```r
 lmer(pitch ~ condition, data = d)  # this doesn't work! Need a random error term to use lmer
@@ -222,9 +279,82 @@ lmer(pitch ~ condition, data = d)  # this doesn't work! Need a random error term
 
 ```r
 
-politeness.model = lmer(pitch ~ condition + (1 | subject) + (1 | scenario), 
+# model w/
+rs_subj_reml = lmer(pitch ~ condition + (1 | subject), data = d)
+summary(rs_subj_reml)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: pitch ~ condition + (1 | subject) 
+##    Data: d 
+## 
+## REML criterion at convergence: 804.7 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  subject  (Intercept) 3982     63.1    
+##  Residual              851     29.2    
+## Number of obs: 83, groups: subject, 6
+## 
+## Fixed effects:
+##              Estimate Std. Error t value
+## (Intercept)    202.59      26.15    7.75
+## conditionpol   -19.38       6.41   -3.02
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## conditionpl -0.121
+```
+
+```r
+coef(rs_subj_reml)
+```
+
+```
+## $subject
+##    (Intercept) conditionpol
+## F1       241.1       -19.38
+## F2       266.9       -19.38
+## F3       259.6       -19.38
+## M3       179.0       -19.38
+## M4       155.7       -19.38
+## M7       113.2       -19.38
+## 
+## attr(,"class")
+## [1] "coef.mer"
+```
+
+```r
+print(c(deviance = -2 * logLik(rs_subj_reml)))
+```
+
+```
+## deviance.REML 
+##         804.7
+```
+
+```r
+
+# compare to the data
+qplot(condition, pitch, facets = . ~ subject, colour = subject, geom = "boxplot", 
+    data = d) + theme_bw()
+```
+
+```
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+```
+
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
+
+```r
+
+# how to get p-vals install.packages('languageR') library(languageR) rs.mcmc
+# = pvals.fnc(rs_subj_reml, nsim = 10000, addPlot = T) print(rs.mcmc)
+
+rs_subjscene_reml = lmer(pitch ~ condition + (1 | subject) + (1 | scenario), 
     data = d)
-summary(politeness.model)
+summary(rs_subjscene_reml)
 ```
 
 ```
@@ -252,7 +382,17 @@ summary(politeness.model)
 ```
 
 ```r
-coef(politeness.model)
+anova(rs_subjscene_reml)
+```
+
+```
+## Analysis of Variance Table
+##           Df Sum Sq Mean Sq F value
+## condition  1   8034    8034    12.4
+```
+
+```r
+coef(rs_subjscene_reml)
 ```
 
 ```
@@ -277,6 +417,15 @@ coef(politeness.model)
 ## 
 ## attr(,"class")
 ## [1] "coef.mer"
+```
+
+```r
+print(c(deviance = -2 * logLik(rs_subjscene_reml)))
+```
+
+```
+## deviance.REML 
+##         793.5
 ```
 
 
@@ -324,9 +473,9 @@ Let's add gender as a fixed effect:
 
 
 ```r
-politeness.model2 = lmer(pitch ~ condition + gender + (1 | subject) + (1 | scenario), 
+rs_gen_subj_reml = lmer(pitch ~ condition + gender + (1 | subject) + (1 | scenario), 
     data = d)
-summary(politeness.model2)
+summary(rs_gen_subj_reml)
 ```
 
 ```
@@ -360,141 +509,167 @@ Note that we added “gender” as a fixed effect because the relationship betwe
 
 Note that compared to our earlier model without the fixed effect gender, the variation that’s associated with the random effect “subject” dropped considerably. This is because the variation that’s due to gender was confounded with the variation that’s due to subject. The model didn’t know about males and females, and so it’s predictions were relatively more off, creating relatively larger residuals. 
 
-We see that males and females differ by about 109 Hz. And the intercept is now much higher (256.846 Hz), as it now represents the female category (for the informal condition). The coefficient for the effect of attitude didn’t change much. 
+We see that males and females differ by about 109 Hz (at least for "informal"). And the intercept is now much higher (256.846 Hz), as it now represents the female category (for the informal condition). The coefficient for the effect of attitude didn’t change much. 
 
 Now we can compare our models using ANOVA, to see if one accounts for significantly more variance than another.
 
 
 ```r
-politeness.null = lmer(pitch ~ gender + (1 | subject) + (1 | scenario), data = d)
-summary(politeness.null)
-```
+rs_gen_subjscene_ml = lmer(pitch ~ condition + gender + (1 | subject) + (1 | 
+    scenario), REML = FALSE, data = d)
 
-```
-## Linear mixed model fit by REML ['lmerMod']
-## Formula: pitch ~ gender + (1 | subject) + (1 | scenario) 
-##    Data: d 
-## 
-## REML criterion at convergence: 792.4 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev.
-##  scenario (Intercept) 206      14.4    
-##  subject  (Intercept) 611      24.7    
-##  Residual             751      27.4    
-## Number of obs: 83, groups: scenario, 7; subject, 6
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)    247.0       15.8   15.59
-## genderM       -108.2       21.1   -5.14
-## 
-## Correlation of Fixed Effects:
-##         (Intr)
-## genderM -0.664
-```
+rs_null_subjscene_ml = lmer(pitch ~ gender + (1 | subject) + (1 | scenario), 
+    REML = FALSE, data = d)
 
-```r
-
-anova(politeness.null, politeness.model2)
+anova(rs_gen_subjscene_ml, rs_null_subjscene_ml)
 ```
 
 ```
 ## Data: d
 ## Models:
-## politeness.null: pitch ~ gender + (1 | subject) + (1 | scenario)
-## politeness.model2: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
-##                   Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)    
-## politeness.null    5 817 829   -403      807                            
-## politeness.model2  6 807 822   -398      795  11.6      1    0.00065 ***
+## rs_null_subjscene_ml: pitch ~ gender + (1 | subject) + (1 | scenario)
+## rs_gen_subjscene_ml: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
+##                      Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## rs_null_subjscene_ml  5 817 829   -403      807                        
+## rs_gen_subjscene_ml   6 807 822   -398      795  11.6      1    0.00065
+##                         
+## rs_null_subjscene_ml    
+## rs_gen_subjscene_ml  ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+
+chisq_val = -2 * ((logLik(politeness.model2_ml)[1]) - (logLik(politeness.null_ml)[1]))
+```
+
+```
+## Error: object 'politeness.model2_ml' not found
+```
+
+```r
+chisq_val
+```
+
+```
+## Error: object 'chisq_val' not found
+```
+
+```r
+chisq_df = 6 - 5
+chisq_df
+```
+
+```
+## [1] 1
+```
+
+```r
+pval = pchisq(chisq_val, chisq_df, lower.tail = TRUE)
+```
+
+```
+## Error: object 'chisq_val' not found
+```
+
+```r
+pval
+```
+
+```
+## Error: object 'pval' not found
 ```
 
 
 This is known as a likelihood ratio test.
 
-Now, you can summarize your results by saying something like, "Politeness affected pitch, $\chi^2$ (1) = 11.62, p = 0.00065), lowering it by about 19.7 Hz ± 5.6 Hz (standard errors).
+Now, you can summarize your results by saying something like, "Model comparison confirmed that politeness significantly predicts level of pitch, $\chi^2$ (1) = 11.62, p = 0.00065); specifically, polite scenarious result in a lowering of pitch by about 19.7 Hz ± 5.6 Hz (standard error), relative to informal scenarios.
 
 You can also use the ANOVA function to look at the difference between additive and interactive models.
 
 
 ```r
-politeness.model.int = lmer(pitch ~ condition * gender + (1 | subject) + (1 | 
-    scenario), data = d)
-summary(politeness.model.int)
+rs_intergen_subjscene_ml = lmer(pitch ~ condition * gender + (1 | subject) + 
+    (1 | scenario), REML = FALSE, data = d)
+summary(rs_intergen_subjscene_ml)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by maximum likelihood ['lmerMod']
 ## Formula: pitch ~ condition * gender + (1 | subject) + (1 | scenario) 
 ##    Data: d 
 ## 
-## REML criterion at convergence: 766.8 
+##      AIC      BIC   logLik deviance 
+##    807.1    824.0   -396.6    793.1 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev.
-##  scenario (Intercept) 218      14.8    
-##  subject  (Intercept) 617      24.8    
-##  Residual             637      25.2    
+##  scenario (Intercept) 205      14.3    
+##  subject  (Intercept) 419      20.5    
+##  Residual             620      24.9    
 ## Number of obs: 83, groups: scenario, 7; subject, 6
 ## 
 ## Fixed effects:
 ##                      Estimate Std. Error t value
-## (Intercept)            260.69      16.35   15.95
-## conditionpol           -27.40       7.79   -3.52
-## genderM               -116.20      21.73   -5.35
-## conditionpol:genderM    15.57      11.10    1.40
+## (Intercept)            260.69      14.09   18.51
+## conditionpol           -27.40       7.68   -3.57
+## genderM               -116.20      18.39   -6.32
+## conditionpol:genderM    15.57      10.94    1.42
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) cndtnp gendrM
-## conditionpl -0.238              
-## genderM     -0.665  0.179       
-## cndtnpl:gnM  0.167 -0.702 -0.252
+## conditionpl -0.273              
+## genderM     -0.653  0.209       
+## cndtnpl:gnM  0.192 -0.702 -0.293
 ```
 
 ```r
 
-anova(politeness.model2, politeness.model.int)
+anova(rs_gen_subjscene_ml, rs_intergen_subjscene_ml)
 ```
 
 ```
 ## Data: d
 ## Models:
-## politeness.model2: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
-## politeness.model.int: pitch ~ condition * gender + (1 | subject) + (1 | scenario)
-##                      Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
-## politeness.model2     6 807 822   -398      795                        
-## politeness.model.int  7 807 824   -397      793     2      1       0.16
+## rs_gen_subjscene_ml: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
+## rs_intergen_subjscene_ml: pitch ~ condition * gender + (1 | subject) + (1 | scenario)
+##                          Df AIC BIC logLik deviance Chisq Chi Df
+## rs_gen_subjscene_ml       6 807 822   -398      795             
+## rs_intergen_subjscene_ml  7 807 824   -397      793     2      1
+##                          Pr(>Chisq)
+## rs_gen_subjscene_ml                
+## rs_intergen_subjscene_ml       0.16
 ```
 
+Here, we can see that adding the interaction doesn't significantly improve on the additive model; that is, the model with the interactive term doesn't significantly improve model fit. So, we'll stick with the simpler additive model.
 
 ## Random Slopes
 
 
 ```r
-coef(politeness.model2)
+coef(rs_gen_subjscene_ml)
 ```
 
 ```
 ## $scenario
 ##   (Intercept) conditionpol genderM
-## 1       243.3       -19.72  -108.5
+## 1       243.5       -19.72  -108.5
 ## 2       263.4       -19.72  -108.5
-## 3       268.3       -19.72  -108.5
-## 4       277.5       -19.72  -108.5
+## 3       268.1       -19.72  -108.5
+## 4       277.3       -19.72  -108.5
 ## 5       254.9       -19.72  -108.5
-## 6       244.7       -19.72  -108.5
-## 7       245.8       -19.72  -108.5
+## 6       244.8       -19.72  -108.5
+## 7       246.0       -19.72  -108.5
 ## 
 ## $subject
 ##    (Intercept) conditionpol genderM
-## F1       242.9       -19.72  -108.5
-## F2       267.3       -19.72  -108.5
-## F3       260.3       -19.72  -108.5
-## M3       285.2       -19.72  -108.5
-## M4       262.2       -19.72  -108.5
-## M7       223.1       -19.72  -108.5
+## F1       243.4       -19.72  -108.5
+## F2       266.9       -19.72  -108.5
+## F3       260.2       -19.72  -108.5
+## M3       284.4       -19.72  -108.5
+## M4       262.1       -19.72  -108.5
+## M7       224.1       -19.72  -108.5
 ## 
 ## attr(,"class")
 ## [1] "coef.mer"
@@ -503,103 +678,15 @@ coef(politeness.model2)
 
 You see from our model coefficients for the model:
 
-`politeness.model2 = lmer(pitch ~ condition + gender + (1|subject) + (1|scenario), data=d)`
+`politeness.model2 = lmer(pitch ~ condition + gender + (1|subject) + (1|scenario), REML=FALSE, data=d)`
 
 that each scenario and each subject is assigned a different intercept. That’s what we would expect, given that we’ve told the model with “(1|subject)” and “(1|scenario)” to take by-subject and by-item variability into account. 
  
 But note also that the fixed effects (condition and gender) are all the same for all subjects and items. Our model is what is called a random intercept model. In this model, we account for baseline-differences in pitch, but we assume that whatever the effect of politeness is, it’s going to be the same for all subjects and items. 
  
-But is that a valid assumption? In fact, often times it’s not – it is quite expected that some items would elicit more or less politeness. That is, the effect of politeness might be different for different items. Likewise, the effect of politeness might be different for different subjects. For example, it might be expected that some people are more polite, others less. So, what we need is a random slope model, where subjects and items are not only allowed to have differing intercepts, but where they are also allowed to have different slopes for the effect of politeness. 
+But is that a valid assumption? In fact, often times it’s not – it is quite expected that some items would elicit more or less politeness. That is, the effect of politeness might be different for different items. Likewise, the effect of politeness might be different for different subjects. For example, it might be expected that some people are more polite, others less. So, what we need is a random slope model, where subjects and items are not only allowed to have differing intercepts, but where they are also allowed to have different slopes for the effect of politeness (i.e., different effects of condition on pitch).
 
-
-```r
-politeness.model.rs = lmer(pitch ~ condition + gender + (1 + condition | subject) + 
-    (1 + condition | scenario), data = d)
-summary(politeness.model.rs)
-```
-
-```
-## Linear mixed model fit by REML ['lmerMod']
-## Formula: pitch ~ condition + gender + (1 + condition | subject) + (1 +      condition | scenario) 
-##    Data: d 
-## 
-## REML criterion at convergence: 775.1 
-## 
-## Random effects:
-##  Groups   Name         Variance Std.Dev. Corr
-##  scenario (Intercept)  203.56   14.27        
-##           conditionpol  71.07    8.43    0.00
-##  subject  (Intercept)  587.97   24.25        
-##           conditionpol   1.48    1.22    1.00
-##  Residual              627.45   25.05        
-## Number of obs: 83, groups: scenario, 7; subject, 6
-## 
-## Fixed effects:
-##              Estimate Std. Error t value
-## (Intercept)    258.14      15.86   16.27
-## conditionpol   -19.75       6.38   -3.10
-## genderM       -111.11      20.94   -5.31
-## 
-## Correlation of Fixed Effects:
-##             (Intr) cndtnp
-## conditionpl -0.100       
-## genderM     -0.660  0.002
-```
-
-
-Note that the only thing that we changed is the random effects, which now look a little more complicated. The notation “(1 + condition|subject)” means that you tell the model to expect differing baseline-levels of pitch (the intercept, represented by 1) as well as differing responses to the main factor in question, which is “condition” in this case. You then do the same for items, using the term "(1 + condition|scenario)."
-
-Have a look at the coefficients of this updated model by typing in the following:
-
-
-```r
-coef(politeness.model.rs)
-```
-
-```
-## $scenario
-##   (Intercept) conditionpol genderM
-## 1       244.5       -19.00  -111.1
-## 2       261.9       -12.87  -111.1
-## 3       270.9       -23.46  -111.1
-## 4       277.1       -15.91  -111.1
-## 5       255.8       -18.73  -111.1
-## 6       247.0       -22.38  -111.1
-## 7       249.7       -25.93  -111.1
-## 
-## $subject
-##    (Intercept) conditionpol genderM
-## F1       243.3       -20.50  -111.1
-## F2       267.1       -19.30  -111.1
-## F3       260.3       -19.65  -111.1
-## M3       287.1       -18.30  -111.1
-## M4       264.7       -19.43  -111.1
-## M7       226.4       -21.35  -111.1
-## 
-## attr(,"class")
-## [1] "coef.mer"
-```
-
-
-Now, the column with the by-subject and by-item coefficients for the effect of politeness (“conditionpol”) is different for each subject and item. Note, however, that it’s always negative and that many of the values are quite similar to each other. This means that despite individual variation, there is also consistency in how politeness affects the voice: for all of our speakers, the voice tends to go down when speaking politely, but for some people it goes down slightly more so than for others. 
- 
-Have a look at the column for gender. Here, the coefficients do no change. That is because we didn’t specify random slopes for the by-subject or by-item effect of gender.
-
-Can we take a look at our random slopes?
-
-
-```r
-
-library(ggplot2)
-```
-
-```
-## Attaching package: 'ggplot2'
-## 
-## The following object is masked from 'package:lme4':
-## 
-## fortify
-```
+First, let's take a look at our data:
 
 ```r
 
@@ -620,8 +707,110 @@ library(ggplot2)
 ## Removed 1 rows containing missing values (geom_point).
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
 
+
+Now, we'll run a linear mixed-effect model with random intercepts and slopes for subjects.
+
+```r
+politeness.model.rs = lmer(pitch ~ condition + gender + (1 + condition | subject) + 
+    (1 | scenario), REML = FALSE, data = d)
+summary(politeness.model.rs)
+```
+
+```
+## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Formula: pitch ~ condition + gender + (1 + condition | subject) + (1 |      scenario) 
+##    Data: d 
+## 
+##      AIC      BIC   logLik deviance 
+##    811.1    830.4   -397.5    795.1 
+## 
+## Random effects:
+##  Groups   Name         Variance Std.Dev. Corr
+##  scenario (Intercept)  205.10   14.32        
+##  subject  (Intercept)  395.36   19.88        
+##           conditionpol   1.26    1.12    1.00
+##  Residual              637.06   25.24        
+## Number of obs: 83, groups: scenario, 7; subject, 6
+## 
+## Fixed effects:
+##              Estimate Std. Error t value
+## (Intercept)    257.80      13.68   18.84
+## conditionpol   -19.71       5.56   -3.54
+## genderM       -110.43      17.53   -6.30
+## 
+## Correlation of Fixed Effects:
+##             (Intr) cndtnp
+## conditionpl -0.152       
+## genderM     -0.641  0.003
+```
+
+
+Note that the only thing that we changed is the random effects, which now look a little more complicated. The notation “(1 + condition|subject)” means that you tell the model to expect differing baseline-levels of pitch (the intercept, represented by 1) as well as differing responses to the main factor in question, which is “condition” in this case. You then do the same for items, using the term "(1 + condition|scenario)."
+
+Have a look at the coefficients of this updated model by typing in the following:
+
+```r
+coef(politeness.model.rs)
+```
+
+```
+## $scenario
+##   (Intercept) conditionpol genderM
+## 1       244.4       -19.71  -110.4
+## 2       264.3       -19.71  -110.4
+## 3       269.1       -19.71  -110.4
+## 4       278.2       -19.71  -110.4
+## 5       255.9       -19.71  -110.4
+## 6       245.8       -19.71  -110.4
+## 7       246.9       -19.71  -110.4
+## 
+## $subject
+##    (Intercept) conditionpol genderM
+## F1       243.7       -20.51  -110.4
+## F2       266.7       -19.21  -110.4
+## F3       260.1       -19.58  -110.4
+## M3       285.4       -18.16  -110.4
+## M4       263.9       -19.37  -110.4
+## M7       226.9       -21.46  -110.4
+## 
+## attr(,"class")
+## [1] "coef.mer"
+```
+
+
+Now, the column with the by-subject and by-item coefficients for the effect of politeness (“conditionpol”) is different for each subject and item. Note, however, that it’s always negative and that many of the values are quite similar to each other. This means that despite individual variation, there is also consistency in how politeness affects the voice: for all of our speakers, the voice tends to go down when speaking politely, but for some people it goes down slightly more so than for others. 
+ 
+Have a look at the column for gender. Here, the coefficients do no change. That is because we didn’t specify random slopes for the by-subject or by-item effect of gender.
+
+Now we can see if this model with random slopes for subjects is significantly better than the model with just random intercepts.
+
+```r
+rs_gen_subjscene_con_reml = lmer(pitch ~ condition + gender + (1 + condition | 
+    subject) + (1 | scenario), REML = TRUE, data = d)
+
+rs_gen_subjscene_reml = lmer(pitch ~ condition + gender + (1 | subject) + (1 | 
+    scenario), REML = TRUE, data = d)
+
+anova(rs_gen_subjscene_reml, rs_gen_subjscene_con_reml)
+```
+
+```
+## Data: d
+## Models:
+## rs_gen_subjscene_reml: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
+## rs_gen_subjscene_con_reml: pitch ~ condition + gender + (1 + condition | subject) + (1 | 
+## rs_gen_subjscene_con_reml:     scenario)
+##                           Df AIC BIC logLik deviance Chisq Chi Df
+## rs_gen_subjscene_reml      6 807 822   -398      795             
+## rs_gen_subjscene_con_reml  8 811 830   -398      795  0.03      2
+##                           Pr(>Chisq)
+## rs_gen_subjscene_reml               
+## rs_gen_subjscene_con_reml       0.99
+```
+
+So, it appears that we don't need to include random slope for condition in the model.
 
 ## Some final notes about mixed modeling
 
@@ -733,6 +922,12 @@ install.packages("reshape2")
 ```
 
 ```
+## Installing package into
+## '/Applications/RStudio.app/Contents/Resources/R/library' (as 'lib' is
+## unspecified)
+```
+
+```
 ## Error: trying to use CRAN without setting a mirror
 ```
 
@@ -812,34 +1007,35 @@ There are some hints and suggested analyses at the bottom of this document, but 
 
 ### Possible analyses
 
-Start with a simple regression ans only random effect of intercept
+Start with a simple regression and random intercept for subject
+
 
 ```r
-res1 <- lmer(score ~ num + (1 | id), dl)
+res1 <- lmer(score ~ num + (1 | cond.id), dl)
 summary(res1)
 ```
 
 ```
 ## Linear mixed model fit by REML ['lmerMod']
-## Formula: score ~ num + (1 | id) 
+## Formula: score ~ num + (1 | cond.id) 
 ##    Data: dl 
 ## 
-## REML criterion at convergence: 214.3 
+## REML criterion at convergence: 223.7 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev.
-##  id       (Intercept) 1.04     1.02    
-##  Residual             1.40     1.19    
-## Number of obs: 60, groups: id, 20
+##  cond.id  (Intercept) 0.0752   0.274   
+##  Residual             2.3566   1.535   
+## Number of obs: 60, groups: cond.id, 10
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error t value
-## (Intercept)    4.758      0.465    10.2
-## num            0.600      0.187     3.2
+## (Intercept)    4.758      0.531    8.95
+## num            0.600      0.243    2.47
 ## 
 ## Correlation of Fixed Effects:
 ##     (Intr)
-## num -0.807
+## num -0.913
 ```
 
 
@@ -851,27 +1047,62 @@ $score$ = 4.76 + .6 * $num$
 
 Let's visualize what we're modeling with the random intercept model.
 
+
+```r
 (ggplot(dl, aes(x=num, y=score))
      #tell ggplot what data is, and x and y variables
-     +facet_wrap(~subidr,ncol=5,scales='free')
+     +facet_wrap(~cond.id,ncol=5,scales='free')
      #add a wrapping by unique combos of 2 variable
      #set num columns, and vary scales per facet.
      +geom_point()
      #add the points as representations
-     +stat_smooth(method='lm',aes(group=1))
+     +stat_smooth(method='lm', aes(group=1))
      #add the linear fits.
 )
-
-# note that the means for every subject are at slightly different score levels. there is even more varuability in the slpes of the lines. We can capture those with anothe random effects term. 
-
-# intercept and slope lmer
-res2<-lmer(score ~ num + (1+num|subidr), d1)
-summary(res2)
-# note that we now have more coefficients in the random effects table and our main effects reduced in significance 
-# is the variance in terms of intercept and slope enough that we need both random terms. we can formally answer this question in the usual sense. 
-
-anova(res1,res2)
-# it seems like we do! Now you have a research or a moral dilemma. Do you try to figure out what's causing the variance in slope and intercept? Do you push the simpler but worse model?
-
-# Think about it while eating turkey!
 ```
+
+![plot of chunk unnamed-chunk-21](figure/unnamed-chunk-21.png) 
+
+
+Note that the means for every subject are at slightly different score levels. There is even more variability in the slopes of the lines. We can capture those with another random effects term for a random slope. 
+
+Random intercept and random slope model:
+
+
+```r
+res2 <- lmer(score ~ num + (1 + num | cond.id), dl)
+summary(res2)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: score ~ num + (1 + num | cond.id) 
+##    Data: dl 
+## 
+## REML criterion at convergence: 222.8 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev. Corr 
+##  cond.id  (Intercept) 1.104    1.051         
+##           num         0.105    0.323    -1.00
+##  Residual             2.210    1.486         
+## Number of obs: 60, groups: cond.id, 10
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept)    4.758      0.607    7.84
+## num            0.600      0.256    2.34
+## 
+## Correlation of Fixed Effects:
+##     (Intr)
+## num -0.929
+```
+
+
+Note that we now have more coefficients in the random effects table and our main effects have reduced in significance. 
+
+Is the variance in terms of intercept and slope enough that we need both random terms? We can formally answer this question using `anova` as seen above. 
+
+anova(res1, res2)
+
+It seems like the model with the random slope does account for significantly more variance! Now you have a research and/or moral dilemma. Do you try to figure out what's causing the variance in slope and intercept? Do you push the simpler but worse model?
