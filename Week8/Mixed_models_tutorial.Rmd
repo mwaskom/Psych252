@@ -297,7 +297,7 @@ Now we'll try working with the data from upcoming homework 5 (that was also used
 
 Let's read about our data in `kv0.csv`!
 
-Our study design here features both between-subject factors (2 attention conditions) and within-subject factors (# of possible solutions to a word task, solving anagrams). The dependent variable was score on a memory test (higher numbers reflect better performance). There were 10 study participants divided between the two conditions; they each completed three problems in each category of # of possible solutions (1, 2, or 3).
+Our study design here features both **between-subject** factors (2 attention conditions) and **within-subject** factors (# of possible solutions to a word task, solving anagrams). The dependent variable was score on a memory test (higher numbers reflect better performance). There were 10 study participants divided between the two conditions; they each completed three problems in each category of # of possible solutions (1, 2, or 3).
 
 This is a *repeated measures design*.  
 
@@ -305,27 +305,25 @@ The question we want to answer is: **How does score depend on attention and numb
 
 Variables:
 
-* **subidr**: Subject ID
+- **subidr**: Subject ID
 
-* **attnr**: 1 = divided attention condition; 2 = focused attention condition
+- **attnr**: 1 = divided attention condition; 2 = focused attention condition
 
-* **num1**: only one solution to the anagram
+- **num1**: only one solution to the anagram
 
-* **num2**: two possible solutions to the anagram
+- **num2**: two possible solutions to the anagram
 
-* **num3**: three possible solutions to the anagram
+- **num3**: three possible solutions to the anagram
 
 Let's read in our data!
 
 ```{r}
 d0 <- read.csv('http://www.stanford.edu/class/psych252/data/kv0.csv')
 
-# load libraries needed for the lmer mixed-models and by subject plots
-library(lme4)
-library(ggplot2)
-
-
 str(d0)
+
+# Make sure to factor subject!
+d0$subidr = factor(d0$subidr)
 ```
 
 Note that our data is in *wide* or *short-form*: `'data.frame':  20 obs. of  5 variables` 
@@ -338,6 +336,7 @@ We need the data in *long-form* for `lmer`. The function `reshape` is an economi
 d1 <- reshape(d0, direction="long", idvar="subidr", varying=list(c("num1","num2","num3")), timevar="num", v.names="score" )
 
 head(d1)
+str(d1)
 ```
 
 Now the data is in long form: `'data.frame':  60 obs. of  4 variables`
@@ -379,8 +378,9 @@ dl$id <- factor(dl$id)
 We also need to rescale `id` to 1:10 within each level of `attn`, since the subject id ('id') is 11:20 when `attn` is 'focused'. So we need to select only these values of 'id', and transform them to 1:10. This requires creating a new variable, cond.id, in the dataframe, dl.
 
 ```{r rescaleid_dl}
-dl$cond.id <- as.numeric(dl$id)
-dl$cond.id[dl$attn=="focused"] = dl$cond.id[dl$attn=="focused"] - 10
+dl$subj.id <- as.numeric(dl$id)
+dl$subj.id[dl$attn=="focused"] = dl$subj.id[dl$attn=="focused"] - 10
+head(dl)
 ```
 
 Now that we have our dataset ready to go, try plotting the data, and creating and comparing some mixed models using this data. 
@@ -392,7 +392,7 @@ There are some hints and suggested analyses at the bottom of this document, but 
 Start with a simple regression and random intercept for subject
 
 ```{r}
-res1<-lmer(score ~ num + (1|cond.id), dl)
+res1 = lmer(score ~ num + (1|subj.id), dl)
 summary(res1)
 ```
 
@@ -407,7 +407,7 @@ Let's visualize what we're modeling with the random intercept model.
 ```{r}
 (ggplot(dl, aes(x=num, y=score))
      #tell ggplot what data is, and x and y variables
-     +facet_wrap(~cond.id,ncol=5,scales='free')
+     +facet_wrap(~subj.id, ncol=5, scales='free')
      #add a wrapping by unique combos of 2 variable
      #set num columns, and vary scales per facet.
      +geom_point()
@@ -422,7 +422,7 @@ Note that the means for every subject are at slightly different score levels. Th
 Random intercept and random slope model:
 
 ```{r}
-res2<-lmer(score ~ num + (1 + num|cond.id), dl)
+res2 = lmer(score ~ num + (1 + num|subj.id), dl)
 summary(res2)
 ```
 
@@ -430,6 +430,88 @@ Note that we now have more coefficients in the random effects table and our main
 
 Is the variance in terms of intercept and slope enough that we need both random terms? We can formally answer this question using `anova` as seen above. 
 
+```{r}
 anova(res1, res2)
+```
 
-It seems like the model with the random slope does account for significantly more variance! Now you have a research and/or moral dilemma. Do you try to figure out what's causing the variance in slope and intercept? Do you push the simpler but worse model?
+It seems like the model with the random slope does account for significantly more variance! Now you have a research and/or moral dilemma. Do you try to figure out what's causing the variance in slope and intercept? Do you push the simpler but worse model? Or, could there be something else going on?
+
+```{r}
+str(dl)
+ggplot(dl, aes(x=num, y=score, cond=attn, color=attn)) + 
+     facet_wrap(~subj.id, ncol=5, scales='fixed')+
+     geom_point()+theme_bw()+
+     stat_smooth(method='lm')
+```
+
+
+
+```{r}
+# Set up contrast for attention
+contrasts(dl$attn) = c(-1, 1)
+contrasts(dl$attn)
+
+res3a = lmer(score ~ scale(num, scale=FALSE) + attn + (1|subj.id), REML=FALSE, dl)
+summary(res3a)
+
+res3b = lmer(score ~ scale(num, scale=FALSE) + (1|subj.id), REML=FALSE, dl)
+summary(res3b)
+
+anova(res3b, res3a)
+```
+Including attn in the model significantly improves model fit.
+
+```{r}
+res4b = lmer(score ~ scale(num, scale=FALSE) + attn + (1 + num|subj.id), REML=TRUE, dl)
+summary(res4b)
+
+res4c = lmer(score ~ scale(num, scale=FALSE) + attn + (1 + attn|subj.id), REML=TRUE, dl)
+summary(res4c)
+
+res4a = lmer(score ~ scale(num, scale=FALSE) + attn + (1|subj.id), REML=TRUE, dl)
+summary(res4a)
+
+anova(res4a, res4b)
+anova(res4a, res4c)
+
+# res4a is still the best!
+summary(res4a)
+```
+
+```{r}
+res5a = lmer(score ~ scale(num, scale=FALSE) + attn + (1|subj.id), REML=FALSE, dl)
+
+res5b = lmer(score ~ scale(num, scale=FALSE) * attn + (1|subj.id), REML=FALSE, dl)
+
+anova(res5a, res5b)
+
+summary(res5b)
+```
+The interaction is significant!
+
+
+```{r}
+res6a = lmer(score ~ scale(num, scale=FALSE) * attn + (1|subj.id), REML=TRUE, dl)
+
+res6b = lmer(score ~ scale(num, scale=FALSE) * attn + (1+num|subj.id), REML=TRUE, dl)
+
+res6c = lmer(score ~ scale(num, scale=FALSE) * attn + (1+attn|subj.id), REML=TRUE, dl)
+
+anova(res6a, res6b)
+anova(res6a, res6c)
+
+summary(res6a)
+
+# compare to lm
+summary(lm(score ~ scale(num, scale=FALSE) * attn, data=dl))
+```
+
+```{r}
+ggplot(dl, aes(x=num, y=score, cond=attn, color=attn)) + 
+  geom_point()+ theme_bw() +
+  geom_jitter(position = position_jitter(width = .2)) + 
+  stat_smooth(method='lm')
+```
+
+There is a significant interaction between number of solutions to the puzzle and attention condition, t = -3.399, such that as the number of solutions to the puzzle decreases (i.e., as the puzzle gets harder) the effect of attention condition on score changes; specifically, when the number of solutions is lowest, divided attention results in a lower score than focused attention. In contrast, when there are more solutions to the puzzle, there is less of a score difference between the divided attention and focused attention conditions.
+
