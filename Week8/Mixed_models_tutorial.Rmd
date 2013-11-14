@@ -130,11 +130,16 @@ Let's start exploring some mixed models!
 ```{r}
 lmer(pitch ~ condition, data=d) # this doesn't work! Need a random error term to use lmer
 
-# model w/
+# model w/rfx
 rs_subj_reml = lmer(pitch ~ condition + (1|subject), data=d)
+
+# model info
 summary(rs_subj_reml)
+anova(rs_subj_reml)
 coef(rs_subj_reml)
-print(c(deviance = -2*logLik(rs_subj_reml)))
+AIC(rs_subj_reml)
+logLikelihood = logLik(rs_subj_reml)
+deviance = -2*logLikelihood[1]; deviance
 
 # compare to the data
 qplot(condition, pitch, facets = . ~ subject, colour = subject, geom = "boxplot", data = d) + theme_bw()

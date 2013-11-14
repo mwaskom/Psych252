@@ -279,8 +279,10 @@ lmer(pitch ~ condition, data = d)  # this doesn't work! Need a random error term
 
 ```r
 
-# model w/
+# model w/rfx
 rs_subj_reml = lmer(pitch ~ condition + (1 | subject), data = d)
+
+# model info
 summary(rs_subj_reml)
 ```
 
@@ -308,6 +310,16 @@ summary(rs_subj_reml)
 ```
 
 ```r
+anova(rs_subj_reml)
+```
+
+```
+## Analysis of Variance Table
+##           Df Sum Sq Mean Sq F value
+## condition  1   7783    7783    9.15
+```
+
+```r
 coef(rs_subj_reml)
 ```
 
@@ -326,12 +338,22 @@ coef(rs_subj_reml)
 ```
 
 ```r
-print(c(deviance = -2 * logLik(rs_subj_reml)))
+AIC(rs_subj_reml)
 ```
 
 ```
-## deviance.REML 
-##         804.7
+## [1] 812.7
+```
+
+```r
+logLikelihood = logLik(rs_subj_reml)
+deviance = -2 * logLikelihood[1]
+deviance
+```
+
+```
+##  REML 
+## 804.7
 ```
 
 ```r
