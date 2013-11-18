@@ -186,3 +186,39 @@ Fields:
 * **num2**: two possible solutions to the anagram
 
 * **num3**: three possible solutions to the anagram
+
+exer.csv
+---------------
+
+30 people were randomly assigned to two different diets (low-fat and not low-fat) and three different types of exercise (at rest, walking leisurely and running). Their pulse rate was measured at three different time points during their assigned exercise (at 1 minute, 15 minutes and 30 minutes).
+
+:download:`Click to download data </datasets/exer.csv>`
+
+Fields:
+
+* **id**: Subject ID
+
+* **diet**: 1 = low fat; 2 = not low fat
+
+* **exertype**: 1 = at rest, 2 = walking, 3 = running
+
+* **pulse**
+
+* **time**: 1 = 1 min, 2 = 15 min, 3 = 30 min
+
+timeflies.csv
+---------------
+
+40 participants were presented with 20 sound clips, varying in length from 30 to 90 seconds. Ten were taken from funny comedy routines, while ten were taken from the podcast of a tedious statistics class (the two groups have the same average length). After a delay, participants are asked to indicate how fun each clip was to listen to (on a scale to 0, not fun at all, to 7, a total blast), and to estimate how long (in seconds) the clip lasted. Each column corresponds to a rating, such that, for example, “comclip1.rat” is the rating of the first comedy clip, while “statsclip10.len” is the estimated length of the tenth stats clip for the same participant, etc.
+
+:download:`Click to download data </datasets/timeflies.csv>`
+
+Fields:
+
+* **comclip.rat**: rating of comedy clips
+
+* **statsclip.rat**: rating of statistics class clips
+
+* **comclip.len**: perceived length of comedy clips
+
+* **statsclip.len**: perceived length of statistics class clips
