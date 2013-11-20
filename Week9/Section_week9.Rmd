@@ -1,0 +1,296 @@
+Section Week 9 - Mixed Modeling continued 
+========================================================
+
+## Overparameterization
+
+### Question 2
+
+Today we'll be looking at an edited version of the file `skv-ex4.r`. This version stresses which features of the data are modeled as fixed or random effects by plotting the data using ggplot, going through a simple model bulding exercise and reviewing pitfalls in overfitting random effects.  
+
+Let's take a moment to review the study we're examining, from the *Notes* in the homework, and briefly discuss what the problem with overparameterization is.
+
+In ‘ex4.txt’, each subject completes a 2 x 3 (Task *(free or cued)* x Valence *(positive, negative, or neutral)*) design; so this is an Subject x Task x Valence design with n = 1 observations per cell. We can estimate main and 2-way interaction effects, but there are no degrees of freedom left to estimate the Subject x Task x Valence interaction separately from ‘error’ variance. Put otherwise, in non-overparameterized models the degrees of freedom are greater than zero.
+
+Any model that tries to estimate this 3-way interaction from these data is **over-parameterized**.  An over-parameterized model is one in which there are as many estimated parameters as data points. An overparamterized model is a model that is overparameterized to the point that it is basically just drawing lines between the data. This basically means that this model is useless, because it does not describe the data more parsimoniously than the raw data does (and describing data parsimoniously is generally the idea behind using a model). 
+
+Take for example the mean as a model for some data. If you have only one data point (e.g., 5) using the mean (i.e., 5; note that the mean is an overparameterized model for only one data point) does not help at all. However if you already have two data points (e.g., 5 and 7) using the mean (i.e., 6) as a model provides you with a more parsimonious description than the original data.
+
+If you're trying to build a predictive model this is very problematic. An overparameterized model will lead to a perfect fit, but will be of little use statistically, as you have no data left to estimate variance. Overparameterized models lead to extremely high-variance predictors that are being pushed around by the noise more than the actual data.
+
+When models are over-parameterized, the results of the model fit should include some symptom of the unreliability of the results (e.g., an ‘error’ message that the model-fitting algorithm did not converge; or, if there is no error message, some clue that the parameter estimates are not the optimal, maximum likelihood estimates and, therefore, are not to be trusted). 
+
+### Choosing random effects to avoid overparameterization
+
+The risk of overparameterization limits the choice of random effects that can be estimated from these data. Below, we'll see that allowable (not necessarily justifiable!) specifications are *a random intercept for each subject:* (1 | S), *a random slope for task by subject:* (1 + T | S), and *random slopes for task and valence by subject:* (1 + T + V | S); but *allowing the interaction between task and valence to vary by subject:* (1 + T * V | S) is not, because this would imply that the Task x Valence interaction varies across subjects, i.e., that there is an Subject x Task x Valence interaction.
+
+In the present example, we'll see that one symptom of the unreliability of the results is the correlation of -1 between the slope for ‘taskfree’ and the random intercept. Another symptom is that the results change when the order of Task and Valence is reversed in the model specification – the deviance and some parameter estimates change.
+
+Let's go ahead and load in our data, and get our libraries set up!
+
+```{r}
+library(lme4)
+library(ggplot2)
+
+d0 <- read.table('http://www.stanford.edu/class/psych252/data/ex4.txt', header=TRUE)
+```
+
+As always, a good approach is to plot the data in a format that provides the information we are looking for. We now know that this can be efficiently done with ggplot when we need to visualize random effects. Which variables would we want to consider as random effects here?
+
+```{r}
+p <- ggplot(d0, aes(x=Valence, y= Recall, group=Task, colour=Task))
+p + geom_point() + 
+  facet_wrap(~Subject, ncol=5, scales="fixed") +
+  geom_smooth(method="lm", se=FALSE)
+```
+
+The plot above gives us gives us a good idea about the results we might expect to be significant. What can we say about this data?
+
+Before discussing the bulk of the script given, which illustrates some sophisticated considerations about overfitting random effects, we should first try to test our own impressions about the data. A simple model with random intercept only, and task as fixed effects, can capture the consistent feature of the plots with the mean of cued recall being higher than the mean of free recall.
+
+```{r}
+rs.lmer0 = lmer(Recall ~ Task + (1 | Subject), d0)
+summary(rs.lmer0)
+```
+
+This model gives us something close to a paired-t.test on "Task." 
+
+```{r}
+with(d0, t.test(Recall[Task=='Cued'], Recall[Task=='Free'], paired=TRUE))
+```
+
+Should we settle for this minimal conclusion?
+
+Let's treat valence as a 3-level factor dummy coded to see if there are differences by valence types.
+
+```{r}
+d0$Valencefac <- factor(d0$Valence, levels=c("Neu","Neg","Pos"))
+rs.lmer01 = lmer(Recall ~ Task + Valencefac + (1 | Subject), d0)
+summary(rs.lmer01)
+```
+
+Neither positive nor negative valence are different from neutral.
+
+We could also try Valence as a 3-level factor coded for linear contrast, this assumes that there is a continuum of valence and that we go from negative on one end to positive in the other. 
+
+```{r}
+d0$Valencefac2 <- factor(d0$Valence, levels=c("Neu","Neg","Pos"))
+contrasts(d0$Valencefac2, 1) = c(-1, 0, 1) 
+rs.lmer02 = lmer(Recall ~ Task + Valencefac2 + (1 | Subject), d0)
+summary(rs.lmer02)
+```
+
+Still, in this model valence is not predicting recall. 
+
+We should ask ourselves if we are doing any better by including valence in the model. So let's test nested models and see. 
+
+First, we need to set our models to REML = FALSE! Why?
+
+```{r}
+rs.lmer0a = lmer(Recall ~ Task + (1 | Subject), d0, REML=FALSE)
+rs.lmer01a = lmer(Recall ~ Task + Valencefac + (1 | Subject), d0, REML=FALSE)
+rs.lmer02a = lmer(Recall ~ Task + Valencefac2 + (1 | Subject), d0, REML=FALSE)
+```
+
+Now let's compare our models!
+
+```{r}
+anova(rs.lmer0a, rs.lmer01a) 
+anova(rs.lmer0a, rs.lmer02a)
+```
+
+*Why are these models nested?*
+
+From this, we can see that our model with the fixed effects of task and valence, and a random intercept for each subject does not seem to be performing any better than the model with the random slope for task (allowed to vary by participant) along with the fixed effects. The model with valence coded as a linear contrast doesn't perform any better either.
+
+We may wonder if we should continue pursuing either of the more complex models by considering more of the random effects present. Before doing that it would be useful to know if the added degrees of freedom in the dummy coded model buy us real explanatory power. 
+
+As we are told in the handout, it is not appropriate to treat rs.lmer01 and rs.lmer02 as nested. Also they differ in their fixed effects. So simply running an ANOVA and comparing the models on REML is not a good idea. The aproach we can follow to deal with this comparison is to re-estimate the models using ML. 
+
+```{r}
+summary(rs.lmer01)
+summary(rs.lmer01a) 
+```
+
+Note that the models are clearly different in terms of random effects coefficients and summary results, e.g. logLik
+
+```{r}
+summary(rs.lmer02)
+summary(rs.lmer02a)
+```
+
+Ditto here.
+
+We can now compare them asuming the difference between deviances is distributed as a chi-square with df= differences in df of each model. 
+
+```{r}
+1-pchisq(-2*logLik(rs.lmer02a)[1]--2*logLik(rs.lmer01a)[1],1)
+```
+
+As suggested in the handout, the model using more degrees of freedom (3-level dummy coded) provides a better fit and in this case it is marginally better than the linear contrast coded. Let's pursue it by changing its random effects and seeing of we can improve on it.
+
+First we can add a "slope" term to account for the fact that valence has different effects on every subject. *Is this really a "slope"?*
+
+```{r}
+rs.lmer1 = lmer(Recall ~ Task + Valencefac + (1 + Valencefac | Subject), d0)
+summary(rs.lmer1)
+```
+
+Did we improve? Note that we now use REML, because we have the same fixed-effects.
+
+```{r}
+anova(rs.lmer01, rs.lmer1)
+```
+
+It seems we haven't done any better. 
+
+Alternatively, we could  take note of the fact that the effect of task is larger in some subjects than others and add a "slope" term for task?
+
+```{r}
+rs.lmer1a = lmer(Recall ~ Task + Valencefac + (1 + Task | Subject), d0)
+summary(rs.lmer1a)
+
+anova(rs.lmer01,rs.lmer1a)
+```
+
+But again we don't seem to be doing much better. At this point it would be wise to stop, but an overly ambitious approach might compell us to keep playing with the random effect terms to try and squeeze an effect for valence. This aproach has several potential perils. 
+
+Let's try to use two slope terms (1 + T + V | Subject) 
+
+```{r}
+rs.lmer2 = lmer(Recall ~ Task + Valencefac +  (1 + Valencefac + Task | Subject), d0)
+summary(rs.lmer2) 
+anova(rs.lmer01, rs.lmer2) 
+```
+
+Again the increased complexity in random effects is not justified and we have similar conclusions as before. But notice that the correlation between the task free and coefficient terms in the random effects is close to 1, i.e. -.97. These kinds of correlations can be a symptom of a problematic fit. For example, note what happens when we switch the order of the tems in the random effects.
+
+```{r}
+rs.lmer2a = lmer(Recall ~ Task + Valencefac +  (1 + Task + Valencefac | Subject), d0)
+summary(rs.lmer2a)
+```
+
+Now several parameter estimates have changed and we see a correlation of -.96 between "taskfree" and the random intercept. 
+
+In the HW handout we are given an explanation for why undesirable results like this one occur, which has to do with over-fitting the data.
+
+As an extreme example we are given the following model, which even gives an warning message of false convergence!
+
+```{r}
+contrasts(d0$Valence) = contr.treatment(3, base=2)
+rs.lmer3a = lmer(Recall ~ Task+Valence + (1 + Valence*Task | Subject), d0) # Note the warning error message. 
+summary(rs.lmer3a)
+```
+
+To drive the point home that the problem has to do with over fitting or exhausting our degrees of freedom, rather than modeling complex random effects per-se, we are given another dataset in which we have two observations at each task-valence level. This dataset does not suffer from the same problems in changing parameter estimates because we have more degrees of freedom within subjects and lmer can reliably estimate the required parameters, even in very complex models.
+
+Redo above analyses with lmer() and the other version of our data, `ex4L.txt`.
+
+In ‘ex4L.txt’, each S completes a 2 x 3 (Task x Valence) design twice; so this is a Subject x Task x Valence design with n > 1 obs per cell. We now have enough df to estimate the SxTxV interaction separately from ‘error’ variance, and (1+T*V|S) would
+be an allowable specification of the random effects. Students might want to check that the results of testing this most complex model on this larger data set seem to be acceptable.
+
+```{r}
+d1 <- read.table('http://www.stanford.edu/class/psych252/data/ex4L.txt', header=TRUE)
+contrasts(d1$Valence) = contr.treatment(3, base=2)
+```
+
+Let's look at the new dataset.
+
+```{r}
+p <- ggplot(d1, aes(x=Valence, y= Recall, group=Task, colour=Task))
+p + geom_point() + 
+  facet_wrap(~Subject,ncol=5,scales="fixed") +
+  geom_smooth(method="lm", se=F)
+```
+
+We can now estimate interactions in the random and the fixed effects, and although we still have high correlations among random effects we do not see different parameter estimates. 
+
+```{r}
+rs.lmer2b = lmer(Recall ~ Task*Valence + (1 + Task*Valence | Subject), d1)
+print(summary(rs.lmer2b))
+
+#Change the order of the parameters and confirm
+rs.lmer2c = lmer(Recall ~ Task*Valence + (1 + Valence*Task | Subject), d1)
+print(summary(rs.lmer2c))
+```
+
+## Question 4
+
+To investigate whether the saying “Time flies when you’re having fun,” an experiment was conducted in which participants heard sound clips from 20 podcasts ranging from 30 to 90 seconds. Ten of the podcasts were taken from comedy routines, while ten were taken from a tedious statistics class.
+
+There were two dependent measures collected:
+- Subjects reported how fun the clip was to listen to (on a scale from 0, not fun at all, to 7, hilariously awesome)
+- Subjects estimated how long (in seconds) the clip lasted.
+
+```{r}
+d <- read.csv('http://www.stanford.edu/class/psych252/data/timeflies.csv')
+```
+
+**IMPORTANT STEP SO THAT YOU CAN USE THE CODE IN THE HW PDF:**
+This takes out the first column, which just lists subject id numbers.
+
+```{r}
+timeflies = d[,-1]
+```
+
+See how data is stored, with each row being one subject:
+```{r}
+head(timeflies)
+```
+
+The HW states that the researcher was not interested in variability between clips of the same kind.  So, we computed for each subject their average fun rating and their average estimated length for comedy clips and their average fun rating and their average estimated length for statistics clips.
+
+```{r}
+rowMeans(timeflies[,1:10])->timeflies$comclips.rat
+rowMeans(timeflies[,11:20])->timeflies$statsclips.rat
+rowMeans(timeflies[,21:30])->timeflies$comclips.len
+rowMeans(timeflies[,31:40])->timeflies$statsclips.len
+```
+
+Now let's calculate the difference between comedy and stats clips on each of our dependent variables of interest.
+
+```{r}
+timeflies$diff.rat<-timeflies$comclips.rat-timeflies$statsclips.rat
+timeflies$diff.len<-timeflies$comclips.len-timeflies$statsclips.len
+```
+
+Sum of fun ratings (because one subject may report everything as funnier than another subject may)
+
+```{r}
+timeflies$csum.rat<- scale(timeflies$comclips.rat+timeflies$statsclips.rat,scale=F)
+```
+
+Can you recognize this as a dependent t-test?  Yes!  It is testing our hypothesis that time flies when you're having fun: that is, whether the average estimated length of a comedy clip is significantly less than the estimated length of a statistics clip.
+
+```{r}
+summary(lm(diff.len~1,data=timeflies))
+t.test(timeflies$diff.len)
+
+#Visualized:
+ggplot(melt(data.frame("subj"=d$X,timeflies[,43:44]),id.vars=1),aes(variable,value,group=subj))+geom_point()+geom_line()+stat_smooth(method="lm",aes(group=1),size=2)
+```
+
+We could run another dependent t-test as a manipulation check to see whether subjects rated comedy clips as more fun than the statistics clips.  Unfortunately for the statistics teacher... the manipulation worked.
+
+```{r}
+summary(lm(diff.rat~1,data=timeflies))
+
+# Visualized:
+ggplot(melt(data.frame("subj"=d$X,timeflies[,41:42]),id.vars=1),aes(variable,value,group=subj))+geom_point()+geom_line()+stat_smooth(method="lm",aes(group=1),size=2)
+```
+
+To see if this difference in ratings caused the difference in estimated lengths, we could use a linear regression with two predictors: the average difference in a subject’s rating of a comedy clip and their rating of a statistics clip, and the sum of a subject’s average rating of a comedy clip and a statistics clip (which corresponds to how fun they rated the clips in general).
+
+```{r}
+summary(lm(diff.len~diff.rat+csum.rat,data=timeflies))
+```
+
+-Effect of diff.rat: For a given subject, the larger the difference in fun rating between a comedy clip and a statistics clip, the larger the difference in estimated length of the clips.
+-Intercept: The effect of clip type on perceived length is no longer significant once the difference in fun ratings is included in the model.
+-Effect of csum.rat: The fact that someone happens to give high ratings to everything does not give additional information about the difference in perceived length of clips.
+
+This is within-subjects mediation: comedy clips are perceived to be more fun than stats clip, which leads them to be perceived as shorter.
+
+```{r}
+# Visualized:
+ggplot(data.frame("subj"=d$X,timeflies[,45:46]),aes(diff.len,diff.rat))+geom_point()+stat_smooth(method="lm")
+```
