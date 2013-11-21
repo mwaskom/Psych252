@@ -55,10 +55,11 @@ with(d, aggregate(pitch~subject, FUN='mean'))
 
 And, there is within-subject correlation of pitches:
 ```{r}
-pol_subj = subset(d, subject=='F1' & condition=='pol')
-inf_subj = subset(d, subject=='F1' & condition=='inf')
+pol_subj = subset(d, condition=='pol'); head(pol_subj)
+inf_subj = subset(d, condition=='inf'); head(inf_subj)
 
-qplot(pol_subj$pitch, inf_subj$pitch)
+qplot(pol_subj$pitch, inf_subj$pitch) + 
+  geom_smooth(method="lm", fullrange=TRUE)
 ```
 
 Now you begin to see why the mixed model is called a “mixed” model. The linear models that we considered so far have been “fixed-effects-only” models that had one or more fixed effects and a general error term “ε”. With the linear model, we essentially divided the world into things that we somehow understand or that are somehow systematic (the *fixed effects*, or the explanatory variables); and *random error*, things that we cannot control for or that we don’t understand (ε). But crucially, this latter part, the unsystematic part of the model, did not have any interesting structure. We simply had a general across-the-board error term. 
@@ -132,8 +133,10 @@ lmer(pitch ~ condition, data=d) # this doesn't work! Need a random error term to
 
 # model w/rfx
 rs_subj_reml = lmer(pitch ~ condition + (1|subject), data=d)
+rs_subj_ml = lmer(pitch ~ condition + (1|subject), REML=FALSE, data=d)
 
 # model info
+summary(rs_subj_ml)
 summary(rs_subj_reml)
 anova(rs_subj_reml)
 coef(rs_subj_reml)
@@ -143,13 +146,35 @@ deviance = -2*logLikelihood[1]; deviance
 
 # compare to the data
 qplot(condition, pitch, facets = . ~ subject, colour = subject, geom = "boxplot", data = d) + theme_bw()
+```
 
+Getting p-values
+--------------------
+```{r}
 # how to get p-vals
 #install.packages('languageR')
 #library(languageR)
 #rs.mcmc = pvals.fnc(rs_subj_reml, nsim = 10000, addPlot = T)
 #print(rs.mcmc)
 
+# Now approx p-val w/Kenward-Roger’s approximations
+#install.packages('lmerTest')
+library(lmerTest)
+rs_subj_reml = lmer(pitch ~ condition + (1|subject), data=d) # you have to re-run lmer now!
+anova(rs_subj_reml, ddf="Kenward-Roger")
+
+# or, use model comparison!
+rs_subj_ml = lmer(pitch ~ condition + (1|subject), REML=FALSE, data=d)
+rs_null_ml = lmer(pitch ~ 1 + (1|subject), REML=FALSE, data=d)
+
+anova(rs_null_ml, rs_subj_ml)
+```
+Here, the addition of the fixed factor "condition" significantly improved model fit, $\chi^2$ (1) = `8.74`, *p* < 0.01.
+
+
+**Item effects** (random intercept for each "item/stimulus"):
+Different stimuli may elicit different values of "pitch"; as a result, pitch for a given scenario may be correlated across subjects, and even within a subject for the polite and informal conditions. We can model this as a random effect!
+```{r}
 rs_subjscene_reml = lmer(pitch ~ condition + (1|subject) + (1|scenario), data=d)
 summary(rs_subjscene_reml)
 anova(rs_subjscene_reml)
@@ -197,7 +222,7 @@ rs_null_subjscene_ml = lmer(pitch ~ gender + (1|subject) + (1|scenario),
 
 anova(rs_gen_subjscene_ml, rs_null_subjscene_ml)
 
-chisq_val = -2*((logLik(politeness.model2_ml)[1]) - (logLik(politeness.null_ml)[1])); chisq_val
+chisq_val = -2*((logLik(rs_gen_subjscene_ml)[1]) - (logLik(rs_null_subjscene_ml)[1])); chisq_val
 chisq_df = 6-5; chisq_df
 pval = pchisq(chisq_val, chisq_df, lower.tail=TRUE); pval
 ```
@@ -249,8 +274,7 @@ First, let's take a look at our data:
 
 Now, we'll run a linear mixed-effect model with random intercepts and slopes for subjects.
 ```{r}
-politeness.model.rs = lmer(pitch ~ condition + gender + (1 + condition|subject) + 
-                             (1 |scenario), REML=FALSE, data=d)
+politeness.model.rs = lmer(pitch ~ condition + gender + (1 + condition|subject) + (1 |scenario), REML=FALSE, data=d)
 summary(politeness.model.rs)
 ```
 
@@ -268,14 +292,33 @@ Have a look at the column for gender. Here, the coefficients do no change. That 
 Now we can see if this model with random slopes for subjects is significantly better than the model with just random intercepts.
 ```{r}
 rs_gen_subjscene_con_reml = lmer(pitch ~ condition + gender + (1 + condition|subject) + 
-                                   (1 |scenario), REML=TRUE, data=d)
+                                   (1 + condition|scenario), REML=TRUE, data=d)
 
 rs_gen_subjscene_reml = lmer(pitch ~ condition + gender + (1|subject) + 
                                (1|scenario), REML=TRUE, data=d) 
 
 anova(rs_gen_subjscene_reml, rs_gen_subjscene_con_reml)
 ```
-So, it appears that we don't need to include random slope for condition in the model.
+So, it appears that we don't need to include random slope for condition in the model; however, others would argue that we should keep our models maximal! To read more about that, check out this paper [Barr, Levy, Scheepers, & Tilly, 2013](http://idiom.ucsd.edu/~rlevy/papers/barr-etal-2013-jml.pdf).
+
+
+Also, just as a note, `anova()` uses ML deviance, but you can calculate REML deviance by hand:
+```{r}
+rs_gen_subjscene_con_ml = lmer(pitch ~ condition + gender + (1 + condition|subject) + 
+                                   (1 + condition|scenario), REML=FALSE, data=d)
+
+rs_gen_subjscene_ml = lmer(pitch ~ condition + gender + (1|subject) + 
+                               (1|scenario), REML=FALSE, data=d) 
+
+anova(rs_gen_subjscene_ml, rs_gen_subjscene_con_ml)
+
+# To use REML:
+chisq_val = -2*((logLik(rs_gen_subjscene_reml)[1]) - (logLik(rs_gen_subjscene_con_reml)[1])); chisq_val
+chisq_df = 2; chisq_df
+pval = pchisq(chisq_val, chisq_df, lower.tail=FALSE); pval
+```
+
+
 
 ## Some final notes about mixed modeling
 
@@ -470,8 +513,12 @@ Including attn in the model significantly improves model fit.
 res4b = lmer(score ~ scale(num, scale=FALSE) + attn + (1 + num|subj.id), REML=TRUE, dl)
 summary(res4b)
 
+coef(res4b)
+
 res4c = lmer(score ~ scale(num, scale=FALSE) + attn + (1 + attn|subj.id), REML=TRUE, dl)
 summary(res4c)
+
+coef(res4c)
 
 res4a = lmer(score ~ scale(num, scale=FALSE) + attn + (1|subj.id), REML=TRUE, dl)
 summary(res4a)

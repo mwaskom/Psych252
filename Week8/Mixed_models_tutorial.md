@@ -136,10 +136,43 @@ with(d, aggregate(pitch ~ subject, FUN = "mean"))
 And, there is within-subject correlation of pitches:
 
 ```r
-pol_subj = subset(d, subject == "F1" & condition == "pol")
-inf_subj = subset(d, subject == "F1" & condition == "inf")
+pol_subj = subset(d, condition == "pol")
+head(pol_subj)
+```
 
-qplot(pol_subj$pitch, inf_subj$pitch)
+```
+##    subject gender scenario condition pitch
+## 1       F1      F        1       pol 213.3
+## 3       F1      F        2       pol 285.1
+## 5       F1      F        3       pol 203.9
+## 7       F1      F        4       pol 250.8
+## 9       F1      F        5       pol 231.9
+## 11      F1      F        6       pol 181.2
+```
+
+```r
+inf_subj = subset(d, condition == "inf")
+head(inf_subj)
+```
+
+```
+##    subject gender scenario condition pitch
+## 2       F1      F        1       inf 204.5
+## 4       F1      F        2       inf 259.7
+## 6       F1      F        3       inf 286.9
+## 8       F1      F        4       inf 276.8
+## 10      F1      F        5       inf 252.4
+## 12      F1      F        6       inf 230.7
+```
+
+```r
+
+qplot(pol_subj$pitch, inf_subj$pitch) + geom_smooth(method = "lm", fullrange = TRUE)
+```
+
+```
+## Warning: Removed 1 rows containing missing values (stat_smooth). Warning:
+## Removed 1 rows containing missing values (geom_point).
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
@@ -281,8 +314,37 @@ lmer(pitch ~ condition, data = d)  # this doesn't work! Need a random error term
 
 # model w/rfx
 rs_subj_reml = lmer(pitch ~ condition + (1 | subject), data = d)
+rs_subj_ml = lmer(pitch ~ condition + (1 | subject), REML = FALSE, data = d)
 
 # model info
+summary(rs_subj_ml)
+```
+
+```
+## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Formula: pitch ~ condition + (1 | subject) 
+##    Data: d 
+## 
+##      AIC      BIC   logLik deviance 
+##    826.5    836.2   -409.3    818.5 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  subject  (Intercept) 3309     57.5    
+##  Residual              840     29.0    
+## Number of obs: 83, groups: subject, 6
+## 
+## Fixed effects:
+##              Estimate Std. Error t value
+## (Intercept)    202.59      23.90    8.47
+## conditionpol   -19.37       6.37   -3.04
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## conditionpl -0.131
+```
+
+```r
 summary(rs_subj_reml)
 ```
 
@@ -369,18 +431,81 @@ qplot(condition, pitch, facets = . ~ subject, colour = subject, geom = "boxplot"
 
 ![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
 
-```r
 
+Getting p-values
+--------------------
+
+```r
 # how to get p-vals install.packages('languageR') library(languageR) rs.mcmc
 # = pvals.fnc(rs_subj_reml, nsim = 10000, addPlot = T) print(rs.mcmc)
 
+# Now approx p-val w/Kenward-Roger’s approximations
+# install.packages('lmerTest')
+library(lmerTest)
+```
+
+```
+## KernSmooth 2.23 loaded Copyright M. P. Wand 1997-2009
+## 
+## Attaching package: 'lmerTest'
+## 
+## The following object is masked from 'package:lme4':
+## 
+## lmer
+## 
+## The following object is masked from 'package:stats':
+## 
+## step
+```
+
+```r
+rs_subj_reml = lmer(pitch ~ condition + (1 | subject), data = d)  # you have to re-run lmer now!
+anova(rs_subj_reml, ddf = "Kenward-Roger")
+```
+
+```
+## Analysis of Variance Table of type 3 with  Kenward-Roger  approximation for degrees of freedom
+##           Df Sum Sq Mean Sq F value Denom Pr(>F)   
+## condition  1   7783    7783    9.15    76 0.0034 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+
+# or, use model comparison!
+rs_subj_ml = lmer(pitch ~ condition + (1 | subject), REML = FALSE, data = d)
+rs_null_ml = lmer(pitch ~ 1 + (1 | subject), REML = FALSE, data = d)
+
+anova(rs_null_ml, rs_subj_ml)
+```
+
+```
+## Data: d
+## Models:
+## object: pitch ~ 1 + (1 | subject)
+## ..1: pitch ~ condition + (1 | subject)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)   
+## object  3 833 841   -414      827                           
+## ..1     4 827 836   -409      819  8.74      1     0.0031 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Here, the addition of the fixed factor "condition" significantly improved model fit, $\chi^2$ (1) = `8.74`, *p* < 0.01.
+
+
+**Item effects** (random intercept for each "item/stimulus"):
+Different stimuli may elicit different values of "pitch"; as a result, pitch for a given scenario may be correlated across subjects, and even within a subject for the polite and informal conditions. We can model this as a random effect!
+
+```r
 rs_subjscene_reml = lmer(pitch ~ condition + (1 | subject) + (1 | scenario), 
     data = d)
 summary(rs_subjscene_reml)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by REML ['merModLmerTest']
 ## Formula: pitch ~ condition + (1 | subject) + (1 | scenario) 
 ##    Data: d 
 ## 
@@ -394,9 +519,11 @@ summary(rs_subjscene_reml)
 ## Number of obs: 83, groups: scenario, 7; subject, 6
 ## 
 ## Fixed effects:
-##              Estimate Std. Error t value
-## (Intercept)    202.59      26.75    7.57
-## conditionpol   -19.69       5.58   -3.53
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)    202.59      26.75    7.57  0.00039 ***
+## conditionpol   -19.69       5.58   -3.53  0.00075 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr)
@@ -408,9 +535,11 @@ anova(rs_subjscene_reml)
 ```
 
 ```
-## Analysis of Variance Table
-##           Df Sum Sq Mean Sq F value
-## condition  1   8034    8034    12.4
+## Analysis of Variance Table of type 3 with  Satterthwaite  approximation for degrees of freedom
+##           Df Sum Sq Mean Sq F value Denom  Pr(>F)    
+## condition  1   8034    8034    12.4    70 0.00075 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
 ```r
@@ -501,7 +630,7 @@ summary(rs_gen_subj_reml)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by REML ['merModLmerTest']
 ## Formula: pitch ~ condition + gender + (1 | subject) + (1 | scenario) 
 ##    Data: d 
 ## 
@@ -515,10 +644,12 @@ summary(rs_gen_subj_reml)
 ## Number of obs: 83, groups: scenario, 7; subject, 6
 ## 
 ## Fixed effects:
-##              Estimate Std. Error t value
-## (Intercept)    256.85      16.12   15.94
-## conditionpol   -19.72       5.58   -3.53
-## genderM       -108.52      21.01   -5.16
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)    256.85      16.12   15.94  9.1e-06 ***
+## conditionpol   -19.72       5.58   -3.53  0.00074 ***
+## genderM       -108.52      21.01   -5.16  0.00665 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) cndtnp
@@ -549,33 +680,23 @@ anova(rs_gen_subjscene_ml, rs_null_subjscene_ml)
 ```
 ## Data: d
 ## Models:
-## rs_null_subjscene_ml: pitch ~ gender + (1 | subject) + (1 | scenario)
-## rs_gen_subjscene_ml: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
-##                      Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
-## rs_null_subjscene_ml  5 817 829   -403      807                        
-## rs_gen_subjscene_ml   6 807 822   -398      795  11.6      1    0.00065
-##                         
-## rs_null_subjscene_ml    
-## rs_gen_subjscene_ml  ***
+## ..1: pitch ~ gender + (1 | subject) + (1 | scenario)
+## object: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)    
+## ..1     5 817 829   -403      807                            
+## object  6 807 822   -398      795  11.6      1    0.00065 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
 ```r
 
-chisq_val = -2 * ((logLik(politeness.model2_ml)[1]) - (logLik(politeness.null_ml)[1]))
-```
-
-```
-## Error: object 'politeness.model2_ml' not found
-```
-
-```r
+chisq_val = -2 * ((logLik(rs_gen_subjscene_ml)[1]) - (logLik(rs_null_subjscene_ml)[1]))
 chisq_val
 ```
 
 ```
-## Error: object 'chisq_val' not found
+## [1] -11.62
 ```
 
 ```r
@@ -589,18 +710,11 @@ chisq_df
 
 ```r
 pval = pchisq(chisq_val, chisq_df, lower.tail = TRUE)
-```
-
-```
-## Error: object 'chisq_val' not found
-```
-
-```r
 pval
 ```
 
 ```
-## Error: object 'pval' not found
+## [1] 0
 ```
 
 
@@ -618,7 +732,7 @@ summary(rs_intergen_subjscene_ml)
 ```
 
 ```
-## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Linear mixed model fit by maximum likelihood ['merModLmerTest']
 ## Formula: pitch ~ condition * gender + (1 | subject) + (1 | scenario) 
 ##    Data: d 
 ## 
@@ -633,11 +747,13 @@ summary(rs_intergen_subjscene_ml)
 ## Number of obs: 83, groups: scenario, 7; subject, 6
 ## 
 ## Fixed effects:
-##                      Estimate Std. Error t value
-## (Intercept)            260.69      14.09   18.51
-## conditionpol           -27.40       7.68   -3.57
-## genderM               -116.20      18.39   -6.32
-## conditionpol:genderM    15.57      10.94    1.42
+##                      Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)            260.69      14.09   18.51  1.5e-08 ***
+## conditionpol           -27.40       7.68   -3.57  0.00065 ***
+## genderM               -116.20      18.39   -6.32  0.00038 ***
+## conditionpol:genderM    15.57      10.94    1.42  0.15923    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) cndtnp gendrM
@@ -654,14 +770,11 @@ anova(rs_gen_subjscene_ml, rs_intergen_subjscene_ml)
 ```
 ## Data: d
 ## Models:
-## rs_gen_subjscene_ml: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
-## rs_intergen_subjscene_ml: pitch ~ condition * gender + (1 | subject) + (1 | scenario)
-##                          Df AIC BIC logLik deviance Chisq Chi Df
-## rs_gen_subjscene_ml       6 807 822   -398      795             
-## rs_intergen_subjscene_ml  7 807 824   -397      793     2      1
-##                          Pr(>Chisq)
-## rs_gen_subjscene_ml                
-## rs_intergen_subjscene_ml       0.16
+## object: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
+## ..1: pitch ~ condition * gender + (1 | subject) + (1 | scenario)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## object  6 807 822   -398      795                        
+## ..1     7 807 824   -397      793     2      1       0.16
 ```
 
 Here, we can see that adding the interaction doesn't significantly improve on the additive model; that is, the model with the interactive term doesn't significantly improve model fit. So, we'll stick with the simpler additive model.
@@ -729,7 +842,7 @@ First, let's take a look at our data:
 ## Removed 1 rows containing missing values (geom_point).
 ```
 
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
 
 
 Now, we'll run a linear mixed-effect model with random intercepts and slopes for subjects.
@@ -741,7 +854,7 @@ summary(politeness.model.rs)
 ```
 
 ```
-## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Linear mixed model fit by maximum likelihood ['merModLmerTest']
 ## Formula: pitch ~ condition + gender + (1 + condition | subject) + (1 |      scenario) 
 ##    Data: d 
 ## 
@@ -757,10 +870,12 @@ summary(politeness.model.rs)
 ## Number of obs: 83, groups: scenario, 7; subject, 6
 ## 
 ## Fixed effects:
-##              Estimate Std. Error t value
-## (Intercept)    257.80      13.68   18.84
-## conditionpol   -19.71       5.56   -3.54
-## genderM       -110.43      17.53   -6.30
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)    257.80      13.68   18.84  6.7e-08 ***
+## conditionpol   -19.71       5.56   -3.54  0.00079 ***
+## genderM       -110.43      17.53   -6.30  0.00078 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) cndtnp
@@ -810,7 +925,7 @@ Now we can see if this model with random slopes for subjects is significantly be
 
 ```r
 rs_gen_subjscene_con_reml = lmer(pitch ~ condition + gender + (1 + condition | 
-    subject) + (1 | scenario), REML = TRUE, data = d)
+    subject) + (1 + condition | scenario), REML = TRUE, data = d)
 
 rs_gen_subjscene_reml = lmer(pitch ~ condition + gender + (1 | subject) + (1 | 
     scenario), REML = TRUE, data = d)
@@ -821,18 +936,73 @@ anova(rs_gen_subjscene_reml, rs_gen_subjscene_con_reml)
 ```
 ## Data: d
 ## Models:
-## rs_gen_subjscene_reml: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
-## rs_gen_subjscene_con_reml: pitch ~ condition + gender + (1 + condition | subject) + (1 | 
-## rs_gen_subjscene_con_reml:     scenario)
-##                           Df AIC BIC logLik deviance Chisq Chi Df
-## rs_gen_subjscene_reml      6 807 822   -398      795             
-## rs_gen_subjscene_con_reml  8 811 830   -398      795  0.03      2
-##                           Pr(>Chisq)
-## rs_gen_subjscene_reml               
-## rs_gen_subjscene_con_reml       0.99
+## object: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
+## ..1: pitch ~ condition + gender + (1 + condition | subject) + (1 + 
+## ..1:     condition | scenario)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## object  6 807 822   -398      795                        
+## ..1    10 815 839   -397      795   0.2      4          1
 ```
 
-So, it appears that we don't need to include random slope for condition in the model.
+So, it appears that we don't need to include random slope for condition in the model; however, others would argue that we should keep our models maximal! To read more about that, check out this paper [Barr, Levy, Scheepers, & Tilly, 2013](http://idiom.ucsd.edu/~rlevy/papers/barr-etal-2013-jml.pdf).
+
+
+Also, just as a note, `anova()` uses ML deviance, but you can calculate REML deviance by hand:
+
+```r
+rs_gen_subjscene_con_ml = lmer(pitch ~ condition + gender + (1 + condition | 
+    subject) + (1 + condition | scenario), REML = FALSE, data = d)
+
+rs_gen_subjscene_ml = lmer(pitch ~ condition + gender + (1 | subject) + (1 | 
+    scenario), REML = FALSE, data = d)
+
+anova(rs_gen_subjscene_ml, rs_gen_subjscene_con_ml)
+```
+
+```
+## Data: d
+## Models:
+## object: pitch ~ condition + gender + (1 | subject) + (1 | scenario)
+## ..1: pitch ~ condition + gender + (1 + condition | subject) + (1 + 
+## ..1:     condition | scenario)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## object  6 807 822   -398      795                        
+## ..1    10 815 839   -397      795   0.2      4          1
+```
+
+```r
+
+# To use REML:
+chisq_val = -2 * ((logLik(rs_gen_subjscene_reml)[1]) - (logLik(rs_gen_subjscene_con_reml)[1]))
+chisq_val
+```
+
+```
+##  REML 
+## 0.377
+```
+
+```r
+chisq_df = 2
+chisq_df
+```
+
+```
+## [1] 2
+```
+
+```r
+pval = pchisq(chisq_val, chisq_df, lower.tail = FALSE)
+pval
+```
+
+```
+##   REML 
+## 0.8282
+```
+
+
+
 
 ## Some final notes about mixed modeling
 
@@ -1068,7 +1238,7 @@ summary(res1)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by REML ['merModLmerTest']
 ## Formula: score ~ num + (1 | subj.id) 
 ##    Data: dl 
 ## 
@@ -1081,9 +1251,11 @@ summary(res1)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)    4.758      0.531    8.95
-## num            0.600      0.243    2.47
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)    4.758      0.531    8.95  1.6e-12 ***
+## num            0.600      0.243    2.47    0.017 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##     (Intr)
@@ -1113,7 +1285,7 @@ Let's visualize what we're modeling with the random intercept model.
 )
 ```
 
-![plot of chunk unnamed-chunk-21](figure/unnamed-chunk-21.png) 
+![plot of chunk unnamed-chunk-24](figure/unnamed-chunk-24.png) 
 
 
 Note that the means for every subject are at slightly different score levels. There is even more variability in the slopes of the lines. We can capture those with another random effects term for a random slope. 
@@ -1127,7 +1299,7 @@ summary(res2)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by REML ['merModLmerTest']
 ## Formula: score ~ num + (1 + num | subj.id) 
 ##    Data: dl 
 ## 
@@ -1141,9 +1313,11 @@ summary(res2)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)    4.758      0.607    7.84
-## num            0.600      0.256    2.34
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)    4.758      0.607    7.84  6.4e-06 ***
+## num            0.600      0.256    2.34    0.031 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##     (Intr)
@@ -1163,11 +1337,11 @@ anova(res1, res2)
 ```
 ## Data: dl
 ## Models:
-## res1: score ~ num + (1 | subj.id)
-## res2: score ~ num + (1 + num | subj.id)
-##      Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
-## res1  4 229 238   -111      221                        
-## res2  6 233 245   -110      221  0.71      2        0.7
+## object: score ~ num + (1 | subj.id)
+## ..1: score ~ num + (1 + num | subj.id)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## object  4 229 238   -111      221                        
+## ..1     6 233 245   -110      221  0.71      2        0.7
 ```
 
 
@@ -1192,7 +1366,7 @@ ggplot(dl, aes(x = num, y = score, cond = attn, color = attn)) + facet_wrap(~sub
     ncol = 5, scales = "fixed") + geom_point() + theme_bw() + stat_smooth(method = "lm")
 ```
 
-![plot of chunk unnamed-chunk-24](figure/unnamed-chunk-24.png) 
+![plot of chunk unnamed-chunk-27](figure/unnamed-chunk-27.png) 
 
 
 
@@ -1218,7 +1392,7 @@ summary(res3a)
 ```
 
 ```
-## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Linear mixed model fit by maximum likelihood ['merModLmerTest']
 ## Formula: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id) 
 ##    Data: dl 
 ## 
@@ -1232,10 +1406,12 @@ summary(res3a)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##                           Estimate Std. Error t value
-## (Intercept)                  5.958      0.205   29.03
-## scale(num, scale = FALSE)    0.600      0.191    3.14
-## attn1                        0.842      0.156    5.40
+##                           Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                  5.958      0.205   29.03  5.5e-11 ***
+## scale(num, scale = FALSE)    0.600      0.191    3.14   0.0028 ** 
+## attn1                        0.842      0.156    5.40  1.9e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) s(,s=F
@@ -1251,7 +1427,7 @@ summary(res3b)
 ```
 
 ```
-## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Linear mixed model fit by maximum likelihood ['merModLmerTest']
 ## Formula: score ~ scale(num, scale = FALSE) + (1 | subj.id) 
 ##    Data: dl 
 ## 
@@ -1265,9 +1441,11 @@ summary(res3b)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##                           Estimate Std. Error t value
-## (Intercept)                  5.958      0.205    29.0
-## scale(num, scale = FALSE)    0.600      0.240     2.5
+##                           Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                  5.958      0.205    29.0  5.6e-11 ***
+## scale(num, scale = FALSE)    0.600      0.240     2.5    0.016 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr)
@@ -1282,11 +1460,11 @@ anova(res3b, res3a)
 ```
 ## Data: dl
 ## Models:
-## res3b: score ~ scale(num, scale = FALSE) + (1 | subj.id)
-## res3a: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
-##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)    
-## res3b  4 229 238 -110.7      221                            
-## res3a  5 208 219  -99.2      198  22.9      1    1.7e-06 ***
+## object: score ~ scale(num, scale = FALSE) + (1 | subj.id)
+## ..1: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)    
+## object  4 229 238 -110.7      221                            
+## ..1     5 208 219  -99.2      198  22.9      1    1.7e-06 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -1301,7 +1479,7 @@ summary(res4b)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by REML ['merModLmerTest']
 ## Formula: score ~ scale(num, scale = FALSE) + attn + (1 + num | subj.id) 
 ##    Data: dl 
 ## 
@@ -1315,15 +1493,40 @@ summary(res4b)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##                           Estimate Std. Error t value
-## (Intercept)                  5.958      0.221   26.92
-## scale(num, scale = FALSE)    0.600      0.226    2.66
-## attn1                        0.842      0.151    5.57
+##                           Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                  5.958      0.221   26.92  2.6e-10 ***
+## scale(num, scale = FALSE)    0.600      0.226    2.66    0.021 *  
+## attn1                        0.842      0.151    5.57  1.1e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) s(,s=F
 ## s(,s=FALSE) -0.419       
 ## attn1        0.000  0.000
+```
+
+```r
+
+coef(res4b)
+```
+
+```
+## $subj.id
+##         num (Intercept) scale(num, scale = FALSE)  attn1
+## 1   0.45392       4.483                       0.6 0.8417
+## 2  -0.09102       6.254                       0.6 0.8417
+## 3   0.26843       5.086                       0.6 0.8417
+## 4  -0.40408       7.271                       0.6 0.8417
+## 5  -0.21854       6.669                       0.6 0.8417
+## 6  -0.09102       6.254                       0.6 0.8417
+## 7  -0.09683       6.273                       0.6 0.8417
+## 8  -0.32289       7.008                       0.6 0.8417
+## 9   0.55828       4.144                       0.6 0.8417
+## 10 -0.05626       6.141                       0.6 0.8417
+## 
+## attr(,"class")
+## [1] "coef.mer"
 ```
 
 ```r
@@ -1334,7 +1537,7 @@ summary(res4c)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by REML ['merModLmerTest']
 ## Formula: score ~ scale(num, scale = FALSE) + attn + (1 + attn | subj.id) 
 ##    Data: dl 
 ## 
@@ -1348,15 +1551,40 @@ summary(res4c)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##                           Estimate Std. Error t value
-## (Intercept)                  5.958      0.216   27.54
-## scale(num, scale = FALSE)    0.600      0.187    3.20
-## attn1                        0.842      0.184    4.58
+##                           Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                  5.958      0.216   27.54  5.3e-10 ***
+## scale(num, scale = FALSE)    0.600      0.187    3.20   0.0027 ** 
+## attn1                        0.842      0.184    4.58   0.0013 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) s(,s=F
 ## s(,s=FALSE) 0.000        
 ## attn1       0.081  0.000
+```
+
+```r
+
+coef(res4c)
+```
+
+```
+## $subj.id
+##    (Intercept) scale(num, scale = FALSE)  attn1
+## 1        5.474                       0.6 0.7431
+## 2        6.125                       0.6 1.2507
+## 3        5.821                       0.6 0.8754
+## 4        6.318                       0.6 0.9232
+## 5        6.318                       0.6 0.9232
+## 6        6.061                       0.6 0.8491
+## 7        5.933                       0.6 0.8121
+## 8        6.361                       0.6 0.6802
+## 9        5.399                       0.6 0.7854
+## 10       5.773                       0.6 0.5742
+## 
+## attr(,"class")
+## [1] "coef.mer"
 ```
 
 ```r
@@ -1367,7 +1595,7 @@ summary(res4a)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by REML ['merModLmerTest']
 ## Formula: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id) 
 ##    Data: dl 
 ## 
@@ -1380,10 +1608,12 @@ summary(res4a)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##                           Estimate Std. Error t value
-## (Intercept)                  5.958      0.216   27.54
-## scale(num, scale = FALSE)    0.600      0.195    3.08
-## attn1                        0.842      0.159    5.29
+##                           Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                  5.958      0.216   27.54  5.3e-10 ***
+## scale(num, scale = FALSE)    0.600      0.195    3.08   0.0034 ** 
+## attn1                        0.842      0.159    5.29  3.0e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) s(,s=F
@@ -1399,11 +1629,11 @@ anova(res4a, res4b)
 ```
 ## Data: dl
 ## Models:
-## res4a: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
-## res4b: score ~ scale(num, scale = FALSE) + attn + (1 + num | subj.id)
-##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
-## res4a  5 208 219  -99.2      198                        
-## res4b  7 210 224  -97.9      196  2.69      2       0.26
+## object: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
+## ..1: score ~ scale(num, scale = FALSE) + attn + (1 + num | subj.id)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## object  5 208 219  -99.2      198                        
+## ..1     7 210 224  -97.9      196  2.69      2       0.26
 ```
 
 ```r
@@ -1413,11 +1643,11 @@ anova(res4a, res4c)
 ```
 ## Data: dl
 ## Models:
-## res4a: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
-## res4c: score ~ scale(num, scale = FALSE) + attn + (1 + attn | subj.id)
-##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
-## res4a  5 208 219  -99.2      198                        
-## res4c  7 212 227  -99.0      198  0.41      2       0.82
+## object: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
+## ..1: score ~ scale(num, scale = FALSE) + attn + (1 + attn | subj.id)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## object  5 208 219  -99.2      198                        
+## ..1     7 212 227  -99.0      198  0.41      2       0.82
 ```
 
 ```r
@@ -1427,7 +1657,7 @@ summary(res4a)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by REML ['merModLmerTest']
 ## Formula: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id) 
 ##    Data: dl 
 ## 
@@ -1440,10 +1670,12 @@ summary(res4a)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##                           Estimate Std. Error t value
-## (Intercept)                  5.958      0.216   27.54
-## scale(num, scale = FALSE)    0.600      0.195    3.08
-## attn1                        0.842      0.159    5.29
+##                           Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                  5.958      0.216   27.54  5.3e-10 ***
+## scale(num, scale = FALSE)    0.600      0.195    3.08   0.0034 ** 
+## attn1                        0.842      0.159    5.29  3.0e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) s(,s=F
@@ -1466,11 +1698,11 @@ anova(res5a, res5b)
 ```
 ## Data: dl
 ## Models:
-## res5a: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
-## res5b: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id)
-##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)    
-## res5a  5 208 219  -99.2      198                            
-## res5b  6 200 212  -93.7      188    11      1    0.00092 ***
+## object: score ~ scale(num, scale = FALSE) + attn + (1 | subj.id)
+## ..1: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)    
+## object  5 208 219  -99.2      198                            
+## ..1     6 200 212  -93.7      188    11      1    0.00092 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -1481,7 +1713,7 @@ summary(res5b)
 ```
 
 ```
-## Linear mixed model fit by maximum likelihood ['lmerMod']
+## Linear mixed model fit by maximum likelihood ['merModLmerTest']
 ## Formula: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id) 
 ##    Data: dl 
 ## 
@@ -1495,11 +1727,13 @@ summary(res5b)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##                                 Estimate Std. Error t value
-## (Intercept)                        5.958      0.205   29.03
-## scale(num, scale = FALSE)          0.600      0.171    3.51
-## attn1                              0.842      0.140    6.02
-## scale(num, scale = FALSE):attn1   -0.600      0.171   -3.51
+##                                 Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                        5.958      0.205   29.03  5.5e-11 ***
+## scale(num, scale = FALSE)          0.600      0.171    3.51  0.00097 ***
+## attn1                              0.842      0.140    6.02  2.0e-07 ***
+## scale(num, scale = FALSE):attn1   -0.600      0.171   -3.51  0.00097 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##              (Intr) sc(,s=FALSE) attn1
@@ -1528,11 +1762,11 @@ anova(res6a, res6b)
 ```
 ## Data: dl
 ## Models:
-## res6a: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id)
-## res6b: score ~ scale(num, scale = FALSE) * attn + (1 + num | subj.id)
-##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
-## res6a  6 200 212  -93.7      188                        
-## res6b  8 199 216  -91.7      183  4.05      2       0.13
+## object: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id)
+## ..1: score ~ scale(num, scale = FALSE) * attn + (1 + num | subj.id)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## object  6 200 212  -93.7      188                        
+## ..1     8 199 216  -91.7      183  4.05      2       0.13
 ```
 
 ```r
@@ -1542,11 +1776,11 @@ anova(res6a, res6c)
 ```
 ## Data: dl
 ## Models:
-## res6a: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id)
-## res6c: score ~ scale(num, scale = FALSE) * attn + (1 + attn | subj.id)
-##       Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
-## res6a  6 200 212  -93.7      188                        
-## res6c  8 202 219  -92.9      186  1.62      2       0.44
+## object: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id)
+## ..1: score ~ scale(num, scale = FALSE) * attn + (1 + attn | subj.id)
+##        Df AIC BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+## object  6 200 212  -93.7      188                        
+## ..1     8 202 219  -92.9      186  1.62      2       0.44
 ```
 
 ```r
@@ -1555,7 +1789,7 @@ summary(res6a)
 ```
 
 ```
-## Linear mixed model fit by REML ['lmerMod']
+## Linear mixed model fit by REML ['merModLmerTest']
 ## Formula: score ~ scale(num, scale = FALSE) * attn + (1 | subj.id) 
 ##    Data: dl 
 ## 
@@ -1568,11 +1802,13 @@ summary(res6a)
 ## Number of obs: 60, groups: subj.id, 10
 ## 
 ## Fixed effects:
-##                                 Estimate Std. Error t value
-## (Intercept)                        5.958      0.216   27.54
-## scale(num, scale = FALSE)          0.600      0.177    3.40
-## attn1                              0.842      0.144    5.84
-## scale(num, scale = FALSE):attn1   -0.600      0.177   -3.40
+##                                 Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                        5.958      0.216   27.54  5.3e-10 ***
+## scale(num, scale = FALSE)          0.600      0.177    3.40   0.0014 ** 
+## attn1                              0.842      0.144    5.84  4.7e-07 ***
+## scale(num, scale = FALSE):attn1   -0.600      0.177   -3.40   0.0014 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##              (Intr) sc(,s=FALSE) attn1
@@ -1617,7 +1853,7 @@ ggplot(dl, aes(x = num, y = score, cond = attn, color = attn)) + geom_point() +
     theme_bw() + geom_jitter(position = position_jitter(width = 0.2)) + stat_smooth(method = "lm")
 ```
 
-![plot of chunk unnamed-chunk-29](figure/unnamed-chunk-29.png) 
+![plot of chunk unnamed-chunk-32](figure/unnamed-chunk-32.png) 
 
 
 There is a significant interaction between number of solutions to the puzzle and attention condition, t = -3.399, such that as the number of solutions to the puzzle decreases (i.e., as the puzzle gets harder) the effect of attention condition on score changes; specifically, when the number of solutions is lowest, divided attention results in a lower score than focused attention. In contrast, when there are more solutions to the puzzle, there is less of a score difference between the divided attention and focused attention conditions.
