@@ -314,8 +314,6 @@ anova(rs_gen_subjscene_ml, rs_gen_subjscene_con_ml)
 
 # To use REML:
 chisq_val = -2*((logLik(rs_gen_subjscene_reml)[1]) - (logLik(rs_gen_subjscene_con_reml)[1])); chisq_val
-chisq_df = 2; chisq_df
-pval = pchisq(chisq_val, chisq_df, lower.tail=FALSE); pval
 ```
 
 
