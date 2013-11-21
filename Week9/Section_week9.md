@@ -1,15 +1,56 @@
 Section Week 9 - Mixed Modeling continued 
 ========================================================
 
-## Overparameterization
+## Nested Models
 
 ### Question 2
 
 Today we'll be looking at an edited version of the file `skv-ex4.r`. This version stresses which features of the data are modeled as fixed or random effects by plotting the data using ggplot, going through a simple model bulding exercise and reviewing pitfalls in overfitting random effects.  
 
-Let's take a moment to review the study we're examining, from the *Notes* in the homework, and briefly discuss what the problem with overparameterization is.
+Let's take a moment to review the study we're examining, from the *Notes* in the homework. 
 
-In ‘ex4.txt’, each subject completes a 2 x 3 (Task *(free or cued)* x Valence *(positive, negative, or neutral)*) design; so this is an Subject x Task x Valence design with n = 1 observations per cell. We can estimate main and 2-way interaction effects, but there are no degrees of freedom left to estimate the Subject x Task x Valence interaction separately from ‘error’ variance. Put otherwise, in non-overparameterized models the degrees of freedom are greater than zero.
+In ‘ex4.txt’, each subject completes a 2 x 3 (Task *(free or cued)* x Valence *(positive, negative, or neutral)*) design; so this is an Subject x Task x Valence design with n = 1 observations per cell. 
+
+<img src="http://www.stanford.edu/~lchowe/study_design.png">
+
+*Note: You can insert images into your .Rmd file by using the following syntax:*
+
+
+```r
+# <img src='http://www.stanford.edu/~lchowe/study_design.png'>
+```
+
+
+In this design, we have **nested variables**
+
+Tasks are nested within Subjects, Valence is nested within Tasks (and Subjects).
+
+<img src="http://www.stanford.edu/~lchowe/nested.png">
+
+Note that nested models don’t necessarily have to have random effects.
+
+Example:
+
+`lm(Recall ~ Task)`
+
+`lm(Recall ~ Task + Valence)` $\leftarrow$ *`lm(Recall ~ Task)` is nested within this model*
+
+`lm(Recall ~ Task * Valence)` $\leftarrow$ *`lm(Recall ~ Task + Valence)` is nested within this model*
+
+With the interactive model, R is testing `lm(Recall ~ Task + Valence + Task.Valence)` 
+wherein `Task.Valence` is the product of Task and Valence
+
+Let's practice identifying whether models are nested. *Note that it's important to be able to answer these questions during model comparison, as we'll see below!*
+
+<img src="http://www.stanford.edu/~lchowe/arenested.png">
+
+Now let's practice identifying whether models have the same fixed effects structure.
+
+<img src="http://www.stanford.edu/~lchowe/samefixed.png">
+
+## Overparameterization
+
+In this study, we can estimate main and 2-way interaction effects, but there are no degrees of freedom left to estimate the Subject x Task x Valence interaction separately from ‘error’ variance. Put otherwise, in non-overparameterized models the degrees of freedom are greater than zero.
 
 Any model that tries to estimate this 3-way interaction from these data is **over-parameterized**.  An over-parameterized model is one in which there are as many estimated parameters as data points. An overparamterized model is a model that is overparameterized to the point that it is basically just drawing lines between the data. This basically means that this model is useless, because it does not describe the data more parsimoniously than the raw data does (and describing data parsimoniously is generally the idea behind using a model). 
 
@@ -29,20 +70,6 @@ Let's go ahead and load in our data, and get our libraries set up!
 
 
 ```r
-
-d0 <- read.table("http://www.stanford.edu/class/psych252/data/ex4.txt", header = TRUE)
-```
-
-```
-## Warning: cannot open: HTTP status was '404 Not Found'
-```
-
-```
-## Error: cannot open the connection
-```
-
-```r
-
 library(lme4)
 ```
 
@@ -65,9 +92,25 @@ library(ggplot2)
 ```r
 
 setwd("~/Dropbox/TA/Psych252_MW/WWW/datasets")
-d0 = read.table("ex4.txt", header = TRUE)
+d0 <- read.table("ex4.txt", header = TRUE)
+head(d0)
 ```
 
+```
+##   Observation Subject Task Valence Recall
+## 1           1     Jim Free     Neg      8
+## 2           2     Jim Free     Neu      9
+## 3           3     Jim Free     Pos      5
+## 4           4     Jim Cued     Neg      7
+## 5           5     Jim Cued     Neu      9
+## 6           6     Jim Cued     Pos     10
+```
+
+
+
+Note that our data is in long form so we know that we can use `lmer()` with the data. If the data were in short form, what would it look like?
+
+<img src="http://www.stanford.edu/~lchowe/shortform.png">
 
 As always, a good approach is to plot the data in a format that provides the information we are looking for. We now know that this can be efficiently done with ggplot when we need to visualize random effects. Which variables would we want to consider as random effects here?
 
@@ -78,12 +121,22 @@ p + geom_point() + facet_wrap(~Subject, ncol = 5, scales = "fixed") + geom_smoot
     se = FALSE)
 ```
 
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
 
 
 The plot above gives us gives us a good idea about the results we might expect to be significant. What can we say about this data?
 
-Before discussing the bulk of the script given, which illustrates some sophisticated considerations about overfitting random effects, we should first try to test our own impressions about the data. A simple model with random intercept only, and task as fixed effects, can capture the consistent feature of the plots with the mean of cued recall being higher than the mean of free recall.
+Before discussing the bulk of the script given, which illustrates some sophisticated considerations about overfitting random effects, we should first try to test our own impressions about the data. 
+
+We know that the model
+
+`lm(Recall ~ Task * Valence)` doesn't take into account within-subjects variance or the structure of our experiment so we wouldn't use that.
+
+A simple model with random intercept only, and task as fixed effects, can capture the consistent feature of the plots with the mean of cued recall being higher than the mean of free recall. 
+
+This model looks at the effect of task on recall controlling for overall between subjects variance (differences in means between each subject). Subjects differ overall in how much they recall regardless of task. When we hold this variation constant, we can then pull out the pattern that is shared between subjects.
+
+<img src="http://www.stanford.edu/~lchowe/1sub.png">
 
 
 ```r
@@ -137,7 +190,48 @@ with(d0, t.test(Recall[Task == "Cued"], Recall[Task == "Free"], paired = TRUE))
 ```
 
 
-Should we settle for this minimal conclusion?
+Another possible model:
+
+
+```r
+rs.lmer0 = lmer(Recall ~ Task + (Task | Subject), d0)
+summary(rs.lmer0)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: Recall ~ Task + (Task | Subject) 
+##    Data: d0 
+## 
+## REML criterion at convergence: 126 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev. Corr 
+##  Subject  (Intercept) 19.57    4.42          
+##           TaskFree     1.78    1.33     -1.00
+##  Residual              2.62    1.62          
+## Number of obs: 30, groups: Subject, 5
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept)    12.80       2.02    6.33
+## TaskFree       -2.00       0.84   -2.38
+## 
+## Correlation of Fixed Effects:
+##          (Intr)
+## TaskFree -0.798
+```
+
+
+This looks at the effect of task on recall controlling for between subjects variance. Subjects may vary on how well they recall on the task. For some subjects, the difference might be greater between the type of task; for some, the difference is less. Controlling for this variation allows us to pull out if there is a difference at all between the tasks while controlling for this variation (how much difference there may be that differs by subject). In other words: do the slopes of task differ?
+
+<img src="http://www.stanford.edu/~lchowe/tasksub.png">
+
+Similarly, we could also expect that valence might affect our participants differently. So we could include a random effects term for valence, `(Valence | Subject)`, to see if the slopes differ by participant.
+
+<img src="http://www.stanford.edu/~lchowe/valsub.png">
+
+Now, let's add valence in to the mix in our models.
 
 Let's treat valence as a 3-level factor dummy coded to see if there are differences by valence types.
 
@@ -220,6 +314,10 @@ We should ask ourselves if we are doing any better by including valence in the m
 
 First, we need to set our models to REML = FALSE! Why?
 
+*Point out model comparison on Coursework*
+
+<img src="http://www.stanford.edu/class/psych252/tutorials/model_comparisons.png">
+
 
 ```r
 rs.lmer0a = lmer(Recall ~ Task + (1 | Subject), d0, REML = FALSE)
@@ -260,7 +358,7 @@ anova(rs.lmer0a, rs.lmer02a)
 ```
 
 
-*Why are these models nested?*
+*Why are these models nested?* 
 
 From this, we can see that our model with the fixed effects of task and valence, and a random intercept for each subject does not seem to be performing any better than the model with the random slope for task (allowed to vary by participant) along with the fixed effects. The model with valence coded as a linear contrast doesn't perform any better either.
 
@@ -682,97 +780,14 @@ summary(rs.lmer3a)
 
 To drive the point home that the problem has to do with over fitting or exhausting our degrees of freedom, rather than modeling complex random effects per-se, we are given another dataset in which we have two observations at each task-valence level. This dataset does not suffer from the same problems in changing parameter estimates because we have more degrees of freedom within subjects and lmer can reliably estimate the required parameters, even in very complex models.
 
-Redo above analyses with lmer() and the other version of our data, `ex4L.txt`.
+From the HW: `In ‘ex4L.txt’, each S completes a 2 x 3 (Task x Valence) design twice; so this is a Subject x Task x Valence design with n > 1 obs per cell. We now have enough df to estimate the SxTxV interaction separately from ‘error’ variance, and (1+T*V|S) would be an allowable specification of the random effects. Students might want to check that the results of testing this most complex model on this larger data set seem to be acceptable.`
 
-In ‘ex4L.txt’, each S completes a 2 x 3 (Task x Valence) design twice; so this is a Subject x Task x Valence design with n > 1 obs per cell. We now have enough df to estimate the SxTxV interaction separately from ‘error’ variance, and (1+T*V|S) would
-be an allowable specification of the random effects. Students might want to check that the results of testing this most complex model on this larger data set seem to be acceptable.
+To close out this example, let's practice deciding how we would compare models.
 
-
-```r
-d1 <- read.table("http://www.stanford.edu/class/psych252/data/ex4L.txt", header = TRUE)
-```
-
-```
-## Warning: cannot open: HTTP status was '404 Not Found'
-```
-
-```
-## Error: cannot open the connection
-```
-
-```r
-contrasts(d1$Valence) = contr.treatment(3, base = 2)
-```
-
-```
-## Error: object 'd1' not found
-```
-
-
-Let's look at the new dataset.
-
-
-```r
-p <- ggplot(d1, aes(x = Valence, y = Recall, group = Task, colour = Task))
-```
-
-```
-## Error: object 'd1' not found
-```
-
-```r
-p + geom_point() + facet_wrap(~Subject, ncol = 5, scales = "fixed") + geom_smooth(method = "lm", 
-    se = F)
-```
-
-![plot of chunk unnamed-chunk-19](figure/unnamed-chunk-19.png) 
-
-
-We can now estimate interactions in the random and the fixed effects, and although we still have high correlations among random effects we do not see different parameter estimates. 
-
-
-```r
-rs.lmer2b = lmer(Recall ~ Task * Valence + (1 + Task * Valence | Subject), d1)
-```
-
-```
-## Error: 'data' not found, and some variables missing from formula
-## environment
-```
-
-```r
-print(summary(rs.lmer2b))
-```
-
-```
-## Error: error in evaluating the argument 'x' in selecting a method for
-## function 'print': Error in summary(rs.lmer2b) : error in evaluating the
-## argument 'object' in selecting a method for function 'summary': Error:
-## object 'rs.lmer2b' not found
-```
-
-```r
-
-# Change the order of the parameters and confirm
-rs.lmer2c = lmer(Recall ~ Task * Valence + (1 + Valence * Task | Subject), d1)
-```
-
-```
-## Error: 'data' not found, and some variables missing from formula
-## environment
-```
-
-```r
-print(summary(rs.lmer2c))
-```
-
-```
-## Error: error in evaluating the argument 'x' in selecting a method for
-## function 'print': Error in summary(rs.lmer2c) : error in evaluating the
-## argument 'object' in selecting a method for function 'summary': Error:
-## object 'rs.lmer2c' not found
-```
-
+<img src="http://www.stanford.edu/~lchowe/nestedprac1.png">
+<img src="http://www.stanford.edu/~lchowe/nestedprac2.png">
+<img src="http://www.stanford.edu/~lchowe/nestedprac3.png">
+<img src="http://www.stanford.edu/~lchowe/nestedprac4.png">
 
 ## Question 4
 
@@ -784,15 +799,9 @@ There were two dependent measures collected:
 
 
 ```r
-d <- read.csv("http://www.stanford.edu/class/psych252/data/timeflies.csv")
-```
-
-```
-## Warning: cannot open: HTTP status was '404 Not Found'
-```
-
-```
-## Error: cannot open the connection
+setwd("~/Dropbox/TA/Psych252_MW/WWW/datasets")
+d <- read.csv("timeflies.csv")
+library(reshape2)
 ```
 
 
@@ -804,10 +813,6 @@ This takes out the first column, which just lists subject id numbers.
 timeflies = d[, -1]
 ```
 
-```
-## Error: object 'd' not found
-```
-
 
 See how data is stored, with each row being one subject:
 
@@ -816,8 +821,69 @@ head(timeflies)
 ```
 
 ```
-## Error: error in evaluating the argument 'x' in selecting a method for
-## function 'head': Error: object 'timeflies' not found
+##   comclip1.rat comclip2.rat comclip3.rat comclip4.rat comclip5.rat
+## 1            4            4            1            2            5
+## 2            4            2            2            4            4
+## 3            2            5            4            2            4
+## 4            4            4            5            5            2
+## 5            2            3            5            5            4
+## 6            2            4            3            5            5
+##   comclip6.rat comclip7.rat comclip8.rat comclip9.rat comclip10.rat
+## 1            3            3            5            5             3
+## 2            3            4            4            3             3
+## 3            1            3            3            1             4
+## 4            3            4            4            3             3
+## 5            5            5            5            4             3
+## 6            4            2            3            2             3
+##   statsclip1.rat statsclip2.rat statsclip3.rat statsclip4.rat
+## 1              0              4              3              2
+## 2              2              3              3              2
+## 3              2              3              2              3
+## 4              2              4              4              3
+## 5              3              4              4              4
+## 6              2              4              5              3
+##   statsclip5.rat statsclip6.rat statsclip7.rat statsclip8.rat
+## 1              3              2              2              4
+## 2              5              2              2              3
+## 3              3              4              4              3
+## 4              1              3              4              4
+## 5              3              3              4              4
+## 6              2              3              1              1
+##   statsclip9.rat statsclip10.rat comclip1.len comclip2.len comclip3.len
+## 1              3               3           70           64           99
+## 2              2               2           63           79          101
+## 3              2               4           94           64           71
+## 4              1               3           63           80           50
+## 5              4               3           85           57           47
+## 6              3               3           84           66           68
+##   comclip4.len comclip5.len comclip6.len comclip7.len comclip8.len
+## 1           83           69           72           78           62
+## 2           79           82           82           64           70
+## 3           69           74           83           68           91
+## 4           62           91           88           75           62
+## 5           53           68           75           49           55
+## 6           62           55           64           87           87
+##   comclip9.len comclip10.len statsclip1.len statsclip2.len statsclip3.len
+## 1           47            68            114             65             72
+## 2           84            69             95             74             77
+## 3          104            69             86             76             92
+## 4           82            72             92             62             56
+## 5           62            80             82             78             69
+## 6           84            85            100             67             64
+##   statsclip4.len statsclip5.len statsclip6.len statsclip7.len
+## 1            103             81             72             74
+## 2             92             61             82             98
+## 3             86             73             70             71
+## 4             88             97             74             56
+## 5             77             80             86             59
+## 6             77             93             93            106
+##   statsclip8.len statsclip9.len statsclip10.len
+## 1             73             75              97
+## 2             72             82              86
+## 3             76             83              77
+## 4             52            103              54
+## 5             74             74              72
+## 6             93             70              67
 ```
 
 
@@ -826,38 +892,9 @@ The HW states that the researcher was not interested in variability between clip
 
 ```r
 timeflies$comclips.rat <- rowMeans(timeflies[, 1:10])
-```
-
-```
-## Error: error in evaluating the argument 'x' in selecting a method for
-## function 'rowMeans': Error: object 'timeflies' not found
-```
-
-```r
 timeflies$statsclips.rat <- rowMeans(timeflies[, 11:20])
-```
-
-```
-## Error: error in evaluating the argument 'x' in selecting a method for
-## function 'rowMeans': Error: object 'timeflies' not found
-```
-
-```r
 timeflies$comclips.len <- rowMeans(timeflies[, 21:30])
-```
-
-```
-## Error: error in evaluating the argument 'x' in selecting a method for
-## function 'rowMeans': Error: object 'timeflies' not found
-```
-
-```r
 timeflies$statsclips.len <- rowMeans(timeflies[, 31:40])
-```
-
-```
-## Error: error in evaluating the argument 'x' in selecting a method for
-## function 'rowMeans': Error: object 'timeflies' not found
 ```
 
 
@@ -866,18 +903,7 @@ Now let's calculate the difference between comedy and stats clips on each of our
 
 ```r
 timeflies$diff.rat <- timeflies$comclips.rat - timeflies$statsclips.rat
-```
-
-```
-## Error: object 'timeflies' not found
-```
-
-```r
 timeflies$diff.len <- timeflies$comclips.len - timeflies$statsclips.len
-```
-
-```
-## Error: object 'timeflies' not found
 ```
 
 
@@ -889,10 +915,6 @@ timeflies$csum.rat <- scale(timeflies$comclips.rat + timeflies$statsclips.rat,
     scale = F)
 ```
 
-```
-## Error: object 'timeflies' not found
-```
-
 
 Can you recognize this as a dependent t-test?  Yes!  It is testing our hypothesis that time flies when you're having fun: that is, whether the average estimated length of a comedy clip is significantly less than the estimated length of a statistics clip.
 
@@ -902,9 +924,21 @@ summary(lm(diff.len ~ 1, data = timeflies))
 ```
 
 ```
-## Error: error in evaluating the argument 'object' in selecting a method for
-## function 'summary': Error in is.data.frame(data) : object 'timeflies' not
-## found Calls: lm ... <Anonymous> -> model.frame.default -> is.data.frame
+## 
+## Call:
+## lm(formula = diff.len ~ 1, data = timeflies)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -9.95  -4.72  -0.15   4.83   9.05 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)   -2.950      0.847   -3.48   0.0012 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 5.36 on 39 degrees of freedom
 ```
 
 ```r
@@ -912,7 +946,17 @@ t.test(timeflies$diff.len)
 ```
 
 ```
-## Error: object 'timeflies' not found
+## 
+## 	One Sample t-test
+## 
+## data:  timeflies$diff.len
+## t = -3.482, df = 39, p-value = 0.001241
+## alternative hypothesis: true mean is not equal to 0
+## 95 percent confidence interval:
+##  -4.663 -1.237
+## sample estimates:
+## mean of x 
+##     -2.95
 ```
 
 ```r
@@ -923,9 +967,7 @@ ggplot(melt(data.frame(subj = d$X, timeflies[, 43:44]), id.vars = 1), aes(variab
     aes(group = 1), size = 2)
 ```
 
-```
-## Error: could not find function "melt"
-```
+![plot of chunk unnamed-chunk-26](figure/unnamed-chunk-26.png) 
 
 
 We could run another dependent t-test as a manipulation check to see whether subjects rated comedy clips as more fun than the statistics clips.  Unfortunately for the statistics teacher... the manipulation worked.
@@ -936,9 +978,21 @@ summary(lm(diff.rat ~ 1, data = timeflies))
 ```
 
 ```
-## Error: error in evaluating the argument 'object' in selecting a method for
-## function 'summary': Error in is.data.frame(data) : object 'timeflies' not
-## found Calls: lm ... <Anonymous> -> model.frame.default -> is.data.frame
+## 
+## Call:
+## lm(formula = diff.rat ~ 1, data = timeflies)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.0725 -0.3725 -0.0225  0.4275  0.8275 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)   0.2725     0.0782    3.48   0.0012 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.495 on 39 degrees of freedom
 ```
 
 ```r
@@ -949,9 +1003,7 @@ ggplot(melt(data.frame(subj = d$X, timeflies[, 41:42]), id.vars = 1), aes(variab
     aes(group = 1), size = 2)
 ```
 
-```
-## Error: could not find function "melt"
-```
+![plot of chunk unnamed-chunk-27](figure/unnamed-chunk-27.png) 
 
 
 To see if this difference in ratings caused the difference in estimated lengths, we could use a linear regression with two predictors: the average difference in a subject’s rating of a comedy clip and their rating of a statistics clip, and the sum of a subject’s average rating of a comedy clip and a statistics clip (which corresponds to how fun they rated the clips in general).
@@ -962,9 +1014,25 @@ summary(lm(diff.len ~ diff.rat + csum.rat, data = timeflies))
 ```
 
 ```
-## Error: error in evaluating the argument 'object' in selecting a method for
-## function 'summary': Error in is.data.frame(data) : object 'timeflies' not
-## found Calls: lm ... <Anonymous> -> model.frame.default -> is.data.frame
+## 
+## Call:
+## lm(formula = diff.len ~ diff.rat + csum.rat, data = timeflies)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -6.940 -1.588  0.217  1.669  6.887 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  -0.4543     0.5358   -0.85     0.40    
+## diff.rat     -9.1586     0.9841   -9.31  3.1e-11 ***
+## csum.rat     -0.0186     1.0360   -0.02     0.99    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 2.93 on 37 degrees of freedom
+## Multiple R-squared:  0.716,	Adjusted R-squared:   0.7 
+## F-statistic: 46.5 on 2 and 37 DF,  p-value: 7.91e-11
 ```
 
 
@@ -981,7 +1049,5 @@ ggplot(data.frame(subj = d$X, timeflies[, 45:46]), aes(diff.len, diff.rat)) +
     geom_point() + stat_smooth(method = "lm")
 ```
 
-```
-## Error: object 'd' not found
-```
+![plot of chunk unnamed-chunk-29](figure/unnamed-chunk-29.png) 
 

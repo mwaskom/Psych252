@@ -1,15 +1,54 @@
 Section Week 9 - Mixed Modeling continued 
 ========================================================
 
-## Overparameterization
+## Nested Models
 
 ### Question 2
 
 Today we'll be looking at an edited version of the file `skv-ex4.r`. This version stresses which features of the data are modeled as fixed or random effects by plotting the data using ggplot, going through a simple model bulding exercise and reviewing pitfalls in overfitting random effects.  
 
-Let's take a moment to review the study we're examining, from the *Notes* in the homework, and briefly discuss what the problem with overparameterization is.
+Let's take a moment to review the study we're examining, from the *Notes* in the homework. 
 
-In ‘ex4.txt’, each subject completes a 2 x 3 (Task *(free or cued)* x Valence *(positive, negative, or neutral)*) design; so this is an Subject x Task x Valence design with n = 1 observations per cell. We can estimate main and 2-way interaction effects, but there are no degrees of freedom left to estimate the Subject x Task x Valence interaction separately from ‘error’ variance. Put otherwise, in non-overparameterized models the degrees of freedom are greater than zero.
+In ‘ex4.txt’, each subject completes a 2 x 3 (Task *(free or cued)* x Valence *(positive, negative, or neutral)*) design; so this is an Subject x Task x Valence design with n = 1 observations per cell. 
+
+<img src="http://www.stanford.edu/~lchowe/study_design.png">
+
+*Note: You can insert images into your .Rmd file by using the following syntax:*
+
+```{r}
+# <img src="http://www.stanford.edu/~lchowe/study_design.png">
+```
+
+In this design, we have **nested variables**
+
+Tasks are nested within Subjects, Valence is nested within Tasks (and Subjects).
+
+<img src="http://www.stanford.edu/~lchowe/nested.png">
+
+Note that nested models don’t necessarily have to have random effects.
+
+Example:
+
+`lm(Recall ~ Task)`
+
+`lm(Recall ~ Task + Valence)` $\leftarrow$ *`lm(Recall ~ Task)` is nested within this model*
+
+`lm(Recall ~ Task * Valence)` $\leftarrow$ *`lm(Recall ~ Task + Valence)` is nested within this model*
+
+With the interactive model, R is testing `lm(Recall ~ Task + Valence + Task.Valence)` 
+wherein `Task.Valence` is the product of Task and Valence
+
+Let's practice identifying whether models are nested. *Note that it's important to be able to answer these questions during model comparison, as we'll see below!*
+
+<img src="http://www.stanford.edu/~lchowe/arenested.png">
+
+Now let's practice identifying whether models have the same fixed effects structure.
+
+<img src="http://www.stanford.edu/~lchowe/samefixed.png">
+
+## Overparameterization
+
+In this study, we can estimate main and 2-way interaction effects, but there are no degrees of freedom left to estimate the Subject x Task x Valence interaction separately from ‘error’ variance. Put otherwise, in non-overparameterized models the degrees of freedom are greater than zero.
 
 Any model that tries to estimate this 3-way interaction from these data is **over-parameterized**.  An over-parameterized model is one in which there are as many estimated parameters as data points. An overparamterized model is a model that is overparameterized to the point that it is basically just drawing lines between the data. This basically means that this model is useless, because it does not describe the data more parsimoniously than the raw data does (and describing data parsimoniously is generally the idea behind using a model). 
 
@@ -31,8 +70,15 @@ Let's go ahead and load in our data, and get our libraries set up!
 library(lme4)
 library(ggplot2)
 
-d0 <- read.table('http://www.stanford.edu/class/psych252/data/ex4.txt', header=TRUE)
+setwd("~/Dropbox/TA/Psych252_MW/WWW/datasets")
+d0 <- read.table('ex4.txt', header=TRUE)
+head(d0)
 ```
+
+
+Note that our data is in long form so we know that we can use `lmer()` with the data. If the data were in short form, what would it look like?
+
+<img src="http://www.stanford.edu/~lchowe/shortform.png">
 
 As always, a good approach is to plot the data in a format that provides the information we are looking for. We now know that this can be efficiently done with ggplot when we need to visualize random effects. Which variables would we want to consider as random effects here?
 
@@ -45,7 +91,17 @@ p + geom_point() +
 
 The plot above gives us gives us a good idea about the results we might expect to be significant. What can we say about this data?
 
-Before discussing the bulk of the script given, which illustrates some sophisticated considerations about overfitting random effects, we should first try to test our own impressions about the data. A simple model with random intercept only, and task as fixed effects, can capture the consistent feature of the plots with the mean of cued recall being higher than the mean of free recall.
+Before discussing the bulk of the script given, which illustrates some sophisticated considerations about overfitting random effects, we should first try to test our own impressions about the data. 
+
+We know that the model
+
+`lm(Recall ~ Task * Valence)` doesn't take into account within-subjects variance or the structure of our experiment so we wouldn't use that.
+
+A simple model with random intercept only, and task as fixed effects, can capture the consistent feature of the plots with the mean of cued recall being higher than the mean of free recall. 
+
+This model looks at the effect of task on recall controlling for overall between subjects variance (differences in means between each subject). Subjects differ overall in how much they recall regardless of task. When we hold this variation constant, we can then pull out the pattern that is shared between subjects.
+
+<img src="http://www.stanford.edu/~lchowe/1sub.png">
 
 ```{r}
 rs.lmer0 = lmer(Recall ~ Task + (1 | Subject), d0)
@@ -58,7 +114,22 @@ This model gives us something close to a paired-t.test on "Task."
 with(d0, t.test(Recall[Task=='Cued'], Recall[Task=='Free'], paired=TRUE))
 ```
 
-Should we settle for this minimal conclusion?
+Another possible model:
+
+```{r}
+rs.lmer0 = lmer(Recall ~ Task + (Task | Subject), d0)
+summary(rs.lmer0)
+```
+
+This looks at the effect of task on recall controlling for between subjects variance. Subjects may vary on how well they recall on the task. For some subjects, the difference might be greater between the type of task; for some, the difference is less. Controlling for this variation allows us to pull out if there is a difference at all between the tasks while controlling for this variation (how much difference there may be that differs by subject). In other words: do the slopes of task differ?
+
+<img src="http://www.stanford.edu/~lchowe/tasksub.png">
+
+Similarly, we could also expect that valence might affect our participants differently. So we could include a random effects term for valence, `(Valence | Subject)`, to see if the slopes differ by participant.
+
+<img src="http://www.stanford.edu/~lchowe/valsub.png">
+
+Now, let's add valence in to the mix in our models.
 
 Let's treat valence as a 3-level factor dummy coded to see if there are differences by valence types.
 
@@ -85,6 +156,10 @@ We should ask ourselves if we are doing any better by including valence in the m
 
 First, we need to set our models to REML = FALSE! Why?
 
+*Point out model comparison on Coursework*
+
+<img src="http://www.stanford.edu/class/psych252/tutorials/model_comparisons.png">
+
 ```{r}
 rs.lmer0a = lmer(Recall ~ Task + (1 | Subject), d0, REML=FALSE)
 rs.lmer01a = lmer(Recall ~ Task + Valencefac + (1 | Subject), d0, REML=FALSE)
@@ -98,7 +173,7 @@ anova(rs.lmer0a, rs.lmer01a)
 anova(rs.lmer0a, rs.lmer02a)
 ```
 
-*Why are these models nested?*
+*Why are these models nested?* 
 
 From this, we can see that our model with the fixed effects of task and valence, and a random intercept for each subject does not seem to be performing any better than the model with the random slope for task (allowed to vary by participant) along with the fixed effects. The model with valence coded as a linear contrast doesn't perform any better either.
 
@@ -183,35 +258,14 @@ summary(rs.lmer3a)
 
 To drive the point home that the problem has to do with over fitting or exhausting our degrees of freedom, rather than modeling complex random effects per-se, we are given another dataset in which we have two observations at each task-valence level. This dataset does not suffer from the same problems in changing parameter estimates because we have more degrees of freedom within subjects and lmer can reliably estimate the required parameters, even in very complex models.
 
-Redo above analyses with lmer() and the other version of our data, `ex4L.txt`.
+From the HW: `In ‘ex4L.txt’, each S completes a 2 x 3 (Task x Valence) design twice; so this is a Subject x Task x Valence design with n > 1 obs per cell. We now have enough df to estimate the SxTxV interaction separately from ‘error’ variance, and (1+T*V|S) would be an allowable specification of the random effects. Students might want to check that the results of testing this most complex model on this larger data set seem to be acceptable.`
 
-In ‘ex4L.txt’, each S completes a 2 x 3 (Task x Valence) design twice; so this is a Subject x Task x Valence design with n > 1 obs per cell. We now have enough df to estimate the SxTxV interaction separately from ‘error’ variance, and (1+T*V|S) would
-be an allowable specification of the random effects. Students might want to check that the results of testing this most complex model on this larger data set seem to be acceptable.
+To close out this example, let's practice deciding how we would compare models.
 
-```{r}
-d1 <- read.table('http://www.stanford.edu/class/psych252/data/ex4L.txt', header=TRUE)
-contrasts(d1$Valence) = contr.treatment(3, base=2)
-```
-
-Let's look at the new dataset.
-
-```{r}
-p <- ggplot(d1, aes(x=Valence, y= Recall, group=Task, colour=Task))
-p + geom_point() + 
-  facet_wrap(~Subject,ncol=5,scales="fixed") +
-  geom_smooth(method="lm", se=F)
-```
-
-We can now estimate interactions in the random and the fixed effects, and although we still have high correlations among random effects we do not see different parameter estimates. 
-
-```{r}
-rs.lmer2b = lmer(Recall ~ Task*Valence + (1 + Task*Valence | Subject), d1)
-print(summary(rs.lmer2b))
-
-#Change the order of the parameters and confirm
-rs.lmer2c = lmer(Recall ~ Task*Valence + (1 + Valence*Task | Subject), d1)
-print(summary(rs.lmer2c))
-```
+<img src="http://www.stanford.edu/~lchowe/nestedprac1.png">
+<img src="http://www.stanford.edu/~lchowe/nestedprac2.png">
+<img src="http://www.stanford.edu/~lchowe/nestedprac3.png">
+<img src="http://www.stanford.edu/~lchowe/nestedprac4.png">
 
 ## Question 4
 
@@ -222,7 +276,9 @@ There were two dependent measures collected:
 - Subjects estimated how long (in seconds) the clip lasted.
 
 ```{r}
-d <- read.csv('http://www.stanford.edu/class/psych252/data/timeflies.csv')
+setwd("~/Dropbox/TA/Psych252_MW/WWW/datasets")
+d <- read.csv('timeflies.csv')
+library(reshape2)
 ```
 
 **IMPORTANT STEP SO THAT YOU CAN USE THE CODE IN THE HW PDF:**
