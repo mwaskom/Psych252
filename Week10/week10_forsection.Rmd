@@ -1,0 +1,388 @@
+Final Section!
+========================================================
+
+Practice Analyzing a Dataset
+
+Your final exam is coming up - as a take home exam, you can expect it to be very similar to Quiz 1 (i.e., being asked to explore specific questions about datasets).
+
+The way the final is formatted is the same kind of way that you would approach questions in your research  - you have an interesting dataset and want to draw the most interesting conclusions from it. These are the most important skils to walk away from the class with!
+
+So, today we're going to go through 2 things that I think are very important to take away from this class for your researchl:
+
+1. Which tests to run (when you're asking certain questions about your data), and
+2. How to interpret your output.
+
+So, first we're going to briefly review some of the important points on how to interpret your output, starting out with mixed models. Then, we'll practice asking questions about a dataset (deciding which questions to ask, which tests we would run, and so on). And, we'll learn some new tricks that might be helpful in your future research along the way.
+
+*** Interpreting Output: Mixed Models ***
+
+Let's start out with mixed models, returing to our dataset `ex4.txt`.
+
+Getting data set up:
+
+```{r}
+setwd("~/Dropbox/TA/Psych252_MW/WWW/datasets")
+d0 <- read.table('ex4.txt', header=TRUE)
+library(lme4); library(ggplot2); library(plyr)
+
+str(d0)
+```
+
+First, let's review interpreting the output of mixed models.
+
+```{r}
+rs.lmer0 = lmer(Recall ~ Task + Valence + (1 | Subject), d0)
+summary(rs.lmer0)
+```
+
+Note the variance. If there is significant variance around the random effect, then you can't be as confident about fixed effect (it will affect the *standard error* of the fixed effect). 
+
+To informally tell whether variance is appreciable, compare it to the residual for random error (then, for a formal test, compare models as in ANOVA).
+
+In this additive model, our coefficients tell us about the differences between the groups collapsing across the other group.
+
+The -2 estimate for "Task" is equal to the difference between Free and Cued, collapsing across Valence (12.8-10.8 = 2)
+
+```{r}
+aggregate(Recall ~ Task, d0, mean)
+```
+
+The 1.1 is equal to the difference between the negative and neutral groups collapsing across Task (12.1-11 = 1.1), same with 1.3 as the difference between the positive and negative groups (12.3 - 11.0 = 1.3).
+
+```{r}
+aggregate(Recall ~ Valence, d0, mean)
+```
+
+Now let's take a look at the interactive model.
+
+```{r}
+rs.lmer1 = lmer(Recall ~ Task * Valence + (1 | Subject), d0)
+summary(rs.lmer1)
+```
+
+With interactive models, it helps to think of them in terms of your regression equation.
+
+Y = b0 + (b1 * Task) + (b2 * Valence1) + (b3 * Valence 2) + (b4 * Task * Valence1) + (b5 * Task * Valence2)
+
+We use the values from our contrasts and multiply them by the slops from our model.
+
+```{r}
+contrasts(d0$Task)
+contrasts(d0$Valence)
+```
+
+So for a person in the Free Recall / Negative Valence Condition:
+
+Y = 11.8 + (-1.6 * 1) + (1.2 * 0) + (1.8 * 0) + (-.2 * 1 * 0) + (-1.0 * 1 * 1)
+
+```{r}
+11.8 + (-1.6 * 1) + (1.2 * 0) + (1.8 * 0) + (-.2 * 1 * 0) + (-1.0 * 1 * 0)
+
+aggregate(Recall ~ Valence + Task, d0, mean)
+```
+
+And for a person in the Free Recall / Positive Valence Condition:
+
+Y = 11.8 + (-1.6 * 1) + (1.2 * 0) + (1.8 * 1) + (-.2 * 1 * 0) + (-1.0 * 1 * 1)
+
+```{r}
+11.8 + (-1.6 * 1) + (1.2 * 0) + (1.8 * 1) + (-.2 * 1 * 0) + (-1.0 * 1 * 1)
+```
+
+Let's talk briefly about parameters and degrees of freedom. Last time we discussed wanting to have greater than 0 degrees of freedom, or your model is "overfitted" or "overparameterized" and not useful for prediction. 
+
+Degrees of freedom = the difference in the number of parameters your model is estimating.
+
+For random effects, parameters can be either correlations, or random variance estimates.
+
+We can see the difference in degrees of freedom using this ANOVA test. 
+
+How would we compare models? Different fixed effects structure (but nested), same random effects: *ML deviance, REML = FALSE* 
+
+```{r}
+anova(rs.lmer0, rs.lmer1)
+```
+
+Note the degrees of freedom, and the difference in the number of parameters.
+
+An example with changing random effects.  Let's add in a random slope for Task, making the random effects more complex.
+
+```{r}
+rs.lmer0a = lmer(Recall ~ Task + Valence + (Task | Subject), d0)
+summary(rs.lmer0a)
+```
+
+Comparing the models - same fixed effects structure, different random effects structure: *REML deviance*
+
+```{r}
+rs.lmer0 = lmer(Recall ~ Task + Valence + (1 | Subject), d0, REML = TRUE)
+rs.lmer0a = lmer(Recall ~ Task + Valence + (Task | Subject), d0, REML = TRUE)
+anova(rs.lmer0, rs.lmer0a)
+
+summary(rs.lmer0)
+summary(rs.lmer0a)
+```
+
+*** Review of Data Analysis ***
+
+In order to review some of the important take-aways from the class, we're going to conveninetly randomly generate a dataset.
+
+Let's say that we're interested in what predicts life satisfaction. Does "living in the past, present, or the future" make you feel more or less happy with your current life? We design a manipulation to make people focus either on the present (write about what your life is like now), on the past (write about what your life was like 5 years ago), or on the future (write about what your life will be five years from now). 
+
+We get 108 participants total for our study.  So we can check whether people completed the survey correctly, we measure the number of words they wrote during the two minute prompt.
+
+```{r}
+subid <- c(1:108)
+cond <- rep(c('future','past', 'present'), each = 36)
+length <- rep(c(35, 73:92, 145, 150, 151, 168,  203, 304), 4)
+```
+
+After we have people write a short, 2-minute passage with either of these three prompts, we ask people to fill out a scale measuring their subjective well-being (e.g., "In most ways, my life is close to my ideal," 1 = *not at all*, 7 = *completely*). 
+
+```{r}
+r1 <- round(rnorm(36, mean = 4.76, sd = 1.09), digits = 0)  # rounding, no decimals
+r2 <- round(rnorm(36, mean = 5.06, sd = 1.17), digits = 0)
+r3 <- round(rnorm(36, mean = 3.23, sd = 0.89), digits = 0)
+lifesat <- c(r1,r2,r3)
+```
+
+We also think some demographic variables, like gender, age, and income, might influence happiness, so we ask participants for those demographic variables. 
+
+```{r}
+gender <- sample(c('male','female', NA), 108, replace = TRUE, prob=c(.48, .48, .02)) # Since no dataset is perfect we'll randomly insert some missing data into our dataframe.
+
+age <- sample(c(18:40, NA), 108, replace = TRUE) 
+
+income = sample(c(seq(0, 30000, by=1000), 
+            seq(0, 150000, by=1000)), 108, replace=TRUE)
+```
+
+Let's create our initial dataset. 
+
+```{r}
+d <- data.frame(subid, age, gender, income, cond, length, lifesat)
+```
+
+One week later, we send out a short online survey and ask participants again to rate their subjective well-being, to see if our manipulation has any lasting effects. Some of the participants unfortunately don't respond, so we only have 95 participants who do.
+
+```{r}
+id <- sample(c(1:108), 95, replace = FALSE) 
+lifesat2 <- round(runif(95, 1.0, 7.0), digits = 0)
+
+f <- data.frame(id, lifesat2)
+```
+
+Let's make sure our variables are in the right format.
+
+```{r} 
+str(d)
+d$subid <- factor(d$subid) # making sure to change subid!
+
+str(f)
+f$id <- factor(f$id)
+```
+
+Alright, now that we've "collected" our data, let's start analyzing it.
+
+First - how do we merge our two data frames, so that we can look at participants who answered our follow up survey?
+
+Answer: `merge()` function!
+
+```{r}
+?merge
+
+m <- merge(d, f, by.x = "subid", by.y = "id")
+head(m)
+summary(m)
+```
+
+This is cool, but let's say that we don't want to discard our data from the people who didn't fill out the follow up survey. We can just add the argument `all = TRUE` and have NAs added in for our missing data from the follow up survey.
+
+```{r}
+m <- merge(d, f, by.x = "subid", by.y = "id", all.x = TRUE)
+head(m)
+summary(m)
+```
+
+## Skill 1: Basic plotting and demographics
+
+Report some basic statistics about your sample.
+
+```{r}
+mean(m$age)
+# Remember to try removing NAs if this ever doesn't work! 
+mean(m$age, na.rm=TRUE)
+
+table(m$gender)
+summary(m$gender) # summary function is a handy way to check for missing data, don't necessarily see with table
+
+# T test of age and gender
+summary(lm(age ~ gender, m))
+t.test(m$age[m$gender=='male'], m$age[m$gender=='female'])
+
+aggregate(age ~ gender, m, mean)
+```
+
+First, let's find a nice way of visualizing the data that lets us check if everything looks normal, and gives us a preliminary look at where the means lie.
+
+```{r}
+sum <- ddply(m, "cond", summarise, rating.mean=mean(lifesat, na.rm=TRUE))
+
+ggplot(m, aes(x=lifesat)) + geom_histogram(binwidth=.5, colour="black", fill="white") + 
+  facet_grid(cond ~ .) +
+  geom_vline(data=sum, aes(xintercept=rating.mean), linetype="dotted", size=1.5, colour="red") +
+  theme_bw()
+```
+
+## Skill 2: Checking for random assignment. 
+
+Were people equally assigned to condition, according to gender, age, and income?
+
+```{r}
+t1 <- table(m$gender, m$cond); print(t1)
+chisq.test(t1)
+summary(t1)
+
+qplot(cond, age, geom = "boxplot", data = m) + theme_bw()
+summary(lm(age ~ cond))
+
+qplot(cond, income, geom = "boxplot", data = m) + theme_bw()
+# normally income data tends to be skewed - let's take a look at our data just to make sure we know what's going on
+hist(m$income)
+
+hist(sqrt(m$income))
+summary(lm(income ~ cond, m))
+summary(lm(sqrt(income) ~ cond, m))
+```
+
+## Skill 3: Omitting unusual cases
+
+Would you remove any participants based off of length? Did length differ by condition?
+
+```{r}
+hist(d$length)
+boxplot(d$length)
+
+# very positively skewed, so we'll take the log
+
+d$loglen <- log(d$length)
+hist(d$loglen)
+boxplot(d$loglen)
+
+# what if transformations don't fix variables?  Can also just make the variable into a categorical variable!
+
+median(d$length)
+d$lencat <- ifelse(d$length < 85, c('short'),c('long'))
+table(d$lencat)
+
+t1 <- table(d$cond, d$lencat); print(t1)
+chisq.test(t1)
+```
+
+Looking at proportions can give you a good idea of what's going on in a chi square test.
+
+```{r}
+prop.table(t1)
+```
+
+Identifying outliers on the subjective well-being scale, by condition.
+
+```{r}
+qplot(cond, lifesat, geom = "boxplot", data = m) + theme_bw()
+
+bp1 <- boxplot(m$lifesat[m$cond=='future']); bp1$out 
+# subset(m, lifesat ==  & cond == 'future')
+
+bp2 <- boxplot(m$lifesat[m$cond=='past']); bp2$out 
+# subset(m, lifesat ==  & cond == 'past') 
+
+bp3 <- boxplot(m$lifesat[m$cond=='present']); bp3$out 
+# subset(m, lifesat ==  & cond == 'present')
+```
+
+Does condition predict life satisfaction?
+
+The proper test to use here is...
+
+```{r}
+
+```
+
+Let's omit outliers and see if anything changes.
+
+```{r}
+summary(lm(lifesat[-c()] ~ cond[-c()], m))
+```
+
+Let's say that we had correctly predicted that people in the present would feel worse than people in the past or future. *Make sure to code the contrasts accordingly!*
+
+```{r}
+
+```
+
+First, let's visualize our data by gender.
+
+```{r}
+qplot(cond, lifesat, data=m, geom='bar', position='dodge', fill=gender, stat='summary',fun.y='mean') # note that the gray bars are NAs
+```
+
+From this, we wouldn't suspect that there is anything going on with gender, but let's take a look at an additive and interactive model with gender just to make sure.
+
+```{r}
+
+```
+
+What things should I keep in mind as I'm creating models?
+
+Testing for interactions: making sure to scale variables that are not categorical!
+
+```{r}
+summary(lm(lifesat ~ cond * scale(age, scale=FALSE), m))
+summary(lm(lifesat ~ cond * scale(income, scale=FALSE), m))
+```
+
+Checking for quadratic components:
+
+```{r}
+summary(lm(lifesat ~ cond * poly(income,2)))
+```
+
+# Skill 4: Controlling for variables and comparing models.
+
+See if controlling for age, income, and gender make differences. Then compare models to see if adding in these controls is justified.
+
+```{r}
+m1 <- na.omit(m) # otherwise errors because of missing data
+
+mod1 <- lm(lifesat ~ cond, m1)
+mod2 <- lm(lifesat ~ cond + age, m1)
+mod3 <- lm(lifesat ~ cond + age + income, m1)
+anova(mod1, mod2, mod3)
+
+mod2a <- lm(lifesat ~ cond + income, m1)
+
+anova(mod1, mod2, mod2a, mod3) # doesn't work!
+anova(mod1, mod2a, mod3)
+```
+
+Practice answering some questions:
+
+Were there differences that persisted in life satisfaction?
+
+```{r}
+
+```
+
+Did people change in their levels of happiness over time?
+
+```{r}
+
+```
+
+For the final:
+1. Make sure your variables are in the format that you would want them in (factor, numeric, etc.)
+2. Start by visualizing data (helps you decide your next step!). Look at means, for potential interactions or quadratic components, variability by subject (e.g., with ggplot)
+3. Decide what test you should use to answer the question at hand (mixed models? t-tests? regressions (logistic or linear)?)
+4. When multiple possible models (e.g., controlling for variables, interactive vs. additive, poly components), compare models to help justify your model choice (e.g., using ANOVA) 
+
+** GOOD LUCK! **
