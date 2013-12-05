@@ -55,7 +55,6 @@ comparison with `lmer` (from `lme4` package)
 Week 10 Review
 ---------------
 Review of concepts we've learned throughout the term:
-
 [`html <http://www.stanford.edu/class/psych252/section/week10_forsection.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/section/week10_forsection.Rmd>`_]
 
