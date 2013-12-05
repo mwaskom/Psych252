@@ -68,6 +68,40 @@ rs3 = lmer(lang ~ scale(IQ, scale=FALSE) + scale(SES, scale=FALSE) + (1 |class),
 summary(rs3)
 ```
 
+### Is there an interaction between IQ and SES predicting language test score?
+```{r}
+with(df, coplot(lang ~ scale(IQ, scale = FALSE) | scale(SES, scale = FALSE), number = 3, rows = 1, overlap=0))
+
+with(df, coplot(lang ~ scale(SES, scale = FALSE) | scale(IQ, scale = FALSE), number = 3, rows = 1, overlap=0))
+
+
+rs3_inter = lmer(lang ~ scale(IQ) * scale(SES) + (1 |class), data = df)
+summary(rs3_inter)
+
+# Look into this interaction some more!
+# Simple slope at scale(SES) + 1SD
+rs3_hiSES = lmer(lang ~ scale(IQ) * I(scale(SES) - 1) + (1 |class), data = df)
+summary(rs3_hiSES)
+
+rs3_loSES = lmer(lang ~ scale(IQ) * I(scale(SES) + 1) + (1 |class), data = df)
+summary(rs3_loSES)
+
+ggplot(df, 
+       aes(x=scale(IQ), 
+           y=SES)) +  # Adding color
+  geom_point(shape=1) +  
+  theme_bw() + 
+  # effect of IQ @mean SES
+  geom_abline(aes(intercept=40.7814, slope=4.6214), colour='black') +
+  # effect of IQ on  @+1SD SES
+  geom_abline(aes(intercept=42.6243, slope=4.2792), colour='green') +
+  # effect of IQ on  @-1SD SES
+  geom_abline(aes(intercept=38.9386, slope=4.9637), colour='red')+
+  ggtitle('Interaction between SES and IQ on Language Test Scores')
+```
+What might you do to test if adding random effects for the slopes improves the model?
+
+
 ### Does combined class predict language test score?
 ```{r}
 df$COMB_fac = factor(df$COMB)
@@ -104,8 +138,37 @@ prop.table(tb)
 
 ### Does SES predict whether or not a student is in a combined class?
 ```{r}
-rs_glm = glmer(COMB ~ SES + (1 | class), family='binomial', data = df)
-rs2_glm = glmer(COMB ~ SES + (1 + SES | class), family='binomial', data = df)
+rs_glm = glmer(COMB ~ scale(SES) + (1 | class), family='binomial', data = df)
+rs2_glm = glmer(COMB ~ scale(SES) + (1 + SES | class), family='binomial', data = df)
 anova(rs_glm, rs2_glm)
 summary(rs2_glm)
 ```
+
+### SES as a categorical variable
+```{r}
+quantpf3 = quantile(df$SES, probs = c(0.34, 0.66))
+
+df$SEScat = findInterval(df$SES, quantpf3)
+df$SEScat  <- factor(df$SEScat , labels = c("LoSES", "MidSES", "HiSES"))
+table(df$SEScat)
+
+aggregate(SES ~ df$SEScat, data=df, mean)
+```
+
+### Is being in a combined class related to SES?
+```{r}
+tb = table(df$COMB, df$SEScat)
+tb
+chisq.test(tb)
+
+prop.table(tb)
+addmargins(tb)
+
+# % of kids in non-combined class by SES category
+316/467
+586/807
+756/1013
+```
+```
+
+
