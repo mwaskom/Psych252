@@ -1,14 +1,29 @@
-Title
+Psych 252 Review
 ========================================================
 
+Here we will analyze data from a study of 2287 eighth-grade pupils (aged about 11) in 132 classes in 131 schools in the Netherlands. 
+
+The variables in the dataframe are:
+- `lang`: language test score
+- `IQ`: verbal IQ
+- `class`: class ID
+- `GS`: class size (number of eighth-grade pupils recorded in the class (there may be others see COMB, and some may have been omitted with missing values)
+- `SES`: social-economic status of pupil's family
+- `COMB`: were the pupils taught in a multi-grade class (0/1)? Classes which contained pupils from grades 7 and 8 are coded 1, but only eighth-graders were tested
+
+Load in the data
+----------------------
 ```{r}
 library(MASS)
 data(nlschools)
 data(n) # use tab-complete to see details
 df = data.frame(nlschools)
 str(df)
+# is everything factored correctly?
 ```
 
+Take a quick look at relationships between some variables:
+----------------------
 ```{r}
 df_corr = data.frame(cbind(df$lang, df$IQ, df$SES, df$GS))
 colnames(df_corr) = c("langScore", "IQ", "SES", "classSize")
@@ -18,7 +33,10 @@ require(lattice)
 levelplot(z, panel = panel.levelplot.raster, par.settings = list(regions = list(col = heat.colors(100))))
 ```
 
+Now, let's ask some questions, and examine them using our tools from stats!:
+----------------------
 
+### Does IQ predict language test score?
 ```{r}
 library(lme4)
 rs0 = lm(lang ~ scale(IQ, scale=FALSE), data = df)
@@ -44,21 +62,47 @@ summary(rs2)
 coef(rs2)
 ```
 
-
+### Does IQ predict language test score, when controlling for SES?
 ```{r}
 rs3 = lmer(lang ~ scale(IQ, scale=FALSE) + scale(SES, scale=FALSE) + (1 |class), data = df)
 summary(rs3)
-
 ```
 
+### Does combined class predict language test score?
+```{r}
+df$COMB_fac = factor(df$COMB)
+levels(df$COMB_fac)
 
+rs4 = lmer(lang ~  COMB_fac + (1 |class), data = df)
+summary(rs4)
+
+contrasts(df$COMB_fac) = c(1, -1)
+#contrasts(df$COMB_fac) = c(-1, 1)
+#contrasts(df$COMB_fac) = c(0, 1)
+contrasts(df$COMB_fac)
+rs4_v2 = lmer(lang ~  COMB_fac + (1 |class), data = df)
+summary(rs4)
+
+plot(lang ~  COMB_fac, data=df)
+aggregate(lang ~ COMB_fac, data=df, mean)
+```
+
+### Are there similar numbers of students observed from each class?
 ```{r}
 tb = table(df$class)
 tb
 chisq.test(tb)
 ```
 
+### Were there similar numbers of students from combined/not combined classes?
+```{r}
+tb = table(df$COMB)
+tb
+chisq.test(tb)
+prop.table(tb)
+```
 
+### Does SES predict whether or not a student is in a combined class?
 ```{r}
 rs_glm = glmer(COMB ~ SES + (1 | class), family='binomial', data = df)
 rs2_glm = glmer(COMB ~ SES + (1 + SES | class), family='binomial', data = df)

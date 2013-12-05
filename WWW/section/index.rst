@@ -54,8 +54,11 @@ comparison with `lmer` (from `lme4` package)
 
 Week 10 Review
 ---------------
-Review of concepts we've learned throughout the term; linear mixed effect models, logistic 
-regression, chi-square test
+Review of concepts we've learned throughout the term:
 
+[`html <http://www.stanford.edu/class/psych252/section/week10_forsection.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/section/week10_forsection.Rmd>`_]
+
+Analysis of an example dataset:
 [`html <http://www.stanford.edu/class/psych252/section/Review_example.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/section/Review_example.Rmd>`_]
