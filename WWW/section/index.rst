@@ -51,3 +51,11 @@ comparison with `lmer` (from `lme4` package)
   
 [`html <http://www.stanford.edu/class/psych252/section/Mixed_models_tutorial.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/section/Mixed_models_tutorial.Rmd>`_] 
+
+Week 10 Review
+---------------
+Review of concepts we've learned throughout the term; linear mixed effect models, logistic 
+regression, chi-square test
+
+[`html <http://www.stanford.edu/class/psych252/section/Review_example.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/section/Review_example.Rmd>`_]

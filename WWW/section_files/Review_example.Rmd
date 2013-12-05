@@ -1,0 +1,67 @@
+Title
+========================================================
+
+```{r}
+library(MASS)
+data(nlschools)
+data(n) # use tab-complete to see details
+df = data.frame(nlschools)
+str(df)
+```
+
+```{r}
+df_corr = data.frame(cbind(df$lang, df$IQ, df$SES, df$GS))
+colnames(df_corr) = c("langScore", "IQ", "SES", "classSize")
+z <- cor(df_corr)
+
+require(lattice)
+levelplot(z, panel = panel.levelplot.raster, par.settings = list(regions = list(col = heat.colors(100))))
+```
+
+
+```{r}
+library(lme4)
+rs0 = lm(lang ~ scale(IQ, scale=FALSE), data = df)
+summary(rs0)
+rs1 = lmer(lang ~ scale(IQ, scale=FALSE) + (1|class), data = df)
+summary(rs1)
+rs2 = lmer(lang ~ scale(IQ, scale=FALSE) + (1 + IQ |class), data = df)
+
+# test models..
+anova(rs0, rs1)
+anova(rs1, rs2)
+
+# or manually!
+dev1 = -2*as.numeric(logLik(rs0))
+dev2 = -2*as.numeric(logLik(rs1))
+
+# get chisq p-stat (since diff in deviance has chi-sq distribution)
+diff = dev1-dev2; diff
+4 - length(rs0$coefficients)
+pchisq(diff, df=2, lower.tail=FALSE)
+
+summary(rs2)
+coef(rs2)
+```
+
+
+```{r}
+rs3 = lmer(lang ~ scale(IQ, scale=FALSE) + scale(SES, scale=FALSE) + (1 |class), data = df)
+summary(rs3)
+
+```
+
+
+```{r}
+tb = table(df$class)
+tb
+chisq.test(tb)
+```
+
+
+```{r}
+rs_glm = glmer(COMB ~ SES + (1 | class), family='binomial', data = df)
+rs2_glm = glmer(COMB ~ SES + (1 + SES | class), family='binomial', data = df)
+anova(rs_glm, rs2_glm)
+summary(rs2_glm)
+```
