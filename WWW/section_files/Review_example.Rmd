@@ -14,13 +14,15 @@ The variables in the dataframe are:
 Load in the data
 ----------------------
 ```{r}
+library(ggplot2)
 library(MASS)
 data(nlschools)
 data(n) # use tab-complete to see details
 df = data.frame(nlschools)
 str(df)
-# is everything factored correctly?
 ```
+When you're loading in the dataset, make sure you check to see if everything is factored appropriately, etc.! This is especially important if your "Subject ID" variable starts with a number; `R` will interpret it as a numeric value by default, which can lead to problems!
+
 
 Take a quick look at relationships between some variables:
 ----------------------
@@ -37,6 +39,8 @@ Now, let's ask some questions, and examine them using our tools from stats!:
 ----------------------
 
 ### Does IQ predict language test score?
+We might predict that better IQ leads to better test scores overall.
+
 ```{r}
 library(lme4)
 rs0 = lm(lang ~ scale(IQ, scale=FALSE), data = df)

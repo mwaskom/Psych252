@@ -31,6 +31,10 @@ str(d0)
 First, let's review interpreting the output of mixed models.
 
 ```{r}
+qplot(Task, Recall, facets = . ~ Subject, colour = Subject, geom = "boxplot", 
+    data = d0) + theme_bw()
+
+
 rs.lmer0 = lmer(Recall ~ Task + Valence + (1 | Subject), d0)
 summary(rs.lmer0)
 ```

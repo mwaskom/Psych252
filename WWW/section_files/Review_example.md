@@ -15,6 +15,7 @@ Load in the data
 ----------------------
 
 ```r
+library(ggplot2)
 library(MASS)
 data(nlschools)
 data(n)  # use tab-complete to see details
@@ -85,6 +86,14 @@ library(lme4)
 
 ```
 ## Warning: package 'Matrix' was built under R version 3.0.2
+```
+
+```
+## Attaching package: 'lme4'
+## 
+## The following object is masked from 'package:ggplot2':
+## 
+## fortify
 ```
 
 ```r
@@ -541,9 +550,7 @@ ggplot(df,
   ggtitle('Interaction between SES and IQ on Language Test Scores')
 ```
 
-```
-## Error: could not find function "ggplot"
-```
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-53.png) 
 
 What might you do to test if adding random effects for the slopes improves the model?
 
