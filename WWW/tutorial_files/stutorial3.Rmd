@@ -32,7 +32,7 @@ head(d0)
 
 Now we'll plot the data to see the relationship between RTWL and COL:
 
-```{r plot_col_on_rtwl, fig.width=7, fig.height=6}
+```{r plot_col_on_rtwl, fig.width=4, fig.height=3}
 boxplot(COL ~ RTWL, col='yellow', 
         pch=23, 
         xlab = "RTWL", ylab = "COL",
@@ -140,7 +140,7 @@ d0l
 
 Finally,  we can create a boxplot:
 
-```{r plot_col_on_rtwl_paired, fig.width=7, fig.height=6}
+```{r plot_col_on_rtwl_paired, fig.width=4, fig.height=3}
 boxplot(col ~ rtwl, col='lightgreen', 
         pch=23, 
         xlab = "RTWL", ylab = "COL",
@@ -153,7 +153,7 @@ Additive & Interactive Models
 
 Returning to the initial data, d0, we saw that COL depends on RTWL. Does it also depend on Income? To get a general idea, we can look at the data by plotting income and COL, as well as the linear line of best fit in red:
 
-```{r plot_col_on_income, fig.width=7, fig.height=6}
+```{r plot_col_on_income, fig.width=4, fig.height=3}
 plot(COL~Income, data=d0)
 abline(lm(COL~Income, data=d0), col='red')
 ```
@@ -195,7 +195,7 @@ summary(res4)
 
 Here we can see that the interaction is significant. To get a better idea for the data, we can use the `interaction.plot()` function to plot COL by RTWL and Income category:
 
-```{r plot_rtwl_income_col_interaction, fig.width=7, fig.height=6}
+```{r plot_rtwl_income_col_interaction, fig.width=4, fig.height=3}
 with(d0, interaction.plot(RTWL, Incomecat, COL, 
                           fun = mean, 
                           xlab='RTWL', 
@@ -222,7 +222,7 @@ Next, we're going to run a source file `mc.plots1.r` to change around some plott
 
 
 ```{r source_plots1}
-source('http://stanford.edu/class/psych252/Tutorial/mc.plots1.r')
+source('http://stanford.edu/class/psych252/tutorials/mc.plots1.r')
 ```
 
 ### Exercise data
@@ -249,7 +249,7 @@ summary(d2) # double check formatting
 ### Plot exercise data
 Now, we'll use `ggplot2`'s `qplot()` function to plot the subjects' pulse over time points 1-3 for each of the 6 groups (diet type X exercise type):
 
-```{r qplot_tim_on_pulse_facets, fig.width=7, fig.height=10}
+```{r qplot_tim_on_pulse_facets, fig.width=7, fig.height=5}
 qp3 = qplot(time, pulse, facets = diet ~ exertype, colour = id,
             geom = "line", data=d2) + 
       theme_bw() + plot.style
@@ -281,7 +281,7 @@ ms
 ```
 
 Finally, we plot the bar graph:
-```{r qlot_time_on_pulse_facet_bars, fig.width=7, fig.height=6}
+```{r qlot_time_on_pulse_facet_bars, fig.width=7, fig.height=5}
 qp4 <- qplot(time, pulse, facets = . ~ diet, ymin=pulse - err, ymax=pulse + err, 
   geom=c("pointrange","line"), colour=exertype, data=ms) + 
 	theme_bw() + plot.style
