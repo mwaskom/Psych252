@@ -5,6 +5,8 @@ This is a collection of tutorials notebooks using `R Markdown
 <http://www.rstudio.com/ide/docs/authoring/using_markdown>`_ that may be
 helpful for the course.
 
+Compiled by Steph Gagnon, Michael Waskom, and Lauren Howe
+
 
 Introduction to Statistical Computing with R
 --------------------------------------------

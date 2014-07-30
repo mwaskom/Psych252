@@ -14,7 +14,7 @@ Ewart Thomas, Benoît Monin
 Teaching Assistants:
 ~~~~~~~~~~~~~~~~~~~~
 
-Steph Gagnon, Lauren Howe, Michael Waskom
+Rebecca Carey, Caitie Handron, Kara Weisman
 
 Contents
 --------
@@ -26,4 +26,5 @@ Contents
    apps/index.rst
    tutorials/index.rst
    section/index.rst
+   section_2013/index.rst
 

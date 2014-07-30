@@ -5,6 +5,9 @@ This is a collection of web apps built using `Shiny
 <http://www.rstudio.com/shiny/>`_ to illustrate and help build intuitions about
 some statistical concepts.
 
+Compiled by Steph Gagnon, Michael Waskom, and Lauren Howe
+
+
 Sampling and standard error
 ---------------------------
 
@@ -102,3 +105,11 @@ system. Finally, you can simulate data from a model with the specified
 structure and observe how changing the strength of the relationships influences
 the regression parameters and inferential statistics.
 
+Signal Detection Theory
+--------------------------
+
+`Conceptual illustration <http://spark.rstudio.com/supsych/sdt_concept/>`_
+`Calculations from data <http://spark.rstudio.com/supsych/sdt_expt/>`_
+
+These applications illustrate the relationship between hit rate, false alarm rate, 
+dprime, and criterion.
