@@ -5,10 +5,9 @@ Based on notes by Paul Thibodeau (2009) and revisions by the Psych 252 instructo
 
 Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas
 
-Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Stephanie Gagnon.
+Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Steph Gagnon.
 
-2013 TAs: Stephanie Gagnon, Lauren Howe, Michael Waskom, Alyssa Fu, Kevin Mickey, Eric Miller
-
+2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey, Eric Miller
 
 Manipulating Dataframes
 -----------------------
@@ -18,7 +17,7 @@ To begin, we'll load in a simple data file that we'll use in 252, and store it a
 This data file is called `fieldsimul1.csv`. Here, likely voters (*n* = 240) were surveyed, and report their age (`age`), and level of optimism (`optmism`), as well as other variables. **Is age related to optimism?**
 
 ```{r load d2}
-d2 = read.csv('fieldsimul1.csv')
+d2 = read.csv('http://stanford.edu/class/psych252/data/fieldsimul1.csv')
 ```
 
 Let's explore this data a bit to see what we'll be working with:
@@ -134,7 +133,7 @@ R allows us to read data that's stored in a file on your computer or from a URL 
 We can provide the website URL, and R will read in the table:
 
 ```{r flu_load}
-flu.table <- read.table('http://www-stat.stanford.edu/~jtaylo/courses/stats191/data/flu.table', header=TRUE)
+flu.table <- read.table('http://statweb.stanford.edu/~jtaylo/courses/stats191/data/flu.table', header=TRUE)
 
 str(flu.table)  	# description of dataframe
 ```
@@ -260,8 +259,9 @@ R has a lot of great [packages](http://cran.r-project.org/web/packages/available
 Let's install a couple useful packages, including **ggplot2** and **reshape2**. [Reshape2](http://stats.stackexchange.com/questions/7439/how-to-change-data-between-wide-and-long-formats-in-r) will allow us to reshape dataframes, e.g., going from short-form (where each participant is in 1 row, with multiple columns for different measurements) to long-form (where each observation is in a different row).
 
 ```{r install_ggplot2}
-install.packages("ggplot2")
-install.packages("reshape2")
+# uncomment this to run! ↑⌘C
+#install.packages("ggplot2")
+#install.packages("reshape2")
 ```
 If you have trouble with the CRAN mirror, you might need to install using the GUI, by clicking on Tools, and then Install Packages. 
 
@@ -279,7 +279,7 @@ Let's load in some data that has both *between*- and *within*-subject factors. T
 
 
 ```{r load_kv0}
-d <- read.csv('kv0.csv')  
+d <- read.csv('http://stanford.edu/class/psych252/data/kv0.csv')  
 head(d)	
 str(d)
 ```

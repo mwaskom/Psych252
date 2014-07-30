@@ -7,7 +7,7 @@ Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas
 
 Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Michael Waskom.
 
-2013 TAs: Stephanie Gagnon, Lauren Howe, Michael Waskom, Alyssa Fu, Kevin Mickey, Eric Miller
+2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey, Eric Miller
 
 *If you haven't already installed R, it is availible [here](http://www.r-project.org/).*
 
@@ -189,7 +189,7 @@ These are listed in increasing order of generality, since logical data can be co
 ```{r vector_dtypes}
 v = c(TRUE, 1, "1")
 v
-v[3] + 2
+#v[3] + 2 #error!
 ```
 
 There are some functions to convert vectors between types:
@@ -309,7 +309,10 @@ The example dataset is stored in the file `earlydeaths.csv`. In this dataset, ea
 Now, let's load in the data:
 
 ```{r load_earlydaths}
-df_death = read.csv("earlydeaths.csv")
+#df_death = read.csv("earlydeaths.csv") # make sure the file is in the working directory!
+
+#alternately, you can read in the datafile from online
+df_death = read.csv("http://stanford.edu/class/psych252/data/earlydeaths.csv")
 ```
 
 When you load in a dataset, you'll want to explore it a bit so you get a feel for the kind of data it contains (and to ensure that it was loaded properly). Some of the functions you'll find yourself using for this purpose are `str()`, `head()`, and `summary()`. These all do somewhat different things, which you can likely deduce from their output and help files:

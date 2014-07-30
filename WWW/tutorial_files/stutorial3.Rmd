@@ -5,10 +5,9 @@ Based on notes by Paul Thibodeau (2009) and revisions by the Psych 252 instructo
 
 Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas
 
-Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Stephanie Gagnon.
+Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Steph Gagnon.
 
-2013 TAs: Stephanie Gagnon, Lauren Howe, Michael Waskom, Alyssa Fu, Kevin Mickey, Eric Miller
-
+2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey, Eric Miller
 
 Performing t-tests in R
 -----------------------
@@ -93,7 +92,7 @@ Suppose the COL measurements for RTWL=0 and RTWL=0 had been taken from the *same
 As an example, we have a study in which, for each city, COL is measured BEFORE the RTWL is passed, and 2 years AFTER the RTWL is passed:
 
 ```{r load_d0s}
-d0s = read.csv('rtwl.paired.csv')
+d0s = read.csv('http://stanford.edu/class/psych252/data/rtwl.paired.csv')
 str(d0s)
 ```
 
@@ -223,7 +222,7 @@ Next, we're going to run a source file `mc.plots1.r` to change around some plott
 
 
 ```{r source_plots1}
-source('mc.plots1.r')
+source('http://stanford.edu/class/psych252/Tutorial/mc.plots1.r')
 ```
 
 ### Exercise data
@@ -232,7 +231,7 @@ Now, we'll load in the data file `exer.csv`. Here, participants (*n* = 30) were 
 
 
 ```{r load_d2}
-d2 <- read.csv('exer.csv')
+d2 <- read.csv('http://stanford.edu/class/psych252/data/exer.csv')
 str(d2)
 summary(d2)
 ```
