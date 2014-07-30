@@ -11,7 +11,7 @@ Instructors:
 
 Ewart Thomas, Benoît Monin
 
-Teaching Assistants:
+2014 Teaching Assistants:
 ~~~~~~~~~~~~~~~~~~~~
 
 Rebecca Carey, Caitie Handron, Kara Weisman

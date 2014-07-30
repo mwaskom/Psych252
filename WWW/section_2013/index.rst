@@ -1,8 +1,6 @@
 2013 Section Resources
 =================
-TAs
----------------
-Steph Gagnon, Lauren Howe, Michael Waskom
+Created by Steph Gagnon, Lauren Howe, Michael Waskom
 
 
 Week 3

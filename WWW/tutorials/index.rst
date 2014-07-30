@@ -5,7 +5,7 @@ This is a collection of tutorials notebooks using `R Markdown
 <http://www.rstudio.com/ide/docs/authoring/using_markdown>`_ that may be
 helpful for the course.
 
-Compiled by Steph Gagnon, Michael Waskom, and Lauren Howe
+Created by Steph Gagnon, Michael Waskom, and Lauren Howe
 
 
 Introduction to Statistical Computing with R
@@ -30,6 +30,14 @@ Tutorial 3
 [`html <http://www.stanford.edu/class/psych252/tutorials/stutorial3.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/stutorial3.Rmd>`_]
 
+Math behind Chi Square tests
+----------------------------
+
+This PDF provides the math to run chi-square tests by hand. It includes both a
+one-way classification (i.e., a goodness-of-fit test) and 2 way classification
+(i.e., a contingency test, or test of independence).
+[`PDF <http://www.stanford.edu/class/psych252/tutorials/ChiSquared_math.pdf>`_]
+
 
 General Linear Model with lm()
 -------------------
@@ -49,15 +57,6 @@ dataset from class, we walk through a ``glm()`` analysis, and discuss the
 interpretation of results in terms of the data.
 [`html <http://www.stanford.edu/class/psych252/tutorials/Tutorial_LogisticRegression.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/Tutorial_LogisticRegression.Rmd>`_]
-
-
-Math behind Chi Square tests
-----------------------------
-
-This PDF provides the math to run chi-square tests by hand. It includes both a
-one-way classification (i.e., a goodness-of-fit test) and 2 way classification
-(i.e., a contingency test, or test of independence).
-[`PDF <http://www.stanford.edu/class/psych252/tutorials/ChiSquared_math.pdf>`_]
 
 
 Binomial Probability Theory
