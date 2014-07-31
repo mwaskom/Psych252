@@ -78,3 +78,8 @@ how to determine whether to use ML or REML when fitting your model; comparing mo
 deviance, or using AIC. 
 [`png <http://www.stanford.edu/class/psych252/tutorials/model_comparisons.png>`_]
 
+Maximum Likelihood
+--------------------
+The principle of maximum likelihood and the derivation of the likelihood ratio test statistic.
+[`html <http://www.stanford.edu/class/psych252/tutorials/maximum_likelihood.html>`_]
+[`html <http://www.stanford.edu/class/psych252/tutorials/maximum_likelihood.Rmd>`_]

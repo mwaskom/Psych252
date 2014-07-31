@@ -76,7 +76,7 @@ head(d2)
 
 Specifically, these break points result in 5 age categories, 0:28, 29:38, 39:48, 49:64, and 64 and up. We can also visualize these groups:
 
-```{r plot_agecat0, fig.width=7, fig.height=6}
+```{r plot_agecat0, fig.width=5, fig.height=4}
 with(d2,plot(age~agecat0))
 ```
 
@@ -85,7 +85,7 @@ Basic Plotting
 
 Now that we have our data, we can use plots to visualize things like the distribution of certain variables. Let's start out by plotting a histogram of the ages. We can set the color of the bars with the option "col", and set the main title with the option "main":
 
-```{r plot_agedist, fig.width=7, fig.height=6}
+```{r plot_agedist, fig.width=5, fig.height=4}
 hist(d2$age, col='orange', main = 'Distribution of age')
 ```
 
@@ -93,7 +93,7 @@ Next, let's view a scatter plot of optimism by age. Before when we used the plot
 
 We'll also add in a line to get a sense of the general trend of the data; here, we'll plot a non-parametric best-filling curve in red using the ["lowess"](http://rss.acs.unt.edu/Rdoc/library/gplots/html/lowess.html) function.
 
-```{r plot_optmism_on_age, fig.width=7, fig.height=6}
+```{r plot_optmism_on_age, fig.width=5, fig.height=4}
 plot(d2$age, d2$optmism, main = 'Optimism vs Age')
 lines(lowess(d2$age, d2$optmism), lty = 2, col='red')
 ```
@@ -114,14 +114,14 @@ Based off of this output, we can see that age is a significant predictor of opti
 
 We can also plot the regression line, fit by least squares regression, on top of the scatterplot. Here, we use the function **abline()**, and give it the model we just fit above with lm(). While we're doing this, let's also change the names of the x- and y-axis labels:
 
-```{r plot_optmism_on_age_reg, fig.width=7, fig.height=6}
+```{r plot_optmism_on_age_reg, fig.width=5, fig.height=4}
 plot(d2$optmism ~ d2$age, main = 'Optimism vs Age', xlab='Age', ylab='Optimism')
 abline(rs2, col='red')
 ```
 
 We can also visualize diagnostic plots of the residuals from the lm() output, which  can be helpful in showing if assumptions of normality, etc, are met, or to identify outliers:
 
-```{r plot_optmism_on_age_lm, fig.width=7, fig.height=6}
+```{r plot_optmism_on_age_lm, fig.width=5, fig.height=4}
 plot(rs2)
 ```
 
@@ -142,13 +142,13 @@ Note that when you're reading in a **table**, you have to tell R that you want t
 
 Here, we have a numeric matrix of data, with 50 observations for 3 variables. To get an idea of the pairwise relationships between all these variables, we can call `plot()` on the DataFrame. This is another example of how `plot()` is a powerful generic function:
 
-```{r plot_flu_df, fig.width=7, fig.height=6}
+```{r plot_flu_df, fig.width=5, fig.height=4}
 plot(flu.table,cex.labels=2, pch=23, bg='orange', cex=2)
 ```
 
 It looks like the probability of receiving a shot might be related to the amount of health awareness. Let's view a scatterplot of just these two variables, and overlay a red non-parametric best-fitting curve showing how the Probability(Shot = 1) varies with health awareness:
 
-```{r plot_shot_on_aware, fig.width=7, fig.height=6}
+```{r plot_shot_on_aware, fig.width=5, fig.height=4}
 plot(flu.table$Health.Aware, flu.table$Shot, main = 'Prob(Shot) vs Awareness',
      xlab = 'Health Awareness', ylab = 'Shot Probability')
 lines(lowess(flu.table$Health.Aware, flu.table$Shot), lty = 2, col='red')  # 
@@ -169,7 +169,7 @@ str(rtw.table)
 
 Let's plot a boxplot of the cost of living (COL) by whether or not there is a right-to-work law in place. Whether or not a city has RTWLs is coded in these data with '0' and '1'. That's fine for a lot of uses, but we're going to convert those values to *logical* (aka *boolean*) values " so the x-axis labels are more intuitive.
 
-```{r plot_col_on_rtwl, fig.width=7, fig.height=6}
+```{r plot_col_on_rtwl, fig.width=5, fig.height=4}
 rtw.table$RTWL = as.logical(rtw.table$RTWL)
 boxplot(rtw.table$COL ~ rtw.table$RTWL, col='orange', pch=23, bg='red',main='Cost of Living as a Function of Right to Work Laws')
 ```
@@ -324,7 +324,7 @@ For more infomation, we'll overlay the data with a least-squares fit to the poin
 
 *Note: when using `qplot()`, you need to `print()` the plot object for it to be captured when this file is converted to HTML`.*
 
-```{r qplot_num_on_score, fig.width=9, fig.height=6}
+```{r qplot_num_on_score, fig.width=7, fig.height=4}
 qp1 <- qplot(num, score, facets = attn ~ cond.id, data=dl) + 
   geom_smooth(method="lm", se=F) + 
 	theme_bw()
@@ -333,7 +333,7 @@ print(qp1)
 
 Breaking down by subject, within each level of attn, is also doable with `qplot()` (the x-axis labeling is poor though). The option `geom="line"` joins the points by lines and suppresses the points:
 
-```{r qplot_num_on_score_facet_levels, fig.width=9, fig.height=6}
+```{r qplot_num_on_score_facet_levels, fig.width=7, fig.height=4}
 qp2 <- qplot(num, score, geom="line", colour = id, facets = . ~ attn, data=dl) + 
   theme_bw()
 print(qp2)
@@ -341,7 +341,7 @@ print(qp2)
 
 By tweaking these few options, you can very easily explore your data in a variety of ways:
 
-```{r qplot_exploration, fig.width=9, fig.height=6}
+```{r qplot_exploration, fig.width=7, fig.height=4}
 qp3 <- qplot(num, score, facets = cond.id ~ attn, data=dl) + 
              geom_smooth(method=lm,se=FALSE) + theme_bw()
 print(qp3)
