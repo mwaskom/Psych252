@@ -82,4 +82,4 @@ Maximum Likelihood
 --------------------
 The principle of maximum likelihood and the derivation of the likelihood ratio test statistic.
 [`html <http://www.stanford.edu/class/psych252/tutorials/maximum_likelihood.html>`_]
-[`html <http://www.stanford.edu/class/psych252/tutorials/maximum_likelihood.Rmd>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/tutorials/maximum_likelihood.Rmd>`_]
