@@ -80,6 +80,6 @@ deviance, or using AIC.
 
 Maximum Likelihood
 --------------------
-The principle of maximum likelihood and the derivation of the likelihood ratio test statistic.
+An overview of the principle of maximum likelihood and the derivation of the likelihood ratio test statistic.
 [`html <http://www.stanford.edu/class/psych252/tutorials/maximum_likelihood.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/maximum_likelihood.Rmd>`_]

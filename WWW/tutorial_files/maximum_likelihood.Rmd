@@ -9,14 +9,17 @@ Written by Ewart Thomas and Dan Yarlett; converted to R Markdown and expanded by
 ![title](http://mycoinonline.com/bmz_cache/3/3a3a2282a264c7cbaa44f8b6a630f645.image.200x100.jpg)
 </div>  
 
-Suppose we wish to estimate the parameter of a coin, $p$ = Prob (Head on a toss). We might 
-toss the coin $n = 100$ times and observe $r = 45$ Heads. A familiar estimate of $p$ is: $$\hat{p}=\frac{r}{n}=\frac{45}{100}=0.45$$
+Suppose we wish to estimate the parameter of a coin, $p$ = Prob (Head on a toss); we will label out estimate as $\hat{p}$. We might toss the coin $n = 100$ times and observe $r = 45$ Heads. A familiar estimate of $p$ is: $$\hat{p}=\frac{r}{n}=\frac{45}{100}=0.45$$  
 
-In what sense is this estimate, $\hat{p}=\frac{r}{n}$, the *“best”* estimate of $p$? One answer that is already familiar to us is that $\hat{p}$ is an **unbiased estimate** of $p$; i.e., this choice of estimate leads to a perfect fit between the expected ($\frac{100}{2}$ = 50 Heads) and the observed number of Heads (45 Heads). We now derive another answer by applying the principle of **maximum likelihood**.
+In what sense is this estimate, $\hat{p}=\frac{r}{n}$, the *“best”* estimate of $p$?
 
-The probability (or **likelihood**, $l$) of observing the *particular* sequence of $r$ Heads and $n-r$ Tails that we observed is: $$l(p)={p}^{r}{(1-p)}^{n-r}$$
+*    One answer that is already familiar is that $\hat{p}$ is an **unbiased estimate** of $p$. To see this, note that the average (i.e., **expected value**) of $r$, written as $E(r)$, is given by: $E(r) = np$. This implies that $p = \frac{E(r)}{n}$. Therefore, if we define our estimate, $\hat{p}$, of $p$ as $\hat{p} \frac{r}{n}$, then the expected value of $\hat{p}$ is given by: $$E(\hat{p}) = E(\frac{r}{n}) = \frac{E(r)}{n} = p$$  
 
-To illustrate the properties of this likelihood function, we plot it in the below Figure for a specific sequence of $r$ Heads and $n-r$ Tails, $n = 20$. Try changing the number of heads ($r$) and observe how $l(p)$ varies as a function of $p$.   
+    That is, *on average*, $\hat{p}$ is equal to $p$, and this is what is meant by saying that $\hat{p}$ is an **unbiased estimate** of $p$. To put this another way, this choice of estimate leads to a perfect fit between the *expected* number ($E$) and the observed number ($O$) of heads because when $p = \hat{p} = \frac{r}{n}$, $$E = np = n\hat{p} = n\frac{r}{n} = r = O$$
+
+*     A second answer can be derived by applying the principle of **maximum likelihood**. The probability (or **likelihood**, $l$) of observing the *particular* sequence of $r$ Heads and $n-r$ Tails that we observed is: $$l(p)={p}^{r}{(1-p)}^{n-r}$$
+
+    To illustrate the properties of this likelihood function, we plot it in the below Figure for a specific sequence of $r$ Heads and $n-r$ Tails, $n = 20$. Try changing the number of heads ($r$) and observe how $l(p)$ varies as a function of $p$.   
 
 <iframe src="http://spark.rstudio.com/supsych/maximum_likelihood/" style="border: none; width: 700px; height: 400px"></iframe>
 
