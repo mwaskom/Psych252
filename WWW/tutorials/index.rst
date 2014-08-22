@@ -78,8 +78,19 @@ how to determine whether to use ML or REML when fitting your model; comparing mo
 deviance, or using AIC. 
 [`png <http://www.stanford.edu/class/psych252/tutorials/model_comparisons.png>`_]
 
+
 Maximum Likelihood
 --------------------
 An overview of the principle of maximum likelihood and the derivation of the likelihood ratio test statistic.
 [`html <http://www.stanford.edu/class/psych252/tutorials/maximum_likelihood.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/maximum_likelihood.Rmd>`_]
+
+
+Bootstrapping
+--------------------
+A short primer on non-parametric statistics, in particular, the bootstrap. There is also an 
+overview of several R functions written by Desmond Ong to assist in calculating bootstrapped
+statistics.
+['pdf <http://www.stanford.edu/class/psych252/tutorials/doBootstrapPrimer.pdf>'_]
+['functions <https://github.com/desmond-ong/doBootstrap>'_]
+
