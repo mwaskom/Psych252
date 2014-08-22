@@ -2,85 +2,119 @@ Bootstrapping Example
 ========================================================
 Bootstrap scripts written by Desmond Ong (dco@stanford), converted to R Markdown by Steph Gagnon
 
-Load in $doBootstrap$ functions:
+Load in `doBootstrap` functions:
 -------------------------------
 ```{r}
-source("https://github.com/desmond-ong/doBootstrap/blob/master/doBootstrap.R")
+source("http://www.stanford.edu/class/psych252/tutorials/doBootstrap.R")
 ```
 
-doBoot is the basic function that calculates descriptive statistics. For example, you can use the following format:
+`doBoot` is the basic function that calculates descriptive statistics. For example, you can use the following format:
 
 > results <- doBoot(x, y=NULL, mediator=NULL, whichTest = "mean", numberOfIterations = 5000, confidenceInterval=.95, na.rm=TRUE)
 
+**Output:**
 
-# results <- doBoot(x, y=NULL, mediator=NULL, whichTest = "mean", numberOfIterations = 5000, 
-# confidenceInterval=.95, na.rm=TRUE)
-#
-# Output: Results
-#
-# Input:
-#   x = first data vector. Feed in a VECTOR!
-#   y = second data vector (not necessary if you're doing statistics on one data vector only, e.g. mean)
-#   mediator = mediator data vector (if you want to do mediation)
-#   whichTest = the test you want to do, as a string. 
-#       Currently the tests supported are:
-#           "mean" (single vector test)
-#           "correlation" (correlation between two vectors, paired)
-#           "difference, unpaired" (difference between two vectors, unpaired)
-#           "difference, paired" (difference between two vectors, paired)
-#           "cohen, unpaired" (basically unpaired difference / pooled standard dev) * not bias corrected nor accelerated
-#           "cohen, paired" (basically paired difference / standard deviation) * not bias corrected nor accelerated
-#           "mediation" (calculates a x-->y, x-->med-->y mediation, using Benoit's bm.bootmed code)
-#               basically just feeds into Benoit's code for now.
-#           "custom function": allows you to supply your own function, such that the desired statistic
-#               is customFunction(x) or customFunction(x,y) if y is supplied.
-#               Warning: doBoot doesn't test if you have supplied the correct number of arguments. It'll just try to call it.
-#
-#
-#   numberOfIterations = number of bootstrapping iterations. Default is 5000
-#   confidenceInterval = specifies the percentile of the CI. Default is .95
-#   na.rm = remove NAs?
-#
+- **Results**
 
-# using the mtcars dataset
+**Input:**
+
++ **x** = first data vector. Feed in a VECTOR!
++ **y** = second data vector (not necessary if you're doing statistics on one data vector only, e.g. mean)
++ **mediator** = mediator data vector (if you want to do mediation)
++ **whichTest** = the test you want to do, as a string.
+    - "mean" (single vector test)
+    - "correlation" (correlation between two vectors, paired)
+    - "difference, unpaired" (difference between two vectors, unpaired)
+    - "difference, paired" (difference between two vectors, paired)
+    - "cohen, unpaired" (basically unpaired difference / pooled standard dev) * not bias corrected   nor accelerated
+    - "mediation" (calculates a x-->y, x-->med-->y mediation, using Benoit's bm.bootmed code)
+    - "custom function": allows you to supply your own function, such that the desired statistic is customFunction(x) or customFunction(x,y) if y is supplied.
++ **numberOfIterations** = number of bootstrapping iterations. Default is 5000
++ **confidenceInterval** = specifies the percentile of the CI. Default is .95
++ **na.rm** = remove NAs?
+
+Some examples with mtcars dataset
+------------------------------
+First, let's load in the $mtcars$ dataset
 ```{r}
 head(mtcars)
-#resultsMean <- doBoot(mtcars$mpg)
+```
+
+### Bootstrapping the Mean
+Now, let's try bootstrapping the mean miles per gallon ($mpg$) of the cars in the mtcars dataset.  Note that if you don't provide an argument to $whichTest$ the function won't run!
+```{r}
+#resultsMean <- doBoot(mtcars$mpg) #error!
 resultsMean <- doBoot(mtcars$mpg, whichTest = "mean")
+```
+Here, we can see that the bootstrapped estimate for mean miles per gallon is `r resultsMean$value`, and the 95% confidence interval of this estimate is from `r resultsMean$ci.low` to `r resultsMean$ci.high`.
+
+If we compare this to the actual data, we can see that the bootstrapped mean and 95% CI closely match that observed in the data.
+```{r fig.width=5, fig.height=4}
+boxplot(mtcars$mpg, notch=TRUE, col='dodgerblue', ylab='mpg')
+```
+
+
+### Bootstrap a correlation:
+```{r}
 resultsCorrelation <- doBoot(mtcars$disp,mtcars$hp, whichTest = "correlation")
-resultsDifference <- doBoot(mtcars$disp,mtcars$hp, whichTest = "difference, unpaired")
-resultsDifference <- doBoot(mtcars$disp,mtcars$hp, whichTest = "difference, paired")
+```
+Here we bootstrapped a correlation between cars' displacement (`disp`) and gross horsepower (`hp`). The function returned an estimated correlation of `r resultsCorrelation$value` with a 95% CI from `r resultsCorrelation$ci.low` to `r resultsCorrelation$ci.high`.
+
+Let's observe the correlation using the data in our sample:
+```{r fig.width=5, fig.height=5}
+plot(mtcars$disp,mtcars$hp, col='firebrick', pch=16)
+```
+
+
+### Bootstap a difference between Means
+Next, let's bootstrap the **difference** between the mean displacement and horsepower. Here, we can either treat the values as **unpaired** (i.e., coming from independent sources), or **paired** (i.e., both values come from the same car). First, let's check out the data:
+```{r}
+boxplot(mtcars$disp,mtcars$hp, names=c('disp', 'hp'), col=c('mediumseagreen', 'mediumvioletred'))
+```
+
+Now let's estimate the difference between the mean displacement and horsepower:
+```{r}
+resultsDifference_u <- doBoot(mtcars$disp,mtcars$hp, whichTest = "difference, unpaired")
+resultsDifference_p <- doBoot(mtcars$disp,mtcars$hp, whichTest = "difference, paired")
+```
+
+Here, we can see that both tests calculate a similar difference in means (diff = `r resultsDifference_u`), but different confidence intervals. Assuming the mean displacement and horsepower are **unpaired**, the 95% CI is larger, `r resultsDifference_u$ci.low` - `r resultsDifference_u$ci.high`, whereas when we take into account that our observations of displacement and horsepower come from the same car (i.e., **paired**), the 95% CI is smaller `r resultsDifference_p$ci.low` - `r resultsDifference_p$ci.high`. Neither 95% CI overlaps with zero, and so we might reject the null hypothesis that the difference between the mean displacement and mean horsepower is equal to zero; in other words, it appears that the mean displacement is higher than the mean horsepower. 
+
+### Bootstrap Cohen's D
+```{r}
 resultsCohen <- doBoot(mtcars$disp,mtcars$hp, whichTest = "cohen, unpaired")
 resultsCohen <- doBoot(mtcars$disp,mtcars$hp, whichTest = "cohen, paired")
 ```
 
-# just using Benoit's code off the bat...
-```{r}
+### Bootstrap Mediation using Benoit's code
+```{r fig.width = 5, fig.height=4}
 resultsMediation <- doBoot(mtcars$disp,mtcars$hp, mtcars$cyl, whichTest = "mediation")
 ```
 
 
-# # doBootRegression is the function you call if you want to bootstrap regressions.
-#
-# results <- doBootRegression(dataset, formula, mixedEffects = FALSE, numberOfIterations = 5000, 
-# confidenceInterval=.95, na.rm=TRUE)
-#
-# Output: Results
-#
-# Input:
-#   dataset = input dataset
-#   formula = the regression formula of interest. For e.g., "y ~ x" or "y ~ x + (1|z)"
-#   mixedEffects = whether your formula has mixed effects. Default FALSE.
-#       If true, will use lmer, otherwise, lm. 
-#       For lmer, will output only fixed effect coefficients
-#       For lm, will output coefficients, and R^2
-#   numberOfIterations = number of bootstrapping iterations. Default is 5000
-#   confidenceInterval = specifies the percentile of the CI. Default is .95
-#   na.rm = remove NAs?
+Bootstrapping Regressions with `doBootRegression`
+---------------------------
+`doBootRegression` is the function you call if you want to bootstrap regressions.
+
+> results <- doBootRegression(dataset, formula, mixedEffects = FALSE, numberOfIterations = 5000, confidenceInterval=.95, na.rm=TRUE)
+
+**Output:**
++ **Results**
+
+**Input:**
++ **dataset** = input dataset
++ **formula** = the regression formula of interest. For e.g., "y ~ x" or "y ~ x + (1|z)"
++ **mixedEffects** = whether your formula has mixed effects. Default FALSE.
+    - If true, will use lmer, otherwise, lm. 
+    - For lmer, will output only fixed effect coefficients
+    - For lm, will output coefficients, and R^2
++ **numberOfIterations** = number of bootstrapping iterations. Default is 5000
++ **confidenceInterval** = specifies the percentile of the CI. Default is .95
++ **na.rm** = remove NAs?
 
 ```{r}
 resultsRegression <- doBootRegression(mtcars, disp~hp)
-resultsRegression <- doBootRegression(mtcars, disp~hp+(1|cyl), mixedEffects = TRUE)
+#resultsRegression <- doBootRegression(mtcars, disp~hp+(1|cyl), mixedEffects = TRUE)
 ```
 
 

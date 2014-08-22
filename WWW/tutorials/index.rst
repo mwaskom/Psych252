@@ -90,7 +90,7 @@ Bootstrapping
 --------------------
 A short primer on non-parametric statistics, in particular, the bootstrap. There is also an 
 overview of several R functions written by Desmond Ong to assist in calculating bootstrapped
-statistics.
-['pdf <http://www.stanford.edu/class/psych252/tutorials/doBootstrapPrimer.pdf>'_]
-['functions <https://github.com/desmond-ong/doBootstrap>'_]
+statistics. Download functions from `here <https://github.com/desmond-ong/doBootstrap>`_.
+[`html <http://www.stanford.edu/class/psych252/tutorials/doBootstrapReadme.html>`_]
+[`pdf <http://www.stanford.edu/class/psych252/tutorials/doBootstrapPrimer.pdf>`_]
 
