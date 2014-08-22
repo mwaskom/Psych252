@@ -68,7 +68,7 @@ plot(mtcars$disp,mtcars$hp, col='firebrick', pch=16)
 
 ### Bootstap a difference between Means
 Next, let's bootstrap the **difference** between the mean displacement and horsepower. Here, we can either treat the values as **unpaired** (i.e., coming from independent sources), or **paired** (i.e., both values come from the same car). First, let's check out the data:
-```{r}
+```{r fig.width=5, fig.height=5}
 boxplot(mtcars$disp,mtcars$hp, names=c('disp', 'hp'), col=c('mediumseagreen', 'mediumvioletred'))
 ```
 

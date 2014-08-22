@@ -76,10 +76,10 @@ resultsMean <- doBoot(mtcars$mpg, whichTest = "mean")
 ## | + + + + + + + + + + | 100 % completed 
 ## Results using 5000 iterations, and a 0.95 CI 
 ## whichTest used is: ***  mean *** in the form: Result, [low end of CI, high end of CI]
-## 20.06 [ 18.04 , 22.14 ]
+## 20.05 [ 18.17 , 22.17 ]
 ```
 
-Here, we can see that the bootstrapped estimate for mean miles per gallon is 20.0625, and the 95% confidence interval of this estimate is from 18.0405 to 22.1441.
+Here, we can see that the bootstrapped estimate for mean miles per gallon is 20.0469, and the 95% confidence interval of this estimate is from 18.1656 to 22.1687.
 
 If we compare this to the actual data, we can see that the bootstrapped mean and 95% CI closely match that observed in the data.
 
@@ -111,10 +111,10 @@ resultsCorrelation <- doBoot(mtcars$disp, mtcars$hp, whichTest = "correlation")
 ## | + + + + + + + + + + | 100 % completed 
 ## Results using 5000 iterations, and a 0.95 CI 
 ## whichTest used is: ***  correlation *** in the form: Result, [low end of CI, high end of CI]
-## 0.8028 [ 0.6729 , 0.9084 ]
+## 0.802 [ 0.6764 , 0.9114 ]
 ```
 
-Here we bootstrapped a correlation between cars' displacement (`disp`) and gross horsepower (`hp`). The function returned an estimated correlation of 0.8028 with a 95% CI from 0.6729 to 0.9084.
+Here we bootstrapped a correlation between cars' displacement (`disp`) and gross horsepower (`hp`). The function returned an estimated correlation of 0.802 with a 95% CI from 0.6764 to 0.9114.
 
 Let's observe the correlation using the data in our sample:
 
@@ -157,7 +157,7 @@ resultsDifference_u <- doBoot(mtcars$disp, mtcars$hp, whichTest = "difference, u
 ## | + + + + + + + + + + | 100 % completed 
 ## Results using 5000 iterations, and a 0.95 CI 
 ## whichTest used is: ***  difference, unpaired *** in the form: Result, [low end of CI, high end of CI]
-## 83.19 [ 36.58 , 131.3 ]
+## 84.31 [ 35.54 , 133.6 ]
 ```
 
 ```r
@@ -178,11 +178,11 @@ resultsDifference_p <- doBoot(mtcars$disp, mtcars$hp, whichTest = "difference, p
 ## | + + + + + + + + + + | 100 % completed 
 ## Results using 5000 iterations, and a 0.95 CI 
 ## whichTest used is: ***  difference, paired *** in the form: Result, [low end of CI, high end of CI]
-## 83.97 [ 57.65 , 112.9 ]
+## 83.76 [ 57.35 , 112.2 ]
 ```
 
 
-Here, we can see that both tests calculate a similar difference in means (diff = 83.1937, 36.5837, 131.3427), but different confidence intervals. Assuming the mean displacement and horsepower are **unpaired**, the 95% CI is larger, 36.5837 - 131.3427, whereas when we take into account that our observations of displacement and horsepower come from the same car (i.e., **paired**), the 95% CI is smaller 57.6548 - 112.8908. Neither 95% CI overlaps with zero, and so we might reject the null hypothesis that the difference between the mean displacement and mean horsepower is equal to zero; in other words, it appears that the mean displacement is higher than the mean horsepower. 
+Here, we can see that both tests calculate a similar difference in means (diff = 84.3141, 35.5424, 133.5581), but different confidence intervals. Assuming the mean displacement and horsepower are **unpaired**, the 95% CI is larger, 35.5424 - 133.5581, whereas when we take into account that our observations of displacement and horsepower come from the same car (i.e., **paired**), the 95% CI is smaller 57.3498 - 112.1603. Neither 95% CI overlaps with zero, and so we might reject the null hypothesis that the difference between the mean displacement and mean horsepower is equal to zero; in other words, it appears that the mean displacement is higher than the mean horsepower. 
 
 ### Bootstrap Cohen's D
 
@@ -204,7 +204,7 @@ resultsCohen <- doBoot(mtcars$disp, mtcars$hp, whichTest = "cohen, unpaired")
 ## | + + + + + + + + + + | 100 % completed 
 ## Results using 5000 iterations, and a 0.95 CI 
 ## whichTest used is: ***  cohen, unpaired *** in the form: Result, [low end of CI, high end of CI]
-## 0.8476 [ 0.3755 , 1.343 ]
+## 0.8452 [ 0.3733 , 1.372 ]
 ```
 
 ```r
@@ -225,7 +225,7 @@ resultsCohen <- doBoot(mtcars$disp, mtcars$hp, whichTest = "cohen, paired")
 ## | + + + + + + + + + + | 100 % completed 
 ## Results using 5000 iterations, and a 0.95 CI 
 ## whichTest used is: ***  cohen, paired *** in the form: Result, [low end of CI, high end of CI]
-## 1.052 [ 0.7762 , 1.395 ]
+## 1.053 [ 0.7802 , 1.381 ]
 ```
 
 
@@ -247,13 +247,13 @@ resultsMediation <- doBoot(mtcars$disp, mtcars$hp, mtcars$cyl, whichTest = "medi
 ## p val 0.000 0.368 0.000  0.011    NA 0.008   0.008
 ## [1] Bootstrap results:
 ## Mean(ab*) p(ab*<ab) 
-##     0.318     0.542 
+##     0.318     0.541 
 ## [1] Uncorrected:
 ##  2.5% 97.5% 
-## 0.123 0.573 
+## 0.121 0.578 
 ## [1] Bias Corrected:
 ##    4% 98.5% 
-## 0.139 0.610 
+##  0.14  0.61 
 ## Results using 5000 iterations, and a 0.95 CI 
 ## whichTest used is: ***  mediation *** in the form: Result, [low end of CI, high end of CI]
 ## 0 [ 0 , 0 ]
@@ -300,9 +300,9 @@ resultsRegression <- doBootRegression(mtcars, disp ~ hp)
 ## | + + + + + + + + + + | 100 % completed 
 ## Bootstrapped regression results using 5000 iterations, and a 0.95 CI 
 ## Results are in the form: Result, [low end of CI, high end of CI]
-## R squared: 0.6451 [ 0.4605 , 0.8272 ]
-## Coefficient : (Intercept) 16.63 [ -63.37 , 80.41 ]
-## Coefficient : hp 1.45 [ 0.9844 , 2.14 ]
+## R squared: 0.645 [ 0.4566 , 0.8286 ]
+## Coefficient : (Intercept) 16.55 [ -62.66 , 82.62 ]
+## Coefficient : hp 1.456 [ 0.985 , 2.121 ]
 ```
 
 ```r
