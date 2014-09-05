@@ -8,3 +8,8 @@ To build the site, type `make html`. Typing `make clean` first will remove old b
 Raw datafiles go in `datasets/`. A description of the datasets lives in `data/datasets.rst`. The markup language used here is called RestructuredText, which is like Markdown but a bit more complex (and thus expressive).
 
 For steph: make -f Makefile_steph clean html upload
+
+For Ewart: 
+Go to the Terminal application and type in these lines:
+cd ~/Documents/courses07/p252/github/Psych252/WWW/
+make -f Makefile_ewart clean html upload
