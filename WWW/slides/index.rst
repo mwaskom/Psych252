@@ -1,3 +1,6 @@
+.. role:: raw-math(raw)
+    :format: latex html
+
 Slides
 ================
 
