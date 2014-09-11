@@ -1,7 +1,12 @@
 Statistical Methods for Behavioral and Social Sciences
 ======================================================
 
-Course page for Psych252/OB652.
+.. image:: images/pic1.png
+   :width: 30%
+.. image:: images/pic2.png
+   :width: 30%
+.. image:: images/pic3.png
+   :width: 30%
 
 Course Information
 ------------------
@@ -28,5 +33,3 @@ Contents
    tutorials/index.rst
    section/index.rst
    section_2013/index.rst
-
-
