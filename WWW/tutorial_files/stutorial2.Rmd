@@ -7,7 +7,7 @@ Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas
 
 Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Steph Gagnon.
 
-2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey, Eric Miller
+2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey
 
 Manipulating Dataframes
 -----------------------
@@ -41,7 +41,7 @@ This shows us that participant 5 is 25 years old, and has an optimism score of 6
 Integer vs. Factor
 ------------------
 
-Now, we might want to treat some variables as qualitative, nominal **factors** rather than continuous, numeric **integers**. In R, we must specify which variables to treat as factors if the **levels** (i.e., unique values) of the variable are composed of numbers instead of strings. Note that if the variable (e.g., "Subid") *levels* start with a letter (e.g., "subject1", "subject2") R will automatically interpret the variable as a *factor*. If the variable levels start with a number (e.g., "1", "2"), R with automatically interpret the variable as an *integer*. If you want the variable interpreted differently, you have to tell R.
+Now, we might want to treat some variables as qualitative, nominal **factors** rather than continuous, numeric **integers**. In R, we must specify which variables to treat as factors if the **levels** (i.e., unique values) of the variable are composed of numbers instead of strings. Note that if the variable (e.g., "Subid") *levels* start with a letter (e.g., "subject1", "subject2") R will automatically interpret the variable as a *factor*. If the variable levels start with a number (e.g., "1", "2"), R will automatically interpret the variable as an *integer*. If you want the variable interpreted differently, you have to tell R.
 
 For instance, the variable "age" is continuous, but "agecat" is not. However, since the **levels** of "agecat" are indicated with numbers, we must tell R to treat "agecat" as a factor:
 
@@ -74,7 +74,7 @@ d2$agecat0 = factor(d2$agecat0)
 head(d2)
 ```
 
-Specifically, these break points result in 5 age categories, 0:28, 29:38, 39:48, 49:64, and 64 and up. We can also visualize these groups:
+Specifically, these break points result in 5 age categories, 0:28, 29:38, 39:48, 49:64, and 65 and up. We can also visualize these groups:
 
 ```{r plot_agecat0, fig.width=5, fig.height=4}
 with(d2,plot(age~agecat0))
@@ -91,7 +91,7 @@ hist(d2$age, col='orange', main = 'Distribution of age')
 
 Next, let's view a scatter plot of optimism by age. Before when we used the plot() function, we were plotting a **factor** variable on the x-axis. As a result, R generated boxplots. However, if the x-axis variable is **continuous** (i.e., numeric), plot() will generate a scatterplot.
 
-We'll also add in a line to get a sense of the general trend of the data; here, we'll plot a non-parametric best-filling curve in red using the ["lowess"](http://rss.acs.unt.edu/Rdoc/library/gplots/html/lowess.html) function.
+We'll also add in a line to get a sense of the general trend of the data; here, we'll plot a non-parametric best-fitting curve in red using the ["lowess"](http://rss.acs.unt.edu/Rdoc/library/gplots/html/lowess.html) function.
 
 ```{r plot_optmism_on_age, fig.width=5, fig.height=4}
 plot(d2$age, d2$optmism, main = 'Optimism vs Age')
@@ -101,7 +101,7 @@ lines(lowess(d2$age, d2$optmism), lty = 2, col='red')
 Linear Regression
 ------------------
 
-To examine the best-fitting linear relationship between quantiative variables (e.g., X and Y), we can use the function [`lm()`](http://www.statmethods.net/stats/regression.html). We'll be using this function very often throughout the class to fit linear models (which as we will see is a very broad category of statistical analysis). To use `lm()`, you must provide a fomula, like `Y ~ X`. In this case, X is your *independent variable* (IV), and Y is your *dependent variable* (DV). That is, this formula asked "as X changes, what happens to Y? How much of the variance in Y is explained by variance in X?"
+To examine the best-fitting linear relationship between quantitative variables (e.g., X and Y), we can use the function [`lm()`](http://www.statmethods.net/stats/regression.html). We'll be using this function very often throughout the class to fit linear models (which as we will see is a very broad category of statistical analysis). To use `lm()`, you must provide a formula, like `Y ~ X`. In this case, X is your *independent variable* (IV), and Y is your *dependent variable* (DV). That is, this formula asked "as X changes, what happens to Y? How much of the variance in Y is explained by variance in X?"
 
 For instance, we might want to investigate the relationship between age (X) and optimism (Y), depicted in the plot above. As age increases, how does optimism change?
 
@@ -167,7 +167,7 @@ rtw.table <- read.csv("http://www.ilr.cornell.edu/~hadi/RABE4/Data4/P005.txt", s
 str(rtw.table)
 ```
 
-Let's plot a boxplot of the cost of living (COL) by whether or not there is a right-to-work law in place. Whether or not a city has RTWLs is coded in these data with '0' and '1'. That's fine for a lot of uses, but we're going to convert those values to *logical* (aka *boolean*) values " so the x-axis labels are more intuitive.
+Let's plot a boxplot of the cost of living (COL) by whether or not there is a right-to-work law in place. Whether or not a city has RTWLs is coded in these data with '0' and '1'. That's fine for a lot of uses, but we're going to convert those values to *logical* (aka *boolean*) values, `FALSE` and `TRUE`, respectively, so the x-axis labels are more intuitive.
 
 ```{r plot_col_on_rtwl, fig.width=5, fig.height=4}
 rtw.table$RTWL = as.logical(rtw.table$RTWL)
@@ -307,7 +307,7 @@ dl$num <- as.numeric(dl$num)
 dl$id <- factor(dl$id)
 ```
 
-We also need to rescale 'id' to 1:10 within each level o attn`, since the subject id ('id') is 11:20 when attn is 'focused'. So we need to select only these values of 'id', and transform them to 1:10. This requires creating a new variable, cond.id, in the dataframe, dl.
+We also need to rescale 'id' to 1:10 within each level of `attn`, since the subject id ('id') is 11:20 when attn is 'focused'. So we need to select only these values of 'id', and transform them to 1:10. This requires creating a new variable, cond.id, in the dataframe, dl.
 
 ```{r rescaleid_dl}
 dl$cond.id <- as.numeric(dl$id)
@@ -318,7 +318,7 @@ dl$cond.id[dl$attn=="focused"] = dl$cond.id[dl$attn=="focused"] - 10
 
 The function `qplot()` is the ggplot analogue of `plot()`. (Often the term "base graphics" is used to talk about `plot()` and the other plotting functions you've seen so far). 
 
-For the first plot, we want to examine the relationship between the number variable ('num') and the subjects' scores. We'll also look at each subject's data separately (id 1-10 for each attn condition) using the *facet* option. With facets, `facets = Y ~ X` means you want the 'score vs num' plots to be arrayed vertically (y-axis) by levels of Y, and horizontally (x-axis) by levels of X. This is analagous to formulas for plots where the item to the left of the `~` is on the y axis and the item on the right is on the x axis.  You can also do, `facets = Y ~ .`, which will array 'frames' vertically by Y-levels and, in each frame, plot 'score vs num' at each level of X. Similarly, `facets = . ~ X` will array 'frames' horizontally by X-levels and, in each frame, plot 'score vs num' at each level of Y.
+For the first plot, we want to examine the relationship between the number variable ('num') and the subjects' scores. We'll also look at each subject's data separately (id 1-10 for each attn condition) using the `facet` option. With facets, `facets = Y ~ X` means you want the 'score vs num' plots to be arrayed vertically (y-axis) by levels of Y, and horizontally (x-axis) by levels of X. This is analogous to formulas for plots where the item to the left of the `~` is on the y axis and the item on the right is on the x axis.  You can also do, `facets = Y ~ .`, which will array 'frames' vertically by Y-levels and, in each frame, plot 'score vs num' at each level of X. Similarly, `facets = . ~ X` will array 'frames' horizontally by X-levels and, in each frame, plot 'score vs num' at each level of Y.
 
 For more infomation, we'll overlay the data with a least-squares fit to the points:
 

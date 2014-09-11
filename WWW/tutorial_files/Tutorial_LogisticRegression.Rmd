@@ -79,13 +79,13 @@ plot(x, y, xlab="X", ylab="P(Y=1)")
 title(main="Sigmoid (Logistic) Function")
 ```
 
-In general, changing the **intercept** (`b`) shifts the sigmoid along the x-axis; positive intercepts result in a sigmoid to the *right* of x=0, and negative intercepts result in a sigmoid to the *left* of x=0. Changing the **slope** (`m`) changes both the *direction* and the *steepness* of the function. That is, positive slopes result in an "s"-shaped curve, and negative slopes result in a "z"-shaped curve. In addition, larger absolute values of slope result in a steeper function, and smaller absolute values result in a more gradual slope.
+In general, changing the **intercept** ($b$) shifts the sigmoid along the x-axis; positive intercepts result in a sigmoid to the *right* of x=0, and negative intercepts result in a sigmoid to the *left* of x=0. Changing the **slope** ($m$) changes both the *direction* and the *steepness* of the function. That is, positive slopes result in an "s"-shaped curve, and negative slopes result in a "z"-shaped curve. In addition, larger absolute values of slope result in a steeper function, and smaller absolute values result in a more gradual slope.
 
 If you want to explore how varying the slope and intercept change the shape of the sigmoid function, try changing the coefficients in the .Rmd file, or check out the app [here](http://spark.rstudio.com/supsych/logistic_regression/)).
 
-Before, we mentioned that the sigmoid (logistic) function outputs the *probability* that `y` = 1. This is is because the *logistic* regression is essentially *linear* regression on the **logit transform** of our original `y`. Solving our sigmoid function above for `b + mx` = $\hat{y}$, we find that $\hat{y}$ is the **logit**, sometimes referred to as **log odds**.
+Before, we mentioned that the sigmoid (logistic) function outputs the *probability* that $Y$ = 1. This is is because the *logistic* regression is essentially *linear* regression on the **logit transform** of our original $Y$. Solving our sigmoid function above for `b + mx` = $\hat{y}$, we find that $\hat{y}$ is the **logit**, sometimes referred to as **log odds**.
 
-$$logit(y) = \hat{y} = b + mx= log(\frac{p}{1-p}) = \frac{P(Y=1)}{P(Y=0)}$$
+$$logit(p) = \hat{y} = b + mx= log(\frac{p}{1-p}) = log(\frac{P(Y=1)}{P(Y=0)})$$
 
 
 ### Running a general linear model w/ glm()
@@ -114,12 +114,12 @@ plot(x, y, xlab="", ylab="", pch = 16, ylim=c(0,1), xlim=c(0,20), col='red')
 title(main="Data & Predicted Values from \nLogistic Regression Model")
 ```
 
-Since the slope (m = `r rs1$coefficients[2]`; i.e., the coefficient for `Responsible`) is negative, the function is flipped from the s-shaped sigmoid shown above. Further, since the slope is small, the drop-off in the function is more gradual.
+Since the slope ($m$ = `r rs1$coefficients[2]`; i.e., the coefficient for `Responsible`) is negative, the function is flipped from the S-shaped sigmoid shown above. Further, since the slope is small, the drop-off in the function is more gradual.
 
 
 ### Interpreting the output from glm()
-Before we noted that the logistic/sigmoid function outputs the **probability** that `y` = 1 for a given value of `x`. In this example, P(`complain` = 1) -- the probability that someone considered complaining -- if they had a self-reported feeling of responsibility = 5 would be equal to:
-$$P(y=1) = \frac{e^{(`r b` + `r m` * 5)}}{1+e^{(`r b` + `r m` * 5)}}$$
+Before we noted that the logistic/sigmoid function outputs the **probability** that $Y$ = 1 for a given value of $x$. In this example, P(`complain` = 1) -- the probability that someone considered complaining -- if they had a self-reported feeling of responsibility = 5 would be equal to:
+$$P(Y=1) = \frac{e^{(`r b` + `r m` * 5)}}{1+e^{(`r b` + `r m` * 5)}}$$
 
 Which would equal:
 ```{r calc_pCOMPLAIN_x=5, fig.width=5, fig.height=5}
@@ -135,7 +135,7 @@ Thus, based on our logistic regression model, the probability that a person with
 
 
 ### Log odds
-We can also extract the **log odds** from our `glm()` output. In our example, log odds essentially captures the ratio of (being a "complainer"):(not being a "complainer"). In logistic regression, the dependent variable ($\hat{y}$, or `b + mx`) is referred to as the **logit**, which is the natural log of the odds.
+We can also extract the **log odds** from our `glm()` output. In our example, log odds essentially captures the ratio of (being a "complainer"):(not being a "complainer"). In logistic regression, the dependent variable ($\hat{y}$, or $b + mx$) is referred to as the **logit**, which is the natural log of the odds.
 
 As noted above, by rearranging the logistic function, we get the equation for the logit:
 $$\hat{y} = b + mx= log(\frac{p}{1-p})$$
@@ -157,6 +157,6 @@ points(d0$Responsible,fitted(rs1),pch=20, col='red')
 ```
 
 ```{r plot_logistic_3, fig.width=5, fig.height=5}
-install.packages("popbio"); library(popbio)
+install.packages("popbio", repos="http://ftp.ussg.iu.edu/CRAN/"); library(popbio)
 logi.hist.plot(d0$Responsible,d0$complain,boxp=FALSE,type="hist",col="gray")
 ```

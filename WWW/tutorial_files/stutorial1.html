@@ -6,7 +6,6 @@
 
 <meta charset="utf-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="Content-Style-Type" content="text/css" />
 <meta name="generator" content="pandoc" />
 
 
@@ -58,15 +57,15 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <p>Based on notes by Paul Thibodeau (2009) and revisions by the Psych 252 instructors in 2010 and 2011</p>
 <p>Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas</p>
 <p>Converted to <a href="http://www.rstudio.com/ide/docs/r_markdown">R Markdown</a> format and further expanded in 2013 by Michael Waskom.</p>
-<p>2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey, Eric Miller</p>
-<p><em>If you haven’t already installed R, it is availible <a href="http://www.r-project.org/">here</a>.</em></p>
+<p>2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey</p>
+<p><em>If you haven’t already installed R, it is available <a href="http://www.r-project.org/">here</a>.</em></p>
 <div id="brief-notes-about-learning-r" class="section level2">
 <h2>Brief notes about learning R</h2>
-<p>The data analysis environment we’ll be using for Psych 252 is R. R is a programming language that is specifically designed for statistical computation. It has many appealing features: it is powerful, flexible, and widely used in the statistical community. The aspects that make R so powerful and flexible, however, contribute to a learning curve that is relatively steeper than what you might find in point-and-click packages like SPSS. The aim of this tutorial is to provide a general introduction to interacting with R that will reduce the feelings of frustration and helplessness that can emerge early in ones relationship with it. Although this tutorial doesn’t assume any preexisting knowledge, if you’ve had no experience with computer programming there may be some parts of it that are confusing or lack a particularly deep meaning. Try your best to understand them now, but you will also likely benefit from returning to the tutorial periodically as you become more comfortable.</p>
-<p>The most important skill to cultivate up front is the ability to help yourself when you are stuck. Fortunately, R is pretty helpful in this regard. R is what’s known as an <em>interpreted langauge</em>, which basically means that there is a console you type commands into and get immediate feedback on them. Do this liberally as you work though the tutorial and the early class exercises, making small modifications to the examples we provide until you feel like you really understand what’s going on.</p>
-<p>The console is also your gateway to the built-in help functionality. Almost all R functions (more later on what those are) have help files built in that will provide you with useful information about what those functions do and how to use them. You find this by typing <code>help(function)</code> (or <code>?function</code>), where I am using “function” as a stand-in for the name you actually want to know about. It’s important to read these files closely the first time you encounter a function, but it’s <em>also</em> (possibly more) important to refer back to them frequently. I read once that a prominent distinction between an experienced programmer and a novice is the longer latency for the novice to look up the help for something confusing (but the direction of causality is not clear!). If you have a sense for what you want to do, but don’t know or can’t remember the exact function that will do it, you can search through the help files for a term with two question marks (e.g. <code>??regression</code>).</p>
+<p>The data analysis environment we’ll be using for Psych 252 is R. R is a programming language that is specifically designed for statistical computation. It has many appealing features: it is powerful, flexible, and widely used in the statistical community. The aspects that make R so powerful and flexible, however, contribute to a learning curve that is likely steeper than what you might find in point-and-click packages like SPSS. This tutorial provides a general introduction to R, and a preview of how R is used in the Course exercises. We hope the tutorial will reduce the feelings of frustration and helplessness that can emerge early in our attempt to learn R and statistics at the same time. Although this tutorial doesn’t assume any preexisting knowledge, if you’ve had no experience with computer programming there may be some parts of it that are confusing or lack a particularly deep meaning. Try your best to understand them now, but you will also likely benefit from returning to the tutorial periodically as you become more comfortable.</p>
+<p>The most important skill to cultivate up front is the ability to help yourself when you are stuck. Fortunately, R is pretty helpful in this regard. R is what’s known as an <em>interpreted language</em>, which basically means that there is a console you type commands into and get immediate feedback on them. Do this liberally as you work though the tutorial and the early class exercises, making small modifications to the examples we provide until you feel like you really understand what’s going on.</p>
+<p>The console is also your gateway to the built-in help functionality. Almost all R functions (more later on what those are) have help files built in that will provide you with useful information about what those functions do and how to use them. You find this by typing <code>help(function)</code> (or <code>?function</code>), where I am using “function” as a stand-in for the name you actually want to know about. It’s important to read these files closely the first time you encounter a function, but it’s <em>also</em> (possibly more) important to refer to them frequently. I read once that a prominent distinction between an experienced programmer and a novice is the longer latency for the novice to look up the help for something confusing (but the direction of causality is not clear!). If you have a sense for what you want to do, but don’t know or can’t remember the exact function that will do it, you can use two question marks to search through the help files for a term (e.g. <code>??regression</code>).</p>
 <p>Of course, the internet is also a useful resource. Because of its name, it can be a little annoying to google for help with R. The <a href="http://rseek.org/">rseek</a> website is intended to remedy this problem by acting as an R-specific search engine. A somewhat more useful resource, in my opinion, is the <a href="http://stackoverflow.com/">stackoverflow</a> website. Because this is a general-purpose resource for programming help, it will be useful to use the R tag (<code>[R]</code>) in your queries. A related resource is the <a href="http://stats.stackexchange.com/">statistics stackexchange</a>, which is like Stack Overflow but focused more on the underlying statistical issues.</p>
-<p>Finally, a note on errors. Novice and expert programmers alike will frequently run into errors in their R code. When this happens, processing will halt and an error message will be printed to the console. This is usually more frustrating for the novice, as the error often occurs deep within some function and the message bears no direct correspondence to what they were trying to do. A common beginner mistake is to conclude that the error message is gibberish and resign oneself to woe and dismay. It’s important to resist this urge; even if the error message is not immediately informative, it is intended to precisely convey some piece of information, and usually understanding what this information is will be the key to solving the problem.</p>
+<p>Finally, a note on errors. Novice and expert programmers alike will frequently run into errors in their R code. When this happens, processing will halt and an error message will be printed to the console. This is usually more frustrating for novices, as the error often occurs deep within some function and the message bears no direct correspondence to what they were trying to do. A common beginner mistake is to conclude that the error message is gibberish and resign oneself to woe and dismay. It’s important to resist this urge; even if the error message is not immediately informative, it is intended to precisely convey some piece of information, and usually understanding what this information is will be the key to solving the problem.</p>
 </div>
 <div id="basic-interaction-with-the-r-console" class="section level2">
 <h2>Basic interaction with the R console</h2>
@@ -100,7 +99,7 @@ x</code></pre>
 <pre><code>## [1] FALSE</code></pre>
 <p>It’s fine to use variable names like <code>x</code> for simple math examples like the ones above. But, when writing code to perform analysis, you should be careful to use descriptive names. Code where things are named, <code>subject_id</code>, <code>condition</code>, and <code>rt</code> will be a bit more verbose than if you had used <code>x</code>, <code>y</code>, and <code>z</code>, but it will also make <strong>much</strong> more sense when you read it again 4 months later as you write up the paper.</p>
 <p>With that said, there are a few rules for variable names. You can use any alphanumeric character, although the first character must be a letter. You can’t use spaces, because the computer doesn’t know that you’re trying to write a phrase and interprets that as two (or more) separate terms. When you want something like a phrase, the <code>_</code> and <code>.</code> characters can be employed (this can be a bit confusing as <code>.</code> is usually meaningful in programming languages, but not in R).</p>
-<p>Here’s a simple example that novice coders often find confusion. Walk yourself through the code and make sure you understand what operations lead to the final return value:</p>
+<p>Here’s a simple example that novice coders often find confusing. Walk yourself through the code and make sure you understand what operations lead to the final return value:</p>
 <pre class="r"><code>a = 10
 b = 20
 a = b
@@ -170,7 +169,7 @@ v[3]</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre class="r"><code>v[3:6]</code></pre>
 <pre><code>## [1] 3 4 5 6</code></pre>
-<p>If your vector has names associated associated with the values, you can index with those too:</p>
+<p>If your vector has names associated with the values, you can index with those too:</p>
 <pre class="r"><code>v = 1:3
 names(v)= c(&quot;foo&quot;, &quot;bar&quot;, &quot;buz&quot;)
 v[&quot;bar&quot;]</code></pre>
@@ -390,12 +389,12 @@ $(document).ready(function () {
 
 </script>
 
-<!-- dynamically load mathjax for compatibility with --self-contained -->
+<!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>
