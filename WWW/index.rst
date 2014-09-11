@@ -27,4 +27,5 @@ Contents
    tutorials/index.rst
    section/index.rst
    section_2013/index.rst
+   slides/index.rst
 

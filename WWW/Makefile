@@ -157,4 +157,6 @@ upload:
 	cp datasets/* _build/html/data/
 	cp tutorial_files/* _build/html/tutorials/
 	cp section_files/* _build/html/section/
+	cp section_files_2013/* _build/html/section_2013/
+	cp slides_files/* _build/html/slides/
 	rsync -azP $(BUILDDIR)/html/ cardinal.stanford.edu:/afs/ir/class/psych252/WWW
