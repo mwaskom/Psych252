@@ -23,9 +23,10 @@ Contents
    :maxdepth: 1
 
    data/index.rst
+   slides/index.rst
    apps/index.rst
    tutorials/index.rst
    section/index.rst
    section_2013/index.rst
-   slides/index.rst
+
 
