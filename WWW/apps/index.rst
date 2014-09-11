@@ -108,7 +108,7 @@ the regression parameters and inferential statistics.
 Signal Detection Theory
 --------------------------
 
-`Conceptual illustration <http://spark.rstudio.com/supsych/sdt_concept/>`_
+`Conceptual illustration <http://spark.rstudio.com/supsych/sdt_concept/>`_ /
 `Calculations from data <http://spark.rstudio.com/supsych/sdt_expt/>`_
 
 These applications illustrate the relationship between hit rate, false alarm rate, 
