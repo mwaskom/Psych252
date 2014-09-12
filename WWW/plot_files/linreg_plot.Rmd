@@ -1,0 +1,43 @@
+Plotting Linear Regression
+========================================================
+
+Load in data
+-------------
+```{r fig.width = 6, fig.height = 4}
+data = ChickWeight
+```
+
+Draw basic scatter plot w/linear regression
+----------------------
+```{r fig.width = 6, fig.height = 4}
+library(ggplot2)
+
+# change background to white, increase font size
+theme_set(theme_bw(base_size = 18)) 
+
+# set up basic scatter plot, overlaid with linreg
+ggplot(data, aes(x=Time, y=weight)) +
+    geom_point(shape=16, 
+               color = 'black',
+               alpha = 0.5) +
+  geom_smooth(method=lm, color = 'red')
+```
+
+Compare to a locally fitted curve (loess; local polynomial regression fitting)
+----------------------
+```{r fig.width = 6, fig.height = 4}
+ggplot(data, aes(x=Time, y=weight)) +
+    geom_point(shape=16, 
+               color = 'black',
+               alpha = 0.5) +
+  geom_smooth(method=loess, color = 'red')
+```
+
+Plot by Condition
+----------------------
+```{r fig.width = 6, fig.height = 4}
+ggplot(data, aes(x=Time, y=weight, color = Diet)) +
+    geom_point(shape=16, 
+               alpha = 0.5) +
+  geom_smooth(method=lm)
+```

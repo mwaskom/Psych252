@@ -15,7 +15,7 @@ library(ggplot2)
 # change background to white, increase font size
 theme_set(theme_bw(base_size = 18)) 
 
-# set up basic histogram
+# set up basic boxplot
 qplot(Diet, weight, data = data,
       geom = c("boxplot"),
       fill = Diet)

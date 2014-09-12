@@ -36,6 +36,16 @@ Linear models
 
 Scatter Plots
 ~~~~~~~~~~~
+[`html <http://www.stanford.edu/class/psych252/plots/scatter_plot.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/scatter_plot.Rmd>`_]
+
+.. image:: images/scatter.png
+   :width: 50%
 
 Linear Regression
 ~~~~~~~~~~~
+[`html <http://www.stanford.edu/class/psych252/plots/linreg_plot.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/linreg_plot.Rmd>`_]
+
+.. image:: images/linreg.png
+   :width: 50%
