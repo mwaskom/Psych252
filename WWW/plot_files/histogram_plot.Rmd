@@ -23,10 +23,10 @@ p + geom_histogram(fill= 'seagreen',
                    binwidth = 20)
 ```
 
-Plot histograms by another variable
+Plot histograms in subplots by another variable
 ----------------------
 ```{r fig.width = 6, fig.height = 6}
-# add violin plot
+# add subplots by "Diet"
 p + geom_histogram(fill= 'seagreen', 
                    colour = 'black',
                    binwidth = 20) +

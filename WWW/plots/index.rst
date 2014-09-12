@@ -25,10 +25,11 @@ Violin Plots
 
 Box Plots
 ~~~~~~~~~~~
+[`html <http://www.stanford.edu/class/psych252/plots/boxplot_plot.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/boxplot_plot.Rmd>`_]
 
-[`html <http://www.stanford.edu/class/psych252/plots/.html>`_]
-[`Rmd <http://www.stanford.edu/class/psych252/plots/.Rmd>`_]
-
+.. image:: images/boxplot.png
+   :width: 50%
 
 Linear models
 --------------------------
