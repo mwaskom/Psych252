@@ -22,6 +22,7 @@ Contents
 
    data/index.rst
    slides/index.rst
+   plots/index.rst
    apps/index.rst
    tutorials/index.rst
    section/index.rst

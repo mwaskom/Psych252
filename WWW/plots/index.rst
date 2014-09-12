@@ -1,11 +1,33 @@
-Slides
+Plotting Examples
 ================
 
 This is a collection of code you can borrow to make various kinds of plots using packages like ``ggplot``.
 
-Plotting Distributions 
---------------------------------------------
+Distributions of data
+--------------------------
 
-An introduction to Psych 252. Overview of the course, review of key concepts (e.g., *t*, :math:`\chi^2`)
-Preview of GLM (ANOVA, ``lm()``), plots, interactions, contrasts, causal diagrams.
-[`PDF <http://www.stanford.edu/class/psych252/slides/handout1.intro.pdf>`_]
+Histograms
+~~~~~~~~~~~
+
+
+Violin Plots
+~~~~~~~~~~~
+[`html <http://www.stanford.edu/class/psych252/plots/violin_plot.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/violin_plot.Rmd>`_]
+
+
+Box Plots
+~~~~~~~~~~~
+
+[`html <http://www.stanford.edu/class/psych252/plots/.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/.Rmd>`_]
+
+
+Linear models
+--------------------------
+
+Scatter Plots
+~~~~~~~~~~~
+
+Linear Regression
+~~~~~~~~~~~
