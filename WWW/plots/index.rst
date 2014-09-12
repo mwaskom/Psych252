@@ -13,6 +13,8 @@ Histograms
 
 .. image:: images/hist.png
    :width: 50%
+   :alt: alternate text
+   :target: http://www.stanford.edu/class/psych252/plots/histogram_plot.html
 
 Violin Plots
 ~~~~~~~~~~~
@@ -21,6 +23,8 @@ Violin Plots
 
 .. image:: images/violin.png
    :width: 50%
+   :alt: alternate text
+   :target: http://www.stanford.edu/class/psych252/plots/violin_plot.html
 
 
 Box Plots
@@ -30,6 +34,8 @@ Box Plots
 
 .. image:: images/boxplot.png
    :width: 50%
+   :alt: alternate text
+   :target: http://www.stanford.edu/class/psych252/plots/boxplot_plot.html
 
 Linear models
 --------------------------
@@ -41,6 +47,8 @@ Scatter Plots
 
 .. image:: images/scatter.png
    :width: 50%
+   :alt: alternate text
+   :target: http://www.stanford.edu/class/psych252/plots/scatter_plot.html
 
 Linear Regression
 ~~~~~~~~~~~
@@ -49,3 +57,5 @@ Linear Regression
 
 .. image:: images/linreg.png
    :width: 50%
+   :alt: alternate text
+   :target: http://www.stanford.edu/class/psych252/plots/linreg_plot.html
