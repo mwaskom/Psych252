@@ -30,8 +30,11 @@ Contents
    
 .. image:: images/pic1.png
    :width: 30%
+   :target: http://spark.rstudio.com/supsych/simple_regression/
 .. image:: images/pic2.png
    :width: 30%
+   :target: http://spark.rstudio.com/supsych/sampling_and_stderr/
 .. image:: images/pic3.png
    :width: 30%
+   :target: http://spark.rstudio.com/supsych/sdt_concept/
 
