@@ -8,14 +8,17 @@ Distributions of data
 
 Histograms
 ~~~~~~~~~~~
-
+[`html <http://www.stanford.edu/class/psych252/plots/histogram_plot.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/histogram_plot.Rmd>`_]
+.. image:: images/hist.png
+   :width: 50%
 
 Violin Plots
 ~~~~~~~~~~~
-.. image:: images/violin.png
-   :width: 30%
 [`html <http://www.stanford.edu/class/psych252/plots/violin_plot.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/plots/violin_plot.Rmd>`_]
+.. image:: images/violin.png
+   :width: 50%
 
 
 Box Plots
