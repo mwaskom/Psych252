@@ -12,6 +12,8 @@ Histograms
 
 Violin Plots
 ~~~~~~~~~~~
+.. image:: images/violin.png
+   :width: 30%
 [`html <http://www.stanford.edu/class/psych252/plots/violin_plot.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/plots/violin_plot.Rmd>`_]
 
