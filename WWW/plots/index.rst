@@ -59,3 +59,13 @@ Linear Regression
    :width: 50%
    :alt: alternate text
    :target: http://www.stanford.edu/class/psych252/plots/linreg_plot.html
+
+Plotting by Facets
+~~~~~~~~~~~
+[`html <http://www.stanford.edu/class/psych252/plots/facet_plot.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/facet_plot.Rmd>`_]
+
+.. image:: images/facet.png
+   :width: 50%
+   :alt: alternate text
+   :target: http://www.stanford.edu/class/psych252/plots/facet_plot.html
