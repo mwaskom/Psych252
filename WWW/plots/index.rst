@@ -37,6 +37,17 @@ Box Plots
    :alt: alternate text
    :target: http://www.stanford.edu/class/psych252/plots/boxplot_plot.html
 
+Point plots
+~~~~~~~~~~~
+[`html <http://www.stanford.edu/class/psych252/plots/point_plot.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/point_plot.Rmd>`_]
+
+.. image:: images/point.png
+   :width: 50%
+   :alt: alternate text
+   :target: http://www.stanford.edu/class/psych252/plots/point_plot.html
+
+
 Linear models
 --------------------------
 
