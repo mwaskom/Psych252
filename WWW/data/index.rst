@@ -10,8 +10,8 @@ Juvenile Deaths in Santa Clara County
 
 Fields:
 
-* **time**: 1, 2, or 3; corresponding to 1990-91, 1992-93, 1994-95
-* **cause**: 'maltreatment' or 'other'
+* **time**: Time of death (1, 2, or 3; corresponding to 1990-91, 1992-93, 1994-95)
+* **cause**: Cause of each juvenile's death ('maltreatment' or 'other')
 
 fieldsimul1.csv
 ---------------
@@ -141,6 +141,7 @@ Dataset from an educational psychologist, testing the effectiveness of 3 methods
 Fields:
 
 * **method**: method of instruction, 1 = emphasizing 'drill and practice,' 2  =
+
 emphasizing fun with math, and 3 = control method 
 
 * **satis**: student satisfaction with the method 
