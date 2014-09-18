@@ -13,12 +13,24 @@ Fields:
 * **time**: Time of death (1, 2, or 3; corresponding to 1990-91, 1992-93, 1994-95)
 * **cause**: Cause of each juvenile's death ('maltreatment' or 'other')
 
+
 fieldsimul1.csv
 ---------------
 
 Survey of likely voters in California
 
 :download:`Click to download data </datasets/fieldsimul1.csv>`
+
+Fields:
+
+* **age**: Age of voters surveyed (20-75 years)
+* **agecat**: Age of voters surveyed, binned into groups of 20 years
+* **party**: Political party of voters (1=Democrat, 2=Republican, 3=Other)
+* **prop54**: Whether voter reported if they would vote for Prop 54 (Racial Privacy Initiative)
+* **optmism**: Level of optimism (0-11)
+* **recall**: Do you think the governor should be recalled? (1=yes, 2=no, 3=unsure)
+* **recallq**: Do you think the governor should be recalled? (1=yes, 0=unsure, -1=no)
+
 
 hw2data.csv
 -----------
