@@ -35,6 +35,7 @@ Contents
    plots/index.rst
    apps/index.rst
    tutorials/index.rst
+   cheatsheets/index.rst
    section/index.rst
    section_2013/index.rst
    
