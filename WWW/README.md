@@ -3,7 +3,7 @@ Course Website
 
 This directory contains the source material and config file to build the course website. This is a [Sphinx](http://sphinx-doc.org/) website.
 
-Raw datafiles go in `datasets/`. A description of the datasets lives in `data/datasets.rst`. The markup language used here is called RestructuredText, which is like Markdown but a bit more complex (and thus expressive).
+Raw datafiles go in `datasets/`. A description of the datasets lives in `data/index.rst`. The markup language used here is called RestructuredText, which is like Markdown but a bit more complex (and thus expressive).
 
 Building the website
 --------------------
