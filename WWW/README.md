@@ -10,7 +10,7 @@ Building the website
 
 To build the site, type `make html` in your terminal from this directory. Typing `make clean` first will remove old builds, which may be something you want to do.
 
-Once you've built the site, if you want to check it before uploading, you'll have to start a local webserver. This is easy to do buy running the following command in your terminal (from this directory):
+Once you've built the site, if you want to check it before uploading, you'll have to start a local webserver. This is easy to do by running the following command in your terminal (from this directory):
 
     python -m SimpleHTTPServer
 
