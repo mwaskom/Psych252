@@ -3,9 +3,18 @@ Course Website
 
 This directory contains the source material and config file to build the course website. This is a [Sphinx](http://sphinx-doc.org/) website.
 
-To build the site, type `make html`. Typing `make clean` first will remove old builds, which may be something you want to do.
-
 Raw datafiles go in `datasets/`. A description of the datasets lives in `data/datasets.rst`. The markup language used here is called RestructuredText, which is like Markdown but a bit more complex (and thus expressive).
+
+Building the website
+--------------------
+
+To build the site, type `make html` in your terminal from this directory. Typing `make clean` first will remove old builds, which may be something you want to do.
+
+Once you've built the site, if you want to check it before uploading, you'll have to start a local webserver. This is easy to do buy running the following command in your terminal (from this directory):
+
+    python -m SimpleHTTPServer
+
+Once that is running, open a browser tab and navigate to `localhost:8000/_build/html`. This will show you the local version of the website.
 
 Uploading to the Stanford website
 ---------------------------------
