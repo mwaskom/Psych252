@@ -5,6 +5,8 @@ This directory contains the source material and config file to build the course 
 
 Raw datafiles go in `datasets/`. A description of the datasets lives in `data/index.rst`. The markup language used here is called RestructuredText, which is like Markdown but a bit more complex (and thus expressive).
 
+PDFs of slides go in `WWW/slides_files`. IMPORTANT NOTE: This folder is *not* under version control (see .gitignore). 
+
 Building the website
 --------------------
 
