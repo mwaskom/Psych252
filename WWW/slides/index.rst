@@ -24,4 +24,4 @@ A continuation of Lecture 1. (Note: updated PDF.)
 
 .. |pdf_link02| raw:: html
 
-	[PDF: <a href="http://www.stanford.edu/class/psych252/slides/2014-09-22_handout1.intro.pdf" target="_blank">2014-09-24_handout1.intro.pdf</a>]
+	[PDF: <a href="http://www.stanford.edu/class/psych252/slides/2014-09-24_handout1.intro.pdf" target="_blank">2014-09-24_handout1.intro.pdf</a>]
