@@ -17,8 +17,7 @@ Preview of GLM (ANOVA, ``lm()``), plots, interactions, contrasts, causal diagram
 Lecture 2 (9/24): 
 --------------------------------------------
 
-A continuation of Lecture 1. (Note: updated PDF.)
-[`PDF <http://www.stanford.edu/class/psych252/slides/2014-09-22_handout1.intro.pdf>`_]
+A continuation of Lecture 1. (Note: PDF has been updated since Lecture 1.)
 
 |pdf_link02|
 
