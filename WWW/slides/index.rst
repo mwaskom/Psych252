@@ -18,7 +18,6 @@ Lecture 2 (9/24):
 --------------------------------------------
 
 A continuation of Lecture 1. (Note: PDF has been updated since Lecture 1.)
-
 |pdf_link02|
 
 .. |pdf_link02| raw:: html
