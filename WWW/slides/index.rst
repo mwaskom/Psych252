@@ -36,3 +36,14 @@ Discussion of sampling distributions, summary statistics (mean, variance, standa
 .. |pdf_link03| raw:: html
 
 	[PDF: <a href="http://www.stanford.edu/class/psych252/slides/2014-09-26_handout1.intro3.pdf" target="_blank">2014-09-26_handout1.intro3.pdf</a>]
+
+Lecture 4 (9/29): 
+--------------------------------------------
+
+The normal distribution, the *t* statistic, effect size and power, oneway analysis of variance (ANOVA).
+
+|pdf_link04|
+
+.. |pdf_link04| raw:: html
+
+	[PDF: <a href="http://www.stanford.edu/class/psych252/slides/2014-09-29_Week+2+t+test+ANOVA+Power+2014.pdf" target="_blank">2014-09-29_Week+2+t+test+ANOVA+Power+2014.pdf</a>]
