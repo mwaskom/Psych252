@@ -32,6 +32,19 @@ Fields:
 * **recallq**: Do you think the governor should be recalled? (1=yes, 0=unsure, -1=no)
 
 
+dataset_scale.csv
+---------------
+
+Mocked-up data for examining the relationship between height and salary.
+
+:download:`Click to download data </datasets/dataset_scale.csv>`
+
+Fields:
+
+* **height**: Participant's height
+* **salary**: Participant's salary
+
+
 hw2data.csv
 -----------
 
