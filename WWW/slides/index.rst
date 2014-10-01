@@ -47,3 +47,17 @@ The normal distribution, the *t* statistic, effect size and power, oneway analys
 .. |pdf_link04| raw:: html
 
 	[PDF: <a href="http://www.stanford.edu/class/psych252/slides/2014-09-29_Week+2+t+test+ANOVA+Power+2014.pdf" target="_blank">2014-09-29_Week+2+t+test+ANOVA+Power+2014.pdf</a>]
+
+Lecture 5 (10/01): 
+--------------------------------------------
+
+The normal distribution, the *t* statistic, effect size and power, oneway analysis of variance (ANOVA) - continued! (Note: PDF has been updated since Lecture 4.)
+
+|pdf_link05|
+
+.. |pdf_link05| raw:: html
+
+	[PDF: <a href="http://www.stanford.edu/class/psych252/slides/2014-10-01_Week+2+t+test+ANOVA+Power+2014.pdf" target="_blank">2014-10-01_Week+2+t+test+ANOVA+Power+2014.pdf</a>]
+
+
+	
