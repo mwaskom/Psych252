@@ -62,7 +62,7 @@ The normal distribution, the *t* statistic, effect size and power, oneway analys
 Lecture 6 (10/03): 
 --------------------------------------------
 
-(Note: PDF has been updated since Lecture 5.)
+The logical and mathematical underpinnings of ANOVA; power calculations in ANOVA. (Note: PDF has been updated since Lecture 5.)
 
 |pdf_link06|
 
