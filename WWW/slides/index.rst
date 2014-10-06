@@ -73,7 +73,7 @@ The logical and mathematical underpinnings of ANOVA; power calculations in ANOVA
 Lecture 7 (10/06): 
 --------------------------------------------
 
-Distribution theory & hypothesis testing
+Distribution theory & hypothesis testing. Interval calculations for means (:math:`\mu`), proportions (*p*), and variances (:math:`\sigma^2`). Logistic regression.
 
 |pdf_link07|
 
