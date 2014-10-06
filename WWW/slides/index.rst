@@ -69,4 +69,15 @@ The logical and mathematical underpinnings of ANOVA; power calculations in ANOVA
 .. |pdf_link06| raw:: html
 
 	[PDF: <a href="2014-10-03_Week+2+t+test+ANOVA+Power+2014.pdf" target="_blank">2014-10-03_Week+2+t+test+ANOVA+Power+2014.pdf</a>]
+
+Lecture 7 (10/06): 
+--------------------------------------------
+
+Distribution theory & hypothesis testing
+
+|pdf_link07|
+
+.. |pdf_link07| raw:: html
+
+	[PDF: <a href="2014-10-06_ho3-distrns1.pdf" target="_blank">2014-10-06_ho3-distrns1.pdf</a>]
 	
