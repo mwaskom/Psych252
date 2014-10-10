@@ -89,4 +89,13 @@ Lecture 8 (10/08):
 .. |pdf_link08| raw:: html
 
 	[PDF: <a href="2014-10-08_ho3-distrns1.pdf" target="_blank">2014-10-08_ho3-distrns1.pdf</a>]
+
+Lecture 9 (10/10): 
+--------------------------------------------
+
+|pdf_link09|
+
+.. |pdf_link09| raw:: html
+
+	[PDF: <a href="2014-10-10_2014+Intro+to+multiple+regression.pdf" target="_blank">2014-10-10_2014+Intro+to+multiple+regression.pdf</a>]
 	
