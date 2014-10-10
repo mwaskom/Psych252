@@ -80,4 +80,13 @@ Distribution theory & hypothesis testing. Interval calculations for means (:math
 .. |pdf_link07| raw:: html
 
 	[PDF: <a href="2014-10-06_ho3-distrns1.pdf" target="_blank">2014-10-06_ho3-distrns1.pdf</a>]
+
+Lecture 8 (10/08): 
+--------------------------------------------
+
+|pdf_link08|
+
+.. |pdf_link08| raw:: html
+
+	[PDF: <a href="2014-10-08_ho3-distrns1.pdf" target="_blank">2014-10-08_ho3-distrns1.pdf</a>]
 	
