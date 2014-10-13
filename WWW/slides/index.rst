@@ -98,4 +98,12 @@ Lecture 9 (10/10):
 .. |pdf_link09| raw:: html
 
 	[PDF: <a href="2014-10-10_2014+Intro+to+multiple+regression.pdf" target="_blank">2014-10-10_2014+Intro+to+multiple+regression.pdf</a>]
-	
+
+Lecture 10 (10/13): 
+--------------------------------------------
+
+|pdf_link10|
+
+.. |pdf_link10| raw:: html
+
+	[PDF: <a href="2014-10-13_2014+Intro+to+multiple+regression.pdf" target="_blank">2014-10-13_2014+Intro+to+multiple+regression.pdf</a>]
