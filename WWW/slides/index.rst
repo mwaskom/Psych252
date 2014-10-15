@@ -107,3 +107,12 @@ Lecture 10 (10/13):
 .. |pdf_link10| raw:: html
 
 	[PDF: <a href="2014-10-13_2014+Intro+to+multiple+regression.pdf" target="_blank">2014-10-13_2014+Intro+to+multiple+regression.pdf</a>]
+
+Lecture 11 (10/15): 
+--------------------------------------------
+
+|pdf_link11|
+
+.. |pdf_link11| raw:: html
+
+	[PDF: <a href="2014-10-15_ho4-probability2.pdf" target="_blank">2014-10-15_ho4-probability2.pdf</a>]
