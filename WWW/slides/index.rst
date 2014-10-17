@@ -116,3 +116,14 @@ Lecture 11 (10/15):
 .. |pdf_link11| raw:: html
 
 	[PDF: <a href="2014-10-15_ho4-probability2.pdf" target="_blank">2014-10-15_ho4-probability2.pdf</a>]
+
+Lecture 12 (10/17): 
+--------------------------------------------
+
+|pdf_link12|
+
+.. |pdf_link12| raw:: html
+
+	[PDF: <a href="2014-10-17_ho4-probability2.pdf" target="_blank">2014-10-17_ho4-probability2.pdf</a>]
+
+	
