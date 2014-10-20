@@ -126,4 +126,11 @@ Lecture 12 (10/17):
 
 	[PDF: <a href="2014-10-17_ho4-probability2.pdf" target="_blank">2014-10-17_ho4-probability2.pdf</a>]
 
-	
+Lecture 13 (10/20): 
+--------------------------------------------
+
+|pdf_link13|
+
+.. |pdf_link13| raw:: html
+
+	[PDF: <a href="2014-10-20_Interactions+Suppression+Mediation+2014.pdf" target="_blank">2014-10-20_Interactions+Suppression+Mediation+2014.pdf</a>]
