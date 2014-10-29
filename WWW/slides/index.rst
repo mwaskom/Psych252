@@ -143,3 +143,14 @@ Lecture 15 (10/27):
 .. |pdf_link15| raw:: html
 
 	[PDF: <a href="2014-10-27_ho6-q3.prep.pdf" target="_blank">2014-10-27_ho6-q3.prep.pdf</a>]
+
+Lecture 16 (10/29): 
+--------------------------------------------
+
+Mediation, bootstrapping, suppression.
+
+|pdf_link16|
+
+.. |pdf_link16| raw:: html
+
+	[PDF: <a href="2014-10-29_Benoit_s+252+Slides+Wed+10_19_14.pdf" target="_blank">2014-10-29_Benoit_s+252+Slides+Wed+10_19_14.pdf</a>]
