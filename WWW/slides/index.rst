@@ -154,3 +154,14 @@ Mediation, bootstrapping, suppression.
 .. |pdf_link16| raw:: html
 
 	[PDF: <a href="2014-10-29_Benoit_s+252+Slides+Wed+10_19_14.pdf" target="_blank">2014-10-29_Benoit_s+252+Slides+Wed+10_19_14.pdf</a>]
+
+Lecture 17 (11/2): 
+--------------------------------------------
+
+Multiple comparisons, post-hoc tests.
+
+|pdf_link17|
+
+.. |pdf_link17| raw:: html
+
+	[PDF: <a href="2014-11-03_ho7.mcomp._.transf.pdf" target="_blank">2014-11-03_ho7.mcomp._.transf.pdf</a>]
