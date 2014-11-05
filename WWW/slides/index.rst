@@ -165,3 +165,14 @@ Multiple comparisons, post-hoc tests.
 .. |pdf_link17| raw:: html
 
 	[PDF: <a href="2014-11-03_ho7.mcomp._.transf.pdf" target="_blank">2014-11-03_ho7.mcomp._.transf.pdf</a>]
+
+Lecture 18 (11/5): 
+--------------------------------------------
+
+Advanced mediation.
+
+|pdf_link18|
+
+.. |pdf_link18| raw:: html
+
+	[PDF: <a href="2014-11-05_2014+Advanced+Mediation+bm.pdf" target="_blank">2014-11-05_2014+Advanced+Mediation+bm.pdf</a>]
