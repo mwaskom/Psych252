@@ -176,3 +176,14 @@ Advanced mediation.
 .. |pdf_link18| raw:: html
 
 	[PDF: <a href="2014-11-05_2014+Advanced+Mediation+bm.pdf" target="_blank">2014-11-05_2014+Advanced+Mediation+bm.pdf</a>]
+
+Lecture 19 (11/10): 
+--------------------------------------------
+
+Introduction to mixed-effects models.
+
+|pdf_link19|
+
+.. |pdf_link19| raw:: html
+
+	[PDF: <a href="	2014-11-10_ho12-ANOVA3.pdf" target="_blank">	2014-11-10_ho12-ANOVA3.pdf</a>]
