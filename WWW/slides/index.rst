@@ -197,5 +197,16 @@ Introduction to mixed-effects models.
 
 .. |pdf_link21| raw:: html
 
-	[PDF: <a href="2014-11-14_ho9-mixed.models.2.pdf" target="_blank">2014-11-14_ho9-mixed.models.2.pdf
-</a>]
+	[PDF: <a href="2014-11-14_ho9-mixed.models.2.pdf" target="_blank">2014-11-14_ho9-mixed.models.2.pdf</a>]
+
+Lecture 22 (11/17): 
+--------------------------------------------
+
+Continued discussion of mixed-effects models.
+
+|pdf_link22|
+
+.. |pdf_link22| raw:: html
+
+	[PDF: <a href="2014-11-17_Mixed+Models+2014+bm.pdf" target="_blank">2014-11-17_Mixed+Models+2014+bm.pdf</a>]
+
