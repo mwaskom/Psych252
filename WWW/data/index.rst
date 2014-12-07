@@ -248,3 +248,17 @@ Fields:
 * **comclip.len**: perceived length of comedy clips
 
 * **statsclip.len**: perceived length of statistics class clips
+
+vocab0.csv
+---------------
+
+ Study of young children's vocabulary growth.
+
+:download:`Click to download data </datasets/vocab0.csv>`
+
+couples1.csv
+---------------
+
+Study of couples' interaction quality.
+
+:download:`Click to download data </datasets/couples1.csv>`
