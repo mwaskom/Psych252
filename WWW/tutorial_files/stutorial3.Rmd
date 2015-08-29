@@ -1,5 +1,11 @@
-Psych 252: R Tutorial Module 3
-========================================================
+---
+title: 'Psych 252: R Tutorial Module 3'
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+    toc: yes
+---
 
 Based on notes by Paul Thibodeau (2009) and revisions by the Psych 252 instructors in 2010 and 2011
 
@@ -7,7 +13,6 @@ Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas
 
 Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Steph Gagnon.
 
-2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey
 
 Performing t-tests in R
 -----------------------
@@ -25,7 +30,7 @@ To test our $H_0$, we'll compute a "standardized difference", or **t statistic**
 Let's start by reading in our data:
 
 ```{r load_d0}
-d0 = read.csv("http://www.ilr.cornell.edu/~hadi/RABE4/Data4/P005.txt", sep='\t')
+d0 = read.csv("http://stanford.edu/class/psych252/data/P005.txt", sep='\t')
 str(d0)
 head(d0)
 ```

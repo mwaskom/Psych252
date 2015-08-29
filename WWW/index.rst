@@ -19,10 +19,10 @@ Instructors:
 
 Ewart Thomas, Benoît Monin
 
-2014 Teaching Assistants:
+2015 Teaching Assistants:
 ~~~~~~~~~~~~~~~~~~~~
 
-Rebecca Carey, Caitie Handron, Kara Weisman
+Dan Birman, Steph Gagnon, Robert Hawkins
 
 Contents
 --------

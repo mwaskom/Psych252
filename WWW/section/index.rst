@@ -1,7 +1,6 @@
-2014 Section Resources
+Section Resources
 =================
 
 
 Week 1
 ---------------
-

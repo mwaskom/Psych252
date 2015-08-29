@@ -1,5 +1,11 @@
-Psych 252: R Tutorial Module 2
-========================================================
+---
+title: 'Psych 252: R Tutorial Module 2'
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+    toc: yes
+---
 
 Based on notes by Paul Thibodeau (2009) and revisions by the Psych 252 instructors in 2010 and 2011
 
@@ -7,7 +13,6 @@ Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas
 
 Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Steph Gagnon.
 
-2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey
 
 Manipulating Dataframes
 -----------------------
@@ -133,7 +138,7 @@ R allows us to read data that's stored in a file on your computer or from a URL 
 We can provide the website URL, and R will read in the table:
 
 ```{r flu_load}
-flu.table <- read.table('http://statweb.stanford.edu/~jtaylo/courses/stats191/data/flu.table', header=TRUE)
+flu.table <- read.table('http://stanford.edu/class/psych252/data/flu.table', header=TRUE)
 
 str(flu.table)  	# description of dataframe
 ```
@@ -162,7 +167,7 @@ Now, we'll load in some data on several cities (*n* = 38), including whether eac
 These data are stored in a table where columns are separated by a tab (which is represented by the `\t` code. We'll tell `read.csv()` to be expecting tabs where it by default expects commas: 
 
 ```{r rtw_load}
-rtw.table <- read.csv("http://www.ilr.cornell.edu/~hadi/RABE4/Data4/P005.txt", sep='\t')
+rtw.table <- read.csv("http://stanford.edu/class/psych252/data/P005.txt", sep='\t')
 
 str(rtw.table)
 ```

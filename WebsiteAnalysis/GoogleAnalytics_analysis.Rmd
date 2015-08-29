@@ -1,0 +1,36 @@
+---
+title: "Psych252 Website Useage Analysis"
+output: pdf_document
+---
+
+```{r}
+d = read.csv('~/Downloads//Analytics All Web Site Data Pages 20140918-20140920.csv')
+
+str(d)
+
+sum(d$Pageviews)
+```
+
+Number of Page Views
+--------------------
+```{r, fig.width = 11, fig.height = 4}
+
+library(ggplot2)
+
+theme_set(theme_bw(base_size = 14)) 
+
+ggplot(d, aes(x=Page, y=Pageviews, fill = Page)) +
+  geom_bar(stat="identity") + 
+  guides(fill=FALSE) 
+```
+
+Average Time on Page
+-------------------
+```{r, fig.width = 11, fig.height = 4}
+# sort Page by column
+ggplot(d, aes(x=Page, y=Avg..Time.on.Page, fill = Page)) +
+  geom_bar(stat="identity") + 
+  guides(fill=FALSE) 
+```
+
+
