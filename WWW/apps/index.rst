@@ -11,7 +11,7 @@ Compiled by Steph Gagnon, Michael Waskom, and Lauren Howe
 Sampling and standard error
 ---------------------------
 
-`Link to app <http://spark.rstudio.com/supsych/sampling_and_stderr/>`_
+`Link to app <https://gallery.shinyapps.io/sampling_and_stderr/>`_
 
 This example demonstrates the relationship between the standard deviation of a
 population, the standard deviation and standard error of the mean for a sample
@@ -36,7 +36,7 @@ shows what happens when the null hypothesis is true.
 Simple linear regression
 ------------------------
 
-`Link to app <http://spark.rstudio.com/supsych/simple_regression/>`_
+`Link to app <https://gallery.shinyapps.io/simple_regression/>`_
 
 This example demonstrates the key objective of linear regression: finding the
 coefficients for a linear model that minimize the squared distance from each
@@ -55,7 +55,7 @@ data you are fitting the model to.
 Regression uncertainty
 ----------------------
 
-`Link to app <http://spark.rstudio.com/supsych/regression_bootstrap/>`_
+`Link to app <https://gallery.shinyapps.io/regression_bootstrap/>`_
 
 This app plots a simple linear regression and allows the user to visualize the
 distribution of regression estimates from bootstrap resamples of the dataset.
@@ -68,7 +68,7 @@ visualizing the uncertainty of a regression.
 Modeling choices in multiple regression
 ---------------------------------------
 
-`Link to app <http://spark.rstudio.com/supsych/multi_regression/>`_
+`Link to app <https://gallery.shinyapps.io/multi_regression/>`_
 
 This app plots a basic multiple regression with two variables: x, a continuous
 measure, and group, a categorical measure. The app lets the user choose whether
@@ -82,7 +82,7 @@ regression.
 Multicollinearity in multiple regression
 ----------------------------------------
 
-`Link to app <http://spark.rstudio.com/supsych/collinearity/>`_
+`Link to app <https://gallery.shinyapps.io/collinearity/>`_
 
 This app shows what happens to multiple regression results when there is
 considerable covariance between two contiunous predictor variables. Although
@@ -111,5 +111,5 @@ Signal Detection Theory
 `Conceptual illustration <http://spark.rstudio.com/supsych/sdt_concept/>`_ /
 `Calculations from data <http://spark.rstudio.com/supsych/sdt_expt/>`_
 
-These applications illustrate the relationship between hit rate, false alarm rate, 
+These applications illustrate the relationship between hit rate, false alarm rate,
 dprime, and criterion.

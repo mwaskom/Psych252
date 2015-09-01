@@ -3,6 +3,20 @@ Plotting Examples
 
 This is a collection of code you can borrow to make various kinds of plots using packages like ``ggplot``.
 
+Visualizing structure in dataframes
+--------------------------
+
+Correlation matrices
+~~~~~~~~~~~
+[`html <http://www.stanford.edu/class/psych252/plots/corrmat_plot.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/corrmat_plot.Rmd>`_]
+
+.. image:: images/corrmat.png
+   :width: 50%
+   :alt: alternate text
+   :target: http://www.stanford.edu/class/psych252/plots/corrmat_plot.html
+
+
 Distributions of data
 --------------------------
 
