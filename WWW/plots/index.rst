@@ -21,7 +21,7 @@ Continuous and categorical data
 [`html <http://www.stanford.edu/class/psych252/plots/mixeddf_plot.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/plots/mixeddf_plot.Rmd>`_]
 
-.. image:: images/mixeddf.png
+.. image:: images/mixeddf_plot.png
    :width: 50%
    :alt: alternate text
    :target: http://www.stanford.edu/class/psych252/plots/mixeddf_plot.html
