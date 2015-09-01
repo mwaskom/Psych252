@@ -6,7 +6,7 @@ This is a collection of code you can borrow to make various kinds of plots using
 Visualizing structure in dataframes
 --------------------------
 
-Correlation matrices
+Continuous data: correlation matrices
 ~~~~~~~~~~~
 [`html <http://www.stanford.edu/class/psych252/plots/corrmat_plot.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/plots/corrmat_plot.Rmd>`_]
@@ -15,6 +15,16 @@ Correlation matrices
    :width: 50%
    :alt: alternate text
    :target: http://www.stanford.edu/class/psych252/plots/corrmat_plot.html
+
+Continuous and categorical data
+~~~~~~~~~~~
+[`html <http://www.stanford.edu/class/psych252/plots/mixeddf_plot.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/plots/mixeddf_plot.Rmd>`_]
+
+.. image:: images/mixeddf.png
+   :width: 50%
+   :alt: alternate text
+   :target: http://www.stanford.edu/class/psych252/plots/mixeddf_plot.html
 
 
 Distributions of data

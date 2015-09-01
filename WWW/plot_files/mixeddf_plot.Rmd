@@ -1,0 +1,52 @@
+---
+title: "Visualize mixed dataframe"
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+---
+
+Load in data (continuous and categorical)
+-------------
+```{r}
+data = ChickWeight
+str(data)
+```
+
+## Define function for plotting
+```{r}
+library(GGally)
+
+plot_dataframe <- function(data, color_var=NULL, cols=NULL){
+  if(missing(cols)){
+    cols=c(1:length(data))
+    }
+  
+  if(missing(color_var)){
+    ggpairs(data[, cols], 
+            upper = list(continuous = "smooth", 
+                         combo = "box"),
+            lower = list(continuous = "cor", 
+                         combo = "facethist"))
+    }else{
+      ggpairs(data[, cols], 
+              upper = list(continuous = "smooth", 
+                           combo = "box"),
+              lower = list(continuous = "cor", 
+                           combo = "facethist"),
+              colour = color_var)
+      }
+  }
+
+```
+
+## Plot the relationships between columns
+```{r message=FALSE, warning=FALSE, fig.height=6, fig.width=6}
+plot_dataframe(data, cols=c(1,2,4))
+```
+
+## Plot the relationships between columns, color coding by a categorical variable
+```{r message=FALSE, warning=FALSE, fig.height=6, fig.width=6}
+plot_dataframe(data, color_var='Diet', cols=c(1,2,4))
+```
+
