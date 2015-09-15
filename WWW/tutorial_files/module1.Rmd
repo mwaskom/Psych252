@@ -1,0 +1,363 @@
+---
+title: "Introduction to Statistical Computing with R: Module 1"
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+    toc: yes
+---
+
+Thank you to Paul Thibodeau (2009), 252 instructors in 2010 and 2011, Mike Frank, Benoit Monin, and Ewart Thomas for the original tutorials. Michael Waskom for the conversion to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown). The most recent iteration was created in 2015 by Dan Birman, Natalia Velez, and Kara Weisman.
+
+*If you haven't already installed R, it is available [here](http://www.r-project.org/).*
+
+Introduction to the tutorials
+-----------------------------
+
+The data analysis environment we'll be using for Psych 252 consists of R and RStudio. **R** is a programming language that is specifically designed for statistical computation. It is powerful, flexible, and widely used in the statistical community. The aspects that make R so powerful and flexible, however, contribute to a learning curve that is likely steeper than what you might find in "point-and-click" programs (like SPSS). Using **RStudio** (an "integrated development environment" specifically designed for R) makes things a little easier, but learning these new tools can still feel overwhelming at times. This tutorial provides a general introduction to R, and a preview of how R is used in the course. We hope the tutorial will reduce the feelings of frustration and helplessness that can emerge early in our attempt to learn R and statistics at the same time - and provide a resource for you to return to periodically throughout the quarter (and beyond!).
+
+Some notes on R and RStudio
+---------------------------
+
+### Common questions: What am I doing? Why?
+
+Your basic goal when you're working with data in R is to write out a **script** that documents and executes every step of your interaction with your data, via lines of **code**. You can then run this code in the **console**, either bit by bit (starting from the top, and working your way down) or all at once. Your script will ultimately include every step of data processing and analysis:
+
+* __Formatting datasets__ (e.g., making new variables based on other variables in your dataset, isolating subsets of your dataset, comparing different datasets, ...)
+* __Summarising results__ (e.g., finding means, assessing variability and distributions, ...)
+* __Running statistical analyses__ (e.g., t-tests, chi-squared tests, regressions, ...)
+* __Making plots__ 
+
+Your script should also include some notes about what you're doing, for future reference. One of the best ways to do this is by creating an R Markdown document, like this one, where you can include both prose (like this current paragraph) and code (more on that later!). 
+
+This has so many advantages over other ways of analyzing data!
+
+* You have a record for yourself - forever! - for working on analyses over time (even as you continue to collect data), quickly analyzing similar new datasets, and reconstructing abandoned projects
+* You can automate as much of the data processing, analysis, plotting, and even reporting process as you want to, saving you from copying and pasting and making stupid mistakes 
+* You can easily give your script to other people as a guide for them to understand or help you with your analyses, build on your findings, reanalyze your data, attempt to replicate your studies, etc.
+
+And if you get really into it, you can use version control on your analysis code (e.g., using [github](https://github.com/)), make your own functions and packages tailored to your own projects and needs, make web apps for visualizing your data, and even write entire manuscripts in the R/RStudio environment. Learning R in the context of this course can be a springboard for all of these skills and projects.
+
+### Common questions, continued: Okay but where am I? Where is my dataset?
+
+In RStudio, the default view shows you 4 windows:
+
+* By default, the upper left window in RStudio shows you tabs for all of the __R scripts__ (extension: .R) or __R Markdown files__ (extension: .rmd) that you currently have open. These are the places where you're storing your step-by-step guide for how to processes, analyze, plot, etc. your dataset. You can run lines of code from your script by highlighting them, and pressing COMMAND + ENTER on Mac, or CONTROL + ENTER on PC. If you're in an R Markdown document and want to run a whole chunk of code, you can press ALT + COMMAND + C on Mac, or ALT + CONTROL + C on PC.
+* The __console__ is (by default) in the lower left window of RStudio . This is where you can type in lines of code, run them, and see results printed out. It's like the screen of a calculator. When you run code from your script, it will show up here, along with its results and any warning or error messages.
+* In the upper right window of RStudio (by default), you can see your __environment__, which is where you'll see any datasets you've loaded as well as any other variables or objects you've created in the console. If you want to examine what these datasets (etc.) look like, you can click on them and they'll pop up in the upper left window! (You can also do this by using the `View()` function in the console.) This window also has a tab for viewing your __history__, i.e., all the commands you've run in the console, in order.
+* In the lower right window of RStudio (by default) are tabs for viewing your __files__ (showing you the same organization of files and folders that you'd see in Finder), your __plots__ that you create, any __packages__ you have loaded or want to load (more on this later), and the __help documentation__ for any functions you want to learn more about (more on this later, too!).
+
+(Note that you can change the layout of these windows if you want.)
+
+Getting down to business: Basic interaction with the R console
+--------------------------------------------------------------
+
+At its least useful, you can treat R like a calculator for basic computations. Just type some mathematical expression into the console, and the result will be displayed on the following line.
+
+```{r basic_calculator}
+1 + 2
+13 / 2
+2 ^ 6
+5 * (2 + 3)
+```
+
+### Variable Assignment
+
+Of course, R is a programming language, so it is much more powerful than a basic calculator. A major aspect of computing with R involves the assignment of values to variables. There are two (almost) equivalent ways to do this:
+
+```{r variable_assignment_1}
+x = 4
+x <- 4
+```
+
+In both cases, `x` will represent `4` for all lines of code below these here, unless you reassign `x`.
+
+```{r variable_assignment_2}
+x
+x + 2
+x = 8
+x
+```
+
+It is important not to confuse variable assignment with a statement about equality. In your head, you should say *set x to 4* or *x gets 4*, but not *x is equal to 4*. Don't worry now about the subtle differences between the two assignment styles. Although using `=` is more consistent with the norm in other programming languages, some people prefer `<-` as it makes the action that is being performed more obvious. Whichever you choose, it's best to be consistent throughout your code.
+
+In case you're wondering, you test for equality with two equal signs (`==`), which does something completely different:
+
+```{r equality_tests}
+2 == 2
+2 == 3
+```
+
+It's fine to use variable names like `x` for simple math examples like the ones above. But, when writing code to perform analysis, you should be careful to use descriptive names. Code where things are named, `subject_id`, `condition`, and `rt` will be a bit more verbose than if you had used `x`, `y`, and `z`, but it will also make **much** more sense when you read it again 4 months later as you write up the paper.
+
+With that said, there are a few rules for variable names. You can use any alphanumeric character, although the first character must be a letter. You can't use spaces, because the computer doesn't know that you're trying to write a phrase and interprets that as two (or more) separate terms. When you want something like a phrase, the `_` and `.` characters can be employed (this can be a bit confusing as `.` is usually meaningful in programming languages, but not in R).
+
+Here's a simple example that novice coders often find confusing. Walk yourself through the code and make sure you understand what operations lead to the final return value:
+
+```{r assignment_example}
+a = 10
+b = 20
+a = b
+print(a)
+```
+
+Using functions
+---------------
+
+Another core concept involves using *functions* to perform more complex operations. Functions in R work like they do in mathematics: they specify a transformation from one or more inputs (called *arguments* or *parameters*) to one or more outputs (or *return values*). You *call* a function by writing its name followed by parentheses, with any arguments going inside the parentheses. We already saw one example of this with the `print()` function above. The `cat()` function is similar, but it converts its arguments into characters first. There are also some basic mathematical functions built into R that operate on numbers:
+
+```{r math_functions}
+abs(-4)
+sqrt(64)
+log(1.75)
+```
+
+A frequently-used function is `c()`, which stands for *concatenate*. This takes a sequence of arguments and sticks them together into a *vector*, which we'll explain a little bit more about below. All you need to know now is that most of the built in functions for descriptive statistics (and there are many of these!) expect to receive a vector or something like it.
+
+```{r basic_vectors}
+a = c(1.5, 4, 3)
+cat(a)
+sum(a)
+mean(a)
+sd(a)
+```
+
+You can also *compose* functions, which allows for more expressive code:
+
+```{r composed_functions}
+a = c(-2, 4, 5.5)
+sum(abs(a))
+```
+
+### Keyword Arguments
+
+Sometimes, functions have *keyword arguments*. When values are not passed for these arguments, they take a default value, which can be found when you look at the help for that function (`?func_name`). For example, most statistical functions in R have built-in missing-value handling. Because missing data is common with real-world data, there is a special object in R to stand for it called `NA`. Functions like `mean` have an optional argument `na.rm` which tells the function whether it should just ignore these values. It's `FALSE` by default, so a vector with missing values will have a mean of NA (to indicate that the normal mathematical procedure failed on these particular data):
+
+```{r na.rm_false}
+a = c(2, 6, NA, 8)
+mean(a)
+```
+
+However, you can handle the missing data by setting `na.rm` to `TRUE`, which omits any `NA` items from the calculation.
+
+```{r na.rm_true}
+mean(a, na.rm=TRUE)
+```
+
+You'll find abundant use of keyword arguments as we move onto functions encapsulating more complex statistical methods.
+
+Common Data Structures
+---------------------
+
+Although it's nice to be able to do basic arithmetic on numbers, for data analysis you're usually going to have a *dataset*. Fortunately, R has several higher-level data structures that can represent collections of data along with semantic information describing the elements of those data sets.
+
+### Vectors
+
+We've already seen one of the most basic data structures, which is called a *vector*. Vectors are an ordered group of elements with a single dimension. This is what you get by using the `c()` function:
+
+```{r c_vector}
+c(1, 2, 3, 4, 5, 6)
+```
+
+A shortcut to get an equivalent sequence uses the `:` operator:
+
+```{r seq_vector}
+1:6
+```
+
+You can also associate a name with each element in the vector:
+
+```{r named_vector}
+c(foo=1, bar=2)
+```
+
+or add names to an existing vector:
+
+```{r adding_names}
+v = 1:3
+names(v) = c("foo", "bar", "buz")
+v
+```
+
+To pull specific elements out of a vector, you *index* (or *subscript*) by writing the name of the vector and then adding square brackets (`[ ]`)  with the position of the item you want (starting at 1). You can also use `:` to index multiple elements:
+
+```{r index_vector}
+v = 2:7
+v[3]
+v[3:6]
+v[c(3,4,5,6)]
+```
+
+If your vector has names associated with the values, you can index with those too:
+
+```{r name_index}
+v = 1:3
+names(v)= c("foo", "bar", "buz")
+v["bar"]
+```
+
+Indexing into a vector allows you not just to use the value in that position, but to change it too:
+
+```{r index_update}
+v[1:2] = c(4, 5)
+v["buz"] = 6
+v
+```
+
+An important fact about vectors is that all of the elements in the vector have to be the same datatype. For the most part, there are three datatypes you should care about:
+
+- logical (`TRUE`, `FALSE`)
+- numeric
+- character
+
+These are listed in increasing order of generality, since logical data can be considered numeric (with `FALSE == 0` and `TRUE == 1`) and numbers can be encoded as strings. When a vector is created with multiple datatypes, the most general one is chosen. Be aware that this can cause unexpected errors:
+
+```{r vector_dtypes}
+v = c(TRUE, 1, "1")
+v
+#v[3] + 2 #error!
+```
+
+There are some functions to convert vectors between types:
+
+```{r type_convert}
+v = c(1, 0, 1)
+as.logical(v)
+as.character(v)
+as.numeric(c("1", 2.5)) 
+```
+
+While we're talking about datatypes, we'll point out that the terms "character" and "string" are interchangeable (although the R functions use the former term), and you can use either `'` or `"` to create strings.
+
+One nice thing about vectors is that you can treat vectors as whole objects in mathematical expressions, and the expression will be applied to the entire vector (this is called "vectorized computation"). This results in code that is both easier to read and faster to execute than performing the operation on each element of the vector:
+
+```{r vectorized_math}
+v = c(4, -2.5, 6, -7.3)
+v * .5
+v ** 2
+abs(v)
+w = 1:4
+log(w)
+v + w
+```
+
+### DataFrames
+
+Possibly the most useful data structure, and the one you'll encounter most often when doing statistics with R, is the `data.frame`. Technically, a dataframe is a list of vectors, although you don't need to interact directly with lists to use them. You can make a dataframe with the eponymous function, which creates a two-dimensional object (like a matrix) with each component vector placed in the columns. In this sense, it's similar to a basic spreadsheet in Excel or SPSS, which you may have experience with:
+
+```{r dataframe_intro}
+df = data.frame(foo=1:6, bar=rep(c("a", "b"), 3))
+df
+df$foo
+```
+
+Once you have a dataframe, you can also add more fields to it:
+
+```{r expand_dataframe}
+df$buz = exp(df$foo)
+df
+```
+
+### DataFrames Continued
+
+The example dataset is stored in the file `earlydeaths.csv`, which we have hosted for you on the class website. In this dataset, each juvenile death in the County (*n* = 350) is labeled by the year it occurred (`time` = 1, 2 or 3; corresponding to 1990-91, 1992-93, 1994-95), and by the cause of death (`cause` = â€˜maltreatmentâ€™ or â€˜otherâ€™).  **Is the cause of death changing over time?**
+
+Now, let's load in the data:
+
+```{r load_earlydaths}
+df_death = read.csv("http://stanford.edu/class/psych252/data/earlydeaths.csv")
+```
+
+When you load in a dataset, you'll want to explore it a bit so you get a feel for the kind of data it contains (and to ensure that it was loaded properly). Some of the functions you'll find yourself using for this purpose are `str()`, `head()`, and `summary()`. These all do somewhat different things, which you can likely deduce from their output and help files:
+
+```{r explore_deaths}
+str(df_death)
+head(df_death)
+summary(df_death)
+```
+
+R has a number of *generic* functions like `summary()` that will behave differently depending on the type of object you called them on. As we see above asking for a summary of a dataframe will report some quantile and count information. You'll use `summary()` a lot, though, and it will sometimes behave very differently. For example, you can call `table()` on two dataframe fields to compute a contingency table (or crosstab) of those data:
+
+```{r crosstab}
+death_table = table(df_death$time, df_death$cause)
+death_table
+```
+
+Calling `summary()` on this object actually performs a $\chi^2$ test on this contingency table!
+
+```{r summary_chi2}
+summary(death_table)
+```
+
+This basic pattern (using a generic function to perform different kinds of processing depending on the type of object you're operating over) can be a bit confusing, but it is central to R's power and agility as a data analysis environment.
+
+Take a moment to continue exploring this data set, what else can you learn about it?
+
+### Basic Regression and Plotting
+
+We're now going to practice, very briefly, plotting in R. There are many packages available for this purpose and they all have advantages and disadvantages. `ggplot()` is a good place to start and is hopefully intuitive to understand.
+
+If this is your first time using R you'll probably need to run the install code first. Otherwise skip this step.
+
+```{r}
+# install.packages('ggplot2')
+```
+
+Let's first load the `ggplot()` package so that we can use it:
+
+```{r}
+library(ggplot2)
+```
+
+Now lets load one of the class datasets and see what we can do with it.
+
+```{r}
+scale = read.csv('http://stanford.edu/class/psych252/_downloads/dataset_scale.csv')
+head(scale)
+```
+
+Scale is a dataset of fake data looking at the height and salary of individuals. Take a moment to explore this dataset using the functions `mean()`, `sd()`, and `median()`. What information can you glean from these summary statistics? Note that `summary()` will give you most of this information in a compact format.
+
+One issue here is that it's difficult to see the shape of this distribution. Are heights actually spread into two bimodal groups for men and women? Or is it a continuous distribution? We can use `ggplot()` to help us figure this out.
+
+What ggplot does is create a plot "object", which we will store in `g`:
+
+```{r}
+g = ggplot(data=scale)
+```
+
+Note that we told the ggplot object that it will use the dataset scale as its source of data.
+
+Now let's add a "layer" of visualization, which ggplot calls a "geom":
+
+```{r}
+g + geom_histogram(aes(x=height), binwidth=0.5)
+```
+
+That may look complicated but there are actually only two simple parts:
+
+`aes(x=height)` is the mapping of variables to axis, aes stands for aesthetic.
+`geom_histogram(aes(), ...)` is the actual "layer", which creates the nice looking plot.
+
+Let's do a scatterplot of points with height on the x axis and salary on the y axis.
+
+```{r}
+g + geom_point(aes(x=height, y=salary))
+```
+
+Did you notice from the summary statistics that there was a distinct outlier? Just to show off the power of ggplot(), let's add a regression line! This time I'll combine all of the `ggplot()` code into one group, without using the "g" object we made earlier. Notice how we are *literally* adding "layers" on top of each other.
+
+```{r}
+g = ggplot(data=scale,aes(x=height,y=salary))
+
+g + geom_point() +
+  geom_smooth(method="lm",color='orange')
+```
+
+Also note that because both the scatterplot layer and the regression layer use the x/y mapping of height/salary, we moved that mapping into the main "g" object. This way it gets re-used by each of the layers. Now as a graph we get a lot of information, but we don't get the actual equation of this regression, we don't know the probability that this dataset would occur by chance, etc... All of that will come in Module 2.
+
+Before we finish, try writing some code on your own, see if you can create a plot showing the same linear regression, but without the outlier point!
+
+```{r}
+# hint: you'll want to think back to what you learned earlier about indexing.
+```

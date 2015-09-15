@@ -1,0 +1,338 @@
+---
+title: "Introduction to Statistical Computing with R: Module 3"
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+    toc: yes
+---
+
+Thank you to Paul Thibodeau (2009), 252 instructors in 2010 and 2011, Mike Frank, Benoit Monin, and Ewart Thomas for the original tutorials. Michael Waskom for the conversion to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown). The most recent iteration was created in 2015 by Dan Birman, Natalia Velez, and Kara Weisman.
+
+### Advanced R syntax
+
+A new library `dplyr` has now become the standard way of interacting with small 'long-form' datasets in R. `dplyr` follows the same general convention as the `ggplot()` function that you're now already familiar with, in that you take an object and 'layer' your functions on top of it. In using dplyr you will want to refer often to the dplyr Data Wrangling Cheatsheet (https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf). Here's a functional example:
+
+First let's load in some data.
+
+This dataset is more complicated than the ones we've previously dealt with because it that has both *between*- and *within*-subject factors. Here, attention (`attnr`) is a *between-subjects* factor with 2 levels, `attnr` = 'divided' or 'focused'; and there are 10 subjects (`subidr`) at each level. Also, each subject solved anagrams at 3 levels of difficulty, indexed by the number of possible solutions (`num` = 1, 2, or 3; a *within-subjects* variable). Subjectâ€™s score at each level of `num` is noted.  This is a *repeated measures design*.  **How does score depend on attn and num?**
+
+
+```{r load_kv0}
+data_short <- read.csv('http://stanford.edu/class/psych252/data/kv0.csv')  
+head(data_short)  
+str(data_short)
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+```
+
+As you can see, this dataframe is in short-form, meaning that the within-subject observations are displayed in separate columns, and each subject occupies a single row. 
+
+To convert this short-form data to long-form (where columns become rows) we can use the "gather" function. The num1, num2, and num3 variables are actually values that were observed for a given variable. 
+
+```{r}
+data_long <- data_short %>%
+  gather("variable","value",3:5)
+```
+
+Notice that we did what is called "piping", by using the `%>%` pipe operator to pass the data_short dataframe in to the gather function. Piping is similar to layering in `ggplot()`. 
+
+Now, this dataframe is NOT intuitive right now. What do the names mean? Let's continue the piping expression above and add an additional step to rename the un-intuitive variables:
+
+```{r}
+data_long <- data_short %>%
+  gather("solutions","solved",3:5) %>%
+  rename(sid=subidr,attention=attnr)
+```
+
+### Setting up variables
+
+Since the levels of 'num' were created from the original column names (i.e., num1, num2, num3), R interprets the 'num' variable as a factor. However, we want to treat num as a quantitative variable, and need to force num to be numeric. We also want the subject id ('id') to be a factor:
+
+```{r forcevars_dl}
+data_long <- data_long %>%
+  mutate(nsols = as.numeric(solutions), id = factor(sid)) %>%
+  select(-solutions,-sid)
+```
+
+We also need to rescale 'id' to 1:10 within each level of `attn`, since the subject id ('id') is 11:20 when attn is 'focused'. So we need to select only these values of 'id', and transform them to 1:10. This requires creating a new variable, cond.id, in the dataframe, dl.
+
+```{r rescaleid_dl}
+data_long$cond.id = as.numeric(data_long$id)
+data_long$cond.id[data_long$attention=="focused"] = data_long$cond.id[data_long$attention=="focused"]-10
+data_long$cond.id = factor(data_long$cond.id)
+```
+
+### Advanced ggplot()
+
+For the first plot, we want to examine the relationship between the number variable ('num') and the subjects' scores. We'll also look at each subject's data separately (id 1-10 for each attn condition) using the `facet` option. With facets, `facets = Y ~ X` means you want the 'score vs num' plots to be arrayed vertically (y-axis) by levels of Y, and horizontally (x-axis) by levels of X. This is analogous to formulas for plots where the item to the left of the `~` is on the y axis and the item on the right is on the x axis.  You can also do, `facets = Y ~ .`, which will array 'frames' vertically by Y-levels and, in each frame, plot 'score vs num' at each level of X. Similarly, `facets = . ~ X` will array 'frames' horizontally by X-levels and, in each frame, plot 'score vs num' at each level of Y.
+
+For more infomation, we'll overlay the data with a least-squares fit to the points:
+
+```{r}
+library(ggplot2)
+```
+
+```{r ggplot_num_on_score, fig.width=7, fig.height=4}
+ggplot(data_long,aes(x=nsols,y=solved)) +
+  geom_point() +
+  facet_grid(attention ~ cond.id) +
+  geom_smooth(method="lm",se=F) +
+  theme_bw()
+```
+
+Breaking down by subject, within each level of attn, is also doable with `qplot()` (the x-axis labeling is poor though). Using the layer `geom_line` instead of `geom_point` joins the points by lines and suppresses the points:
+
+```{r qplot_num_on_score_facet_levels, fig.width=7, fig.height=4}
+
+ggplot(data_long,aes(x=nsols,y=solved,color=cond.id)) +
+  geom_line() +
+  facet_grid(. ~ attention) +
+  theme_bw()
+```
+
+Regression: simple and multiple
+-------------------------------
+
+Now let's attach the rtw.table dataframe and examine the relationship between unemployment rate ('Urate') and cost of living ('COL') using the lm() function. This is an example of what we are calling a "simple" regression, as there is only a single *independent* or *predictor* variable (which is what appears on the right side of the `~` in the function).
+
+```{r rtw_load}
+rtw.table <- read.csv("http://stanford.edu/class/psych252/data/P005.txt", sep='\t')
+rtw.table <- rtw.table %>%
+  rename(CostOfLiving=COL,UnemploymentRate=URate)
+str(rtw.table)
+```
+
+```{r rtw_lm}
+rs = rtw.table %>%
+  lm(CostOfLiving ~ UnemploymentRate, data=.)
+summary(rs)
+```
+
+Here, the output suggests that there is not a significant relationship between unemployment rate and cost of living. We can see this by looking under the "Coefficients", for URate t=1.67, p = 0.103. In the text at the bottom, F(1,36)=2.803, p=0.1028.
+
+We can also plot the data to see this visually.
+
+```{r}
+ggplot(data=rtw.table,aes(x=UnemploymentRate,y=CostOfLiving)) +
+  geom_point() +
+  geom_smooth(method="lm",color="orange",se=F) +
+  theme_bw()
+```
+
+And we can plot the residuals to get a better idea of possible outliers, etc.
+
+```{r plot_col_on_urate_lm, fig.width=7, fig.height=6}
+ggplot(data=rtw.table,aes(x=UnemploymentRate,y=rs$residuals)) +
+  geom_point() +
+  geom_smooth(method="lm", se=F) +
+  theme_bw()
+```
+
+Note that the fitted regression line runs through zero, exactly as expected for a plot of the residuals.
+
+### Removing outliers
+
+These last diagnostic plots suggest that observations 6 and 34 are outliers. What would the plot look like if these outliers were removed? To do this, we can give R a *negative vector* by typing `-c(6, 34)`, and then we can tell R to take all the values *minus* the values in the vector from the variable. By saying `URate[-c(6,34)]` we're telling R to take all the rows in Urate with the exception of 6 and 34.
+
+```{r plot_col_on_rtw_no_outliers, fig.width=7, fig.height=6}
+rtw.table.no = rtw.table[-c(6,34),]
+
+ggplot(data=rtw.table.no,aes(x=UnemploymentRate,y=CostOfLiving)) +
+  geom_point() +
+  geom_smooth(method="lm",color="orange",se=F) +
+  theme_bw() +
+  ggtitle('Cost of Living vs. Unemployment Rate (no outliers)')
+```
+
+```{r rtw_lm_no_outliers}
+rs_no = rtw.table.no %>%
+  lm(CostOfLiving ~ UnemploymentRate, data=.)
+summary(rs_no)
+```
+
+Here we can see that there is not much difference in the lowess curve, but when those outliers were removed, the effect of unemployment rate on cost of living is marginally significant.
+
+### Multivariate analysis
+
+Sometimes we want to know how **multiple** variables influence our DV. Using `lm()` we can provide multiple IVs using the format `lm(Y ~ X1 + X2 + X3)`. We'll cover this in class soon, but basically this model will tell us the *unique* variance in Y that is explained by each IV, *when controlling for the other variables*. 
+
+Now, one might ask if the right to work law affects cost of living, when controlling for other variables, such as income. This is an example of multivariate analysis. To examine this question, we can enter multiple predictors into the `lm()` function:
+
+```{r rtw_multiple_regressino}
+rs_m = rtw.table %>%
+  lm(CostOfLiving ~ RTWL + UnemploymentRate + Income + PD, data=.)
+summary(rs_m)
+```
+
+Here we can see that the right to work law affects cost of living when controlling for the other factors. The presence of a right to work low corresponds with a lower cost of living. Further, when controlling for Income, PD, and the right to work law, unemployment rate also explains a signficant amount of unique variance in cost of living; more specifically, as unemployment rate increases, cost of living decreases.
+
+We can also plot the different effects by using a nice package, "effects", combined with the standard plot function.
+
+```{r}
+#install.packages('effects')
+library(effects)
+plot(allEffects(rs_m))
+```
+
+Try designing a ggplot() that shows you the *interaction* effect of Income and UnemploymentRate on Cost of Living. A hint: in the same way that you set the x and y aesthetic you can set variables to define the size, color, or fill (among other things) of the dots or lines on your plot, try playing with these!
+
+```{r}
+# your code here!
+```
+
+### Generate boxplots from short-form data
+
+```{r load_rtwl_paired}
+rtwl_paired = read.csv('http://stanford.edu/class/psych252/data/rtwl.paired.csv')
+str(rtwl_paired)
+```
+
+Now let's take a quick peek at this data. Since rtwl_paired is in short-form, we need to make some changes before boxplot can generate a plot for us. We'll start by making a variable by combining the data in the variable rtwl_paired$col0 with the data in rtwl_paired$col1:
+
+```{r combine_cols_rtwl_paired}
+col = c(rtwl_paired$col0, rtwl_paired$col1)
+col
+```
+
+Then, we'll use the `rep()` (short for "repeat") function to make a long vector of 0s and 1s signifying RTWL status. Each vector should be 14 numbers long, since there were 14 cities total:
+
+```{r rep_rtwl_rtwl_paired}
+rtwl = rep(c(0, 1), each = 14)
+rtwl
+```
+
+Now, we'll combine these variables to make a dataframe; there will be 2 variables, *(1)* the cost of living for the 14 cities before & after the RTWL was passed, and *(2)* the status of the RTWL:
+
+```{r create_rtw.tablel}
+rtwl_plong = data.frame(cbind(col = col, rtwl = rtwl))
+rtwl_plong = rtwl_plong %>%
+  rename(CostOfLiving=col) %>%
+  mutate(rtwl=factor(rtwl,levels=c(0,1),labels=c("No","Yes")))
+```
+
+Finally,  we can create a boxplot:
+
+```{r plot_col_on_rtwl_paired, fig.width=4, fig.height=3}
+ggplot(data=rtwl_plong, aes(x=rtwl,y=CostOfLiving,fill=rtwl)) +
+  geom_boxplot() +
+  ggtitle('Cost of Liivng vs. Right to Work Laws: Paired data') +
+  xlab('')
+```
+
+Additive & Interactive Models
+-----------------------------------
+
+Returning to the initial data, rtw.table, we saw that COL depends on RTWL. Does it also depend on Income? To get a general idea, we can look at the data by plotting income and COL, as well as the linear line of best fit in red:
+
+```{r plot_col_on_income, fig.width=4, fig.height=3}
+ggplot(data=rtw.table, aes(Income,CostOfLiving)) +
+  geom_point(size=3) +
+  geom_smooth(method="lm", se=F,color = 'red') +
+  theme_bw()
+```
+
+Now, we might be interested in the how the effect of RTWL on COL is related to Income level. In an **additive model** (e.g., `CostOfLiving ~ RTWL + Income`), the effect of RTWL on COL is assumed to be the same at all levels of Income. Here, if income level were tightly correlated with whether or not cities have a RTWL, the unique variance explained by RTWL and Income level might be small. 
+
+In contrast, in an **interactive model** (e.g., `CostOfLiving ~ RTWL * Income`) the effect of RTWL on COL is **NOT** assumed to be the same at all levels of Income. Here, the RTWL could be positively correlated with COL at low incomes, but negatively correlated at high incomes.
+
+### Treating income as a categorical variable
+
+For simplicity, we might want to look at income as a categorical **factor**, not a quantitative variable. So let us replace Income by a new factor, "Incomecat" which can be 'low' or 'high'. We'll use an income of 4000 as the dividing point; those cities with incomes less than 4000 will fall into the "low" income category, and those with incomes at 4000 or above will fall into the "high" income category:
+
+```{r incomecat_rtw.table}
+rtw.table <- rtw.table %>%
+  mutate(IncomeCat=findInterval(rtw.table$Income,4000)) %>%
+  mutate(IncomeCat=factor(IncomeCat,labels=c("low","high")),RTWL=factor(RTWL,labels=c("No","Yes")))
+```
+
+Now we'll print a *cross-tabulation* of RTWL and Incomecat to get an idea of how many cities fall into each group:
+
+```{r crosstab_rtw.table}
+table(rtw.table$IncomeCat, rtw.table$RTWL)
+```
+
+Note that there are only 2 cities with RTWL = 1 and IncomeCat = high....so the following results are suspect. We'll continue though, just to demonstrate how to conduct these models.
+
+### Additive model
+
+```{r lm_add_rtw.table}
+rs_add = lm(CostOfLiving ~ RTWL + IncomeCat, data = rtw.table)
+summary(rs_add)
+```
+
+### Interactive model
+
+```{r lm_inter_rtw.table}
+rs_int = lm(CostOfLiving ~ RTWL * IncomeCat, data = rtw.table)
+summary(rs_int)
+```
+
+Here we can see that the interaction is significant. To get a better idea for the data, we can plot the interaction itself by grouping the data in ggplot with the interaction variable. In other words we are plotting COL by RTWL split up by Income category:
+
+```{r plot_rtwl_income_col_interaction, fig.width=4, fig.height=3}
+ggplot(data=rtw.table, aes(x=RTWL,y=CostOfLiving,color=IncomeCat,group=IncomeCat)) +
+  scale_color_brewer(palette="Paired") +
+  geom_smooth(method="lm",se=F,size=3) +
+  theme_bw()
+```
+
+Some notes: we have to tell ggplot that each group consists of only one mean observation by forcing group=IncomeCat, otherwise ggplot() complains that each group consists of a single observation. Also note the use of the color brewer scale to adjust the line colors, see here for a list of color palettes: http://www.lgbmi.com/wordpress/wp-content/uploads/2012/08/colorbrewer_names.png. Try replacing the color=IncomeCat with linetype=IncomeCat and see what happens.
+
+By looking at this plot, we can see that when the income is high, the effect of RTWL on COL is small. However, when income is low, cost of living is lower if there is a right to work law.
+
+### Exercise data
+
+Now, we'll load in the data file `exer.csv`. Here, participants (*n* = 30) were randomly assigned to two different diets: low-fat (`diet` = 1) and not low-fat (`diet` = 2), and three different types of exercise: at rest (`exertype` = 1), walking leisurely (`exertype` = 2), and running (`exertype` = 3).  Their pulse rate (`pulse`) was measured at three different time points during their assigned exercise: at 1 minute (`time` = 1), 15 minutes (`time` = 2), and 30 minutes (`time` = 3).  This is a *repeated measures* design, with `time` as the *within-subject* (repeated) variable.  **How does pulse depend on time, diet and exertype?**
+
+
+```{r load_exer}
+exer <- read.csv('http://stanford.edu/class/psych252/data/exer.csv')
+str(exer)
+summary(exer)
+```
+
+We can see that all the variables are integers since the raw data entries began with numbers, even though some should be factors. We want to convert `id`, `diet`, and `exertype` to factors with informative levels:
+
+```{r setfactors_exer}
+exer = exer %>%
+  mutate(diet=factor(diet,labels=c("lo.fat","non.lo.fat")),id=factor(id),exertype=factor(exertype,labels=c("rest","walk","run")))
+
+summary(exer) # double check formatting
+```
+
+### Plot exercise data
+
+Let's try plotting the exercise data. Again, this is an "interaction" that we're looking for, so we have to plot the data by two variables (pulse over time), but also split the data by a third grouping variable, in this case the id variable.
+
+```{r qplot_tim_on_pulse_facets, fig.width=7, fig.height=5}
+ggplot(data=exer, aes(x=time, y=pulse, color=id)) +
+  geom_line() +
+  facet_grid(diet ~ exertype) +
+  theme_bw()
+```
+
+### Bar graphs
+
+We might also want to visualize this data in bar graph form. To do this with ggplot, we'll use the `summarise()` function to get means and confidence intervals from the data.
+
+First, we'll extract the mean pulses across subjects for each of the 6 groups at all three time points:
+
+```{r means_exer}
+ms = exer %>%
+  group_by(time,diet,exertype) %>%
+  summarise(ci95=sd(pulse)/sqrt(n())*1.96,pulse=mean(pulse))
+```
+
+Caution: if you don't take sd first in summarise it will already have re-assigned pulse to be the mean values, and the script won't work (try it out if you understand the problem here...).
+
+Finally, we plot the bar graph:
+```{r qlot_time_on_pulse_facet_bars, fig.width=7, fig.height=5}
+ggplot(data=ms) +
+  geom_boxplot(aes(time,pulse,ymin=pulse-ci95,ymax=pulse+ci95,color=exertype)) +
+  facet_grid(.~diet) +
+  theme_bw()
+```

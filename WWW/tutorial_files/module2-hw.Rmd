@@ -1,0 +1,195 @@
+---
+title: "Module 2: HW Example"
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+    toc: yes
+---
+
+Thank you to Paul Thibodeau (2009), 252 instructors in 2010 and 2011, Mike Frank, Benoit Monin, and Ewart Thomas for the original tutorials. Michael Waskom for the conversion to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown). The most recent iteration was created in 2015 by Dan Birman, Natalia Velez, and Kara Weisman.
+
+=== An Introduction to 252 HW ===
+
+HW in 252 comes in many flavors but there is one over-arching goal--exploration! When you are confronted with a dataset try to step into the shoes of the researcher who collected that data: Why did they want this data? What value can we extract from this data and what can it teach us? Which statistical tools might be useful in clarifying whether the effects you observe are due to random fluctuations or other causes?
+
+To examine how a 252 HW should be structured we have created this sub-module of the tutorials where you will briefly explore a statistical concept (the t-test) via a dataset that is provided for you. Consider the code here as a *starting point* for the kind of answers we expect to see. In summary: you should consider multiple angles of analysis, describe your methods and conclusions in a clear, succinct, and readable manner, and interpret your results in light of any available theory. This *entire* script is the "response" that we expect (even the introduction)!
+
+=== The t.test ===
+
+For our example we will use a dataset with information about whether or not cities have right to work laws (RTWL), and their cost of living (COL). Here, we might be interested in whether the right to work law has an influence on cost of living. In this case, our null hypothesis ($H_0$) is that the mean COL is the same in cities with RTWL = 0 as in those with RTWL = 1.
+
+In this case, it is important to note that the 2 populations of cities are *independent* of each other. That is, the cities with no RTWL are different from the cities that have a RTWL.
+
+To test our $H_0$, we'll compute a "standardized difference", or **t statistic**, between the *sample mean* COL of the cities with RTWL=0 and the *sample mean* COL of the cities with RTWL=1. Once we compute this t, we can decide if it's "large" (e.g., t < -2 or t > 2) to determine if we can reject our $H_0$. For now, you don't have to worry much about these details; we'll cover them in the first few classes!
+
+### Exploring the data
+
+Let's start by reading in our data:
+
+```{r load_df_RTWL}
+df_RTWL = read.csv("http://stanford.edu/class/psych252/data/P005.txt", sep='\t')
+str(df_RTWL)
+head(df_RTWL)
+```
+
+Now we'll plot the data to see the relationship between RTWL and COL:
+
+(First we load ggplot)
+```{r}
+library(ggplot2)
+```
+
+Now let's plot the data as a boxplot:
+```{r plot_col_v_rtwl, fig.width=4, fig.height=3}
+ggplot(data=df_RTWL,aes(x=RTWL,y=COL)) +
+  geom_boxplot()
+```
+
+Woah! That didn't work! This code is broken... Do you know what's wrong without having to look at the hints below? Does somebody else in the room know what's wrong? Does Google know what's wrong? If you can figure out what the bug is try to fix the code on your own, if not, check out the hints.
+
+
+## intentional blank space
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+Okay! Here's the hint: RTWL shows up as 0.50 on that plot, but you'll notice that RTWL is coded as 0 and 1:
+
+```{r}
+df_RTWL$RTWL
+```
+
+What's happening is that the "aesthetic" object in ggplot() doesn't understand that this is really a factor when you try to plot it as a boxplot, note that geom_point doesn't have this problem:
+
+```{r}
+ggplot(data=df_RTWL,aes(x=RTWL,y=COL)) +
+  geom_point()
+```
+
+We can get around this by forcing ggplot() to see that we want to group the data by RTWL, or by changing RTWL to be a factor:
+
+```{r}
+ggplot(data=df_RTWL,aes(x=RTWL,y=COL,group=RTWL)) +
+  geom_boxplot()
+ggplot(data=df_RTWL,aes(x=factor(RTWL),y=COL)) +
+  geom_boxplot()
+```
+
+These are exactly the kind of 'minor bugs' you should expect to run into constantly as you work with R! The difference between an experienced programmer and a new programmer is mostly how quickly the turn to google for help! Okay, back to the t.test():
+
+# Running the t.test()
+
+### Short-form data for t.test()
+
+Before we can run a t-test, we have to make some changes to the data. From looking at the data above, we can see that the dataframe df_RTWL is in *long-form*; each variable is in a different column. This format is fine for `boxplot()` and `lm()`, but older functions like `t.test()` need the data in *short-form* with COL for cities with RTWL = 0 in one column, and COL for cities with RTWL = 1 in a 2nd column.
+
+We'll make 2 variables by selecting **subsets** of the COL data, *conditional* on whether or not the cities have a RTWL. In R, the *brackets* (`[ ]`) let us select rows of a variable conditional on another variable. Here, we'll select the rows of COL where RTWL is equal to 0, or 1:
+
+```{r subsetCOL_df_RTWL}
+COL0 = df_RTWL$COL[df_RTWL$RTWL == 0]
+COL1 = df_RTWL$COL[df_RTWL$RTWL == 1]
+
+# eventually, when you complete module 3 you may want to return to this section and try to mutate COL using the dplyr syntax
+```
+
+Now that the COL data is grouped into variables based on RTWL status, we can explore these variables quickly:
+
+```{r explore_subsetCOL_df_RTWL}
+str(COL0)
+str(COL1)
+```
+
+Here, we see that there are 28 cities with RTWL=0, and 10 cities with RTWL=1.
+
+### Running an Independent Samples t-test
+
+Now that we have our data in the correct format, we can run a t-test testing the H0 that mean(COL0) = mean(COL1). Right now, we'll just assume that the two variances are equal.
+
+```{r ttest_subsetCOL_df_RTWL}
+res1 = t.test(COL0, COL1, var.equal = TRUE)
+res1
+```
+
+Now it's up to you: how would you write up the results of this statistical test? What information should you provide the reader about your test. Here's a rough outline of the kind of response we expect, fill in the missing parts according to what you did. Note that you should include effect sizes, confidence intervals, means, standard errors, p-values, etc, where that information is appropriate.
+
+We performed an ___ statistical test to see whether ______. We found that _____ and that the effect size was _____, which was statistically (significant/insignificant). We interpret these results to indicate that _____.
+
+### Testing for equal variance
+
+Great! However, we automatically assumed that the variances were equal between the 2 groups of cities. We can use the **standard deviation** function `sd()` to estimate the standard deviation for these 2 groups:
+
+```{r sd_subsetCOL_df_RTWL}
+c(sdf_RTWL = sd(COL0), sd1 = sd(COL1))
+```
+
+These numbers are pretty different; however, the two groups had different numbers of cities. We can use the `var.test()` function to directly test the H0 that the variance between two samples is equal.
+
+```{r vartest_subsetCOL_df_RTWL}
+var.test(COL0, COL1)
+```
+
+Here, we cannot reject the null because the two variances are not significantly different from each other (*p* = 0.5063).
+
+Again, how do you interpret your overall results in light of this information? Does this change your interpretation from before or does it support our interpretation?
+
+### Running a Paired t-test
+
+Suppose the COL measurements for RTWL=0 and RTWL=0 had been taken from the *same* cities. That is, the COL when RTWL=0 is from *before* the law was passed; the COL when RTWL=1 is from *after* the law was passed. Now, the samples would NOT be independent. Instead, the COL when RTWL=1 in city A is *dependent* on COL when RTWL=0. In this case, the two samples are *paired*. **Is COL influenced by RTWL?**
+
+As an example, we have a study in which, for each city, COL is measured BEFORE the RTWL is passed, and 2 years AFTER the RTWL is passed:
+
+```{r load_df_RTWLs}
+df_RTWLs = read.csv('http://stanford.edu/class/psych252/data/rtwl.paired.csv')
+str(df_RTWLs)
+```
+
+Since the two groups are **paired** (i.e., NOT independent), we must specify that in the `t.test()` by saying "`paired=TRUE`". Otherwise, our results will be incorrect.
+
+```{r ttest_df_RTWLs}
+res2a = t.test(df_RTWLs$col0, df_RTWLs$col1, 
+               var.equal = TRUE, 
+               paired = TRUE)
+res2a
+```
+
+If we made a mistake and forgot to specify "`paired=TRUE`", R would default to `paired=FALSE`, and our output would be incorrect:
+
+```{r ttest_incorr_df_RTWLs}
+res2b = t.test(df_RTWLs$col0, df_RTWLs$col1, 
+               var.equal = TRUE)
+res2b
+```
+
+Here, the difference is not quite significant! So it's important you tell R that the groups are paired when the two samples are dependent on one another! Now, before you finish this hw example, right up the results of these last two statistical tests and interpret your results in the larger context of right to work laws:
+
+
+
+
+# That's it!
+
+This .Rmd file now represents for you one entire "section" of code that you would turn in for a HW problem related to testing whether Right to Work Laws have an effect on Cost of Living. Note that this code goes into much more detail about intricacies of R than you would need to, but that it also includes the entire 'thought process' of the author, which is helpful for the graders!
