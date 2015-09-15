@@ -18,19 +18,19 @@ intro to general linear models.
 Download/installation instructions
 [`PDF <http://www.stanford.edu/class/psych252/tutorials/PSYCH252_Rintro.pdf>`_]
 
-Module 1
+**Module 1**
 [`html <http://www.stanford.edu/class/psych252/tutorials/module1.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/module1.Rmd>`_]
 
-Module 2
+**Module 2**
 [`html <http://www.stanford.edu/class/psych252/tutorials/module2.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/module2.rmd>`_]
 
-Module 2: Homework Example
+**Module 2: Homework Example**
 [`html <http://www.stanford.edu/class/psych252/tutorials/module2-hw.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/module2-hw.Rmd>`_]
 
-Module 3
+**Module 3**
 [`html <http://www.stanford.edu/class/psych252/tutorials/module3.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/module3.rmd>`_]
 
