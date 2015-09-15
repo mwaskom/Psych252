@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Psych 252'
-copyright = u'2015, Steph Gagnon, Lauren Howe & Michael Waskom'
+copyright = u'2015, Steph Gagnon, Dan Birman & Robert Hawkins'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -239,7 +239,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'Psych_252', u'Psych_252 Documentation',
-   u'Michael Waskom, Stephanie Gagnon, Lauren Howe', 'Psych_252', 'One line description of project.',
+   u'Stephanie Gagnon, Daniel Birman, Robert Hawkins', 'Psych_252', 'One line description of project.',
    'Miscellaneous'),
 ]
 
