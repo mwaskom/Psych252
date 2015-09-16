@@ -1,0 +1,261 @@
+---
+title: "Introduction to Statistical Computing with R: Module 2"
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+    toc: yes
+---
+
+Thank you to Paul Thibodeau (2009), 252 instructors in 2010 and 2011, Mike Frank, Benoit Monin, and Ewart Thomas for the original tutorials. Michael Waskom for the conversion to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown). The most recent iteration was created in 2015 by Dan Birman, Natalia Velez, and Kara Weisman.
+
+
+```{r}
+library(ggplot2)
+```
+
+
+### Welcome!
+
+Welcome to Module 2! If you are in class 1 the second module is designed to get you up to speed on some statistical concepts, and then to let you free on some datasets. If you are in class 2 this first module is a crash course in R!
+
+### A Reminder about DataFrames
+
+In R we almost exclusively use "DataFrames" to organize our data. Here's an example dataframe and some useful functions for investigating what's on the inside.
+
+```{r}
+mydata = data.frame(x=c(1,2,3,4,5),y=c(25,94,32,45,88))
+mydata
+str(mydata)
+head(mydata)
+summary(mydata)
+```
+
+Let's jump right in!
+
+### An interlude on R data
+
+Although it's possible to create a dataframe from scratch (as demonstrated above) in most cases you'll be reading data into R that was created elsewhere. It's useful at this point to introduce two concepts that govern how R thinks about accessing data. When dealing with data that are saved in a file somewhere on your computer, R has the concept of the *working directory*. Any functions that read or write files to or from the disk will take as an argument a filename, and the filename you give should be a path relative to your working directory. You can change the working directory either by calling the `setwd()` function or by using the GUI tools in the R or RStudio apps.
+
+Assigning some value to a variable creates a new object in the *workspace*, which you can think of as R's "working memory." Any object in the workspace can be immediately referenced in a line of code. You can open a pane in RStudio that will show you the name of every object in your workspace along with some information about those objects, and you can also get a vector of these names with the `ls()` function. To remove an object from your workspace, use the `rm()` function.
+
+A sidenote on data storage: Most of the data we'll be using is in *csv* format, which stands for "comma separated values." This is a plain-text format where commas divide columns and rows are placed on new lines. Because the data are stored as plain text, you can view (and edit) them in a basic text editor. The csv format is also advantageous relative to proprietary binary formats (like `.xlsx` or `.mat`) because pretty much any statistical application will contain routines to read and write these files.
+
+Manipulating Dataframes
+-----------------------
+
+To begin, we'll load in a simple data file that we'll use in 252, and store it as a [dataframe](http://www.r-tutor.com/r-introduction/data-frame) named "df_survey".
+
+This data file is called `fieldsimul1.csv`. Here, likely voters (*n* = 240) were surveyed, and report their age (`age`), and level of optimism (`optmism`), as well as other variables. **Is age related to optimism?**
+
+```{r load df_survey}
+df_survey = read.csv('http://stanford.edu/class/psych252/data/fieldsimul1.csv')
+```
+
+Let's explore this data a bit to see what we'll be working with:
+
+```{r explore_df_survey}
+str(df_survey)
+head(df_survey)
+summary(df_survey)
+```
+
+Here we can see that this **dataframe** is composed of 7 **variables** that each has 200 observations. In this case, each observation represents a different participant, and the 7 variables tell us information about that participant. As an example, let's look at all the information for participant 5 by looking at the 5th row of df_survey:
+
+```{r observeRow_df_survey}
+participant_num = 5
+df_survey[participant_num,]
+```
+
+This shows us that participant 5 is 25 years old, and has an optimism score of 6.
+
+
+Integer vs. Factor
+------------------
+
+Now, we might want to treat some variables as qualitative, nominal **factors** rather than continuous, numeric **integers**. In R, we must specify which variables to treat as factors if the **levels** (i.e., unique values) of the variable are composed of numbers instead of strings. Note that if the variable (e.g., "Subid") *levels* start with a letter (e.g., "subject1", "subject2") R will automatically interpret the variable as a *factor*. If the variable levels start with a number (e.g., "1", "2"), R will automatically interpret the variable as an *integer*. If you want the variable interpreted differently, you have to tell R.
+
+For instance, the variable "age" is continuous, but "agecat" is not. However, since the **levels** of "agecat" are indicated with numbers, we must tell R to treat "agecat" as a factor:
+
+```{r agecat_asfactor_df_survey}
+df_survey$agecat = factor(df_survey$agecat)
+```
+
+Now we can look at the structure of the df_survey dataframe again, to make sure agecat is now a factor:
+
+```{r agecat_checkfactor_df_survey}
+str(df_survey)
+```
+
+Basic Plotting
+--------------
+
+If you're starting in Module 2 directly we are using a package called `ggplot()` for plotting, call `install.packages('ggplot2')` to get the package, and use it as shown below. Note the "layered" structure, where we add the boxplot on top of the base object.
+
+Let's take a look at the factor we created, by plotting age category as a function of age.
+
+```{r plot_agecat, fig.width=7, fig.height=6}
+ggplot(data=df_survey) +
+  geom_boxplot(aes(x=agecat,y=age))
+```
+
+Creating factors from continuous variables
+------------------------------------------
+
+Suppose the variable "agecat" wasn't given to us, but we still wanted to group participants into categories based on their respective ages. Given the "age" variable, we can create a new categorical variable (i.e., **factor**) by specifying breaks at specific intervals:
+
+```{r agecat0_df_survey}
+df_survey$agecat0 = findInterval(df_survey$age, c(29,39,49,65))
+df_survey$agecat0 = factor(df_survey$agecat0)
+head(df_survey)
+```
+
+Specifically, these break points result in 5 age categories, 0:28, 29:38, 39:48, 49:64, and 65 and up. We can also visualize these groups:
+
+```{r plot_agecat0, fig.width=5, fig.height=4}
+ggplot(data=df_survey) +
+  geom_boxplot(aes(x=agecat0,y=age))
+```
+
+Let's also take a look at plotting a histogram of the ages. Here we are also setting the color of the bars as well as the title of the plot. The BW theme removes that ugly grey grid in the background which is the default.
+
+```{r plot_agedist, fig.width=5, fig.height=4}
+ggplot(data=df_survey) +
+  geom_histogram(aes(x=age),fill='orange',color='black',binwidth=4) + 
+  ggtitle('Distribution of Age') +
+  theme_bw()
+```
+
+Next, let's view a scatter plot of optimism by age. Before when we plotted the data, we were plotting a **factor** variable on the x-axis. As a result, boxplots were the logical way to view the data. However, if the x-axis variable is **continuous** (i.e., numeric), we would prefer a scatterplot.
+
+We'll also add in a line to get a sense of the general trend of the data; here, we'll plot a non-parametric best-fitting curve in red using the ["lowess"](http://rss.acs.unt.edu/Rdoc/library/gplots/html/lowess.html) function.
+
+```{r plot_optmism_on_age, fig.width=5, fig.height=4}
+ggplot(data=df_survey,aes(x=age,y=optmism)) +
+  ggtitle('Optimism vs. Age') +
+  geom_point() +
+  geom_smooth(method="lm",color="red")
+```
+
+# If you learn nothing else today, learn this: Search!
+
+We'll keep reminding you of this throughout today's session, and your TAs will remind of you this throughout the course, but you heard it here first: Search quickly, search often, and search in plain English (or your preferred non-computer language)! Don't know what function you should use to do a t-test? Google "t test R", or "how do I do a t-test in R?". Don't remember how to use the chisq.test() function? Google "chisq.test() R". Don't remember what a chi-squared test is? Google it, and read the Wikipedia page, and the Stackexchange discussion, and whatever weird PDFs you find online. Still getting an error message when you try to run the code? Google that error message, in quotes.
+
+Every person using R, and every person doing statistics, has a million questions as they are doing it - novices and experts alike. Luckily for all of us, many of our fellow R and stats learners post their questions online, and other lovely people attempt to answer them publicly! We read somewhere that a prominent distinction between an experienced programmer and a novice is the longer latency for the novice to look up the help for something confusing (but the direction of causality is not clear!).
+
+Another wonderful thing about working in R is that there's actually a lot of help built right into R, and RStudio makes it very easy to see. Almost all R functions (more later on what those are) have help files built in that will provide you with useful information about what those functions do and how to use them. You find this by typing '?function', where I am using "function" as a stand-in for the name you actually want to know about (e.g., '?chisq.test' or '?t.test'). It's important to read these files closely the first time you encounter a function, but it's also (possibly more) important to refer to them **frequently**. If you have a sense for what you want to do, but don't know or can't remember the exact function that will do it, you can use two question marks to search through the help files for a term (e.g. '??regression').
+
+Getting Help Practice
+------------------
+
+Here are several chunks of code that are broken. Fix them!! What tools are available to help you use to do this? We've included a note under each chunk about what we were **trying** to do :).
+
+Note: you need to uncomment (remove the #) the commented lines, otherwise they will crash :).
+```{r}
+x = 25:90
+#x[90,]
+```
+(The goal was to get the last element of x)
+
+```{r}
+#ggplot(data=df_survey, aesthetic(x = age, y = recallq)) +
+#  geom_point()
+```
+(We wanted a scatterplot of age against responses to the recall question)
+
+```{r}
+example = data.frame(label=c("ENS1","ENS2","ENS3","ENS4"),hsp44=c(0,2,1,0),mus=c(25,NA,NA,44))
+ggplot(data=example, aes(x = mus, y = hsp44)) +
+  geom_point(size=2)
+```
+(We wanted to include the rows with mus=NA in our plot, but set mus=0 for those values)
+
+Here's a more general problem you will run into, simply, how to do something you've never done before! Search google and figure out how to plot a **polynomial** regression line (e.g. y = x^2) onto this ggplot code:
+
+```{r}
+ggplot(data = df_survey, aes(x = age, y = optmism, color = factor(party))) +
+  geom_point()
+```
+
+#  Linear Regression
+
+To examine the best-fitting linear relationship between quantitative variables (e.g., X and Y), we can use the function [`lm()`](http://www.statmethods.net/stats/regression.html). We'll be using this function very often throughout the class to fit linear models (which as we will see is a very broad category of statistical analysis). To use `lm()`, you must provide a formula, like `Y ~ X`. In this case, X is your *independent variable* (IV), and Y is your *dependent variable* (DV). That is, this formula asked "as X changes, what happens to Y? How much of the variance in Y is explained by variance in X?"
+
+For instance, we might want to investigate the relationship between age (X) and optimism (Y), depicted in the plot above. As age increases, how does optimism change?
+
+```{r lm_ageVSoptmism_df_survey}
+rs2 = lm(optmism ~ age, data = df_survey) # this is the same as lm(df_survey$optmism ~ df_survey$age)
+summary(rs2) # given the model we just fit with lm(), give us the summary
+```
+
+Based off of this output, we can see that age is a significant predictor of optimism; the variance in age explains approximately 10% of the variance in optimism.
+
+We can also investigate the regression line that was in rs2, we can ask ggplot to reconstruct it from the aesthetics object:
+
+```{r plot_optmism_on_age_reg, fig.width=5, fig.height=4}
+ggplot(data=df_survey, aes(x=age,y=optmism)) +
+  geom_point() +
+  ggtitle('Optimism vs. Age')# +
+  geom_smooth(method="lm",color="red",se=F)
+```
+
+We can also visualize diagnostic plots of the residuals from the lm() output, which  can be helpful in showing if assumptions of normality, etc, are met, or to identify outliers:
+
+```{r plot_optmism_on_age_lm, fig.width=5, fig.height=4}
+plot(rs2)
+```
+
+Note that if you want to really understand what's happening in these plots, it can be valuable to plot these by hand, for example here is some code to plot the residuals in ggplot:
+
+```{r}
+ggplot(data=df_survey, aes(x=age,y=rs2$residuals)) +
+  geom_point() +
+  geom_smooth(method="lm", se=F)
+```
+
+# Reading data from online repositories
+
+
+R allows us to read data that's stored in a file on your computer or from a URL online. Here, we're going to look at data where each participant (*n* = 50) reports whether they took a flu shot (`Shot` = 1) or not (`Shot` = 0), their age (`Age`), and their health awareness level (`Health.Aware`).  Is Prob(`Shot` = 1) influenced by `Age`?  By `Health.Aware`?
+
+We can provide the website URL, and R will read in the table:
+
+```{r flu_load}
+flu.table <- read.table('http://stanford.edu/class/psych252/data/flu.table', header=TRUE)
+
+str(flu.table)    # description of dataframe
+```
+
+Note that when you're reading in a **table**, you have to tell R that you want the first row in the file to be the header (i.e., the names of the variables) with the option "header=TRUE". If you have a **csv** R will treat the first row as a header by default.
+
+Here, we have a numeric matrix of data, with 50 observations for 3 variables. To get an idea of the pairwise relationships between all these variables, we can call `plot()` on the DataFrame. This is another example of how `plot()` is a powerful generic function:
+
+```{r plot_flu_df, fig.width=5, fig.height=4}
+plot(flu.table,cex.labels=2, pch=23, bg='orange', cex=2)
+```
+
+Another nice package for this is GGAlly:
+
+```{r}
+#install.packages('GGally')
+library(GGally)
+```
+
+```{r}
+# for visualization, we can improve by having Shot as a factor:
+flu.table2 = flu.table
+flu.table2$Shot = factor(flu.table2$Shot, levels=c(0,1), labels=c("No","Yes"))
+ggpairs(flu.table2)
+```
+
+It looks like the probability of receiving a shot might be related to the amount of health awareness. Let's view a scatterplot of just these two variables, and overlay a red non-parametric best-fitting curve showing how the Probability(Shot = 1) varies with health awareness:
+
+```{r plot_shot_on_aware, fig.width=5, fig.height=4}
+ggplot(data=flu.table, aes(x=Health.Aware, y=Shot)) +
+  geom_point() +
+  geom_smooth(method="loess", se=F, color='Red', size=1.5)
+```
+
+# 252 HW & Performing t-tests in R
+
+Much of Psych 252 takes place on your own time working through the homework problem sets. To help you get a head start on understanding what we expect to receive back for each problem set we're going to briefly build up a Pysch 252 style HW. Open the file module2-hw.Rmd at this time, the rest of module 2 will occur there!

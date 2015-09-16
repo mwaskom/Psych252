@@ -1,0 +1,33 @@
+Plotting Boxplots
+========================================================
+
+Load in data
+-------------
+```{r fig.width = 6, fig.height = 4}
+data = ChickWeight
+```
+
+Draw basic boxplot
+----------------------
+```{r fig.width = 6, fig.height = 5}
+library(ggplot2)
+
+# change background to white, increase font size
+theme_set(theme_bw(base_size = 18)) 
+
+# set up basic boxplot
+qplot(Diet, weight, data = data,
+      geom = c("boxplot"),
+      fill = Diet)
+```
+
+Plot boxplots with all data points
+----------------------
+```{r fig.width = 6, fig.height = 4}
+p = ggplot(data, aes(Diet, weight))
+
+p + geom_boxplot(notch = TRUE,
+                 aes(fill = factor(Diet))) +
+  geom_jitter(alpha = 0.5)
+  
+```

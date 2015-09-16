@@ -5,7 +5,7 @@ This is a collection of tutorials notebooks using `R Markdown
 <http://www.rstudio.com/ide/docs/authoring/using_markdown>`_ that may be
 helpful for the course.
 
-Created by Steph Gagnon, Michael Waskom, and Lauren Howe
+Created by Psych 252 TAs
 
 
 Introduction to Statistical Computing with R
@@ -18,32 +18,28 @@ intro to general linear models.
 Download/installation instructions
 [`PDF <http://www.stanford.edu/class/psych252/tutorials/PSYCH252_Rintro.pdf>`_]
 
-Tutorial 1 
-[`html <http://www.stanford.edu/class/psych252/tutorials/stutorial1.html>`_]
-[`Rmd <http://www.stanford.edu/class/psych252/tutorials/stutorial1.Rmd>`_] 
+**Module 1**
+[`html <http://www.stanford.edu/class/psych252/tutorials/module1.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/tutorials/module1.Rmd>`_]
 
-Tutorial 2 
-[`html <http://www.stanford.edu/class/psych252/tutorials/stutorial2.html>`_]
-[`Rmd <http://www.stanford.edu/class/psych252/tutorials/stutorial2.Rmd>`_]
+**Module 2**
+[`html <http://www.stanford.edu/class/psych252/tutorials/module2.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/tutorials/module2.rmd>`_]
 
-Tutorial 3 
-[`html <http://www.stanford.edu/class/psych252/tutorials/stutorial3.html>`_]
-[`Rmd <http://www.stanford.edu/class/psych252/tutorials/stutorial3.Rmd>`_]
+**Module 2: Homework Example**
+[`html <http://www.stanford.edu/class/psych252/tutorials/module2-hw.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/tutorials/module2-hw.Rmd>`_]
 
-Math behind Chi Square tests
-----------------------------
-
-This PDF provides the math to run chi-square tests by hand. It includes both a
-one-way classification (i.e., a goodness-of-fit test) and 2 way classification
-(i.e., a contingency test, or test of independence).
-[`PDF <http://www.stanford.edu/class/psych252/tutorials/ChiSquared_math.pdf>`_]
+**Module 3**
+[`html <http://www.stanford.edu/class/psych252/tutorials/module3.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/tutorials/module3.rmd>`_]
 
 
 General Linear Model with lm()
 -------------------
 
-This tutorial provides an introduction to using ``lm()`` to run a general linear model analysis. 
-We walk through additive and interactive models, including quadratic terms in your model, 
+This tutorial provides an introduction to using ``lm()`` to run a general linear model analysis.
+We walk through additive and interactive models, including quadratic terms in your model,
 model comparison, and interactions with multiple continuous variables.
 [`html <http://www.stanford.edu/class/psych252/tutorials/Tutorial_lm.html>`_]
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/Tutorial_lm.Rmd>`_]
@@ -70,14 +66,6 @@ basis for logistic regression.
 [`Rmd <http://www.stanford.edu/class/psych252/tutorials/binomial_probability.Rmd>`_]
 
 
-Model Comparison Guidelines
----------------------------
-
-Guide for comparing mixed effects models (and fixed effects models), adapted from Paul's guide; 
-how to determine whether to use ML or REML when fitting your model; comparing models based on 
-deviance, or using AIC. 
-[`png <http://www.stanford.edu/class/psych252/tutorials/model_comparisons.png>`_]
-
 
 Maximum Likelihood
 --------------------
@@ -88,9 +76,8 @@ An overview of the principle of maximum likelihood and the derivation of the lik
 
 Bootstrapping
 --------------------
-A short primer on non-parametric statistics, in particular, the bootstrap. There is also an 
+A short primer on non-parametric statistics, in particular, the bootstrap. There is also an
 overview of several R functions written by Desmond Ong to assist in calculating bootstrapped
 statistics. Download functions from `here <https://github.com/desmond-ong/doBootstrap>`_.
 [`html <http://www.stanford.edu/class/psych252/tutorials/doBootstrapReadme.html>`_]
 [`pdf <http://www.stanford.edu/class/psych252/tutorials/doBootstrapPrimer.pdf>`_]
-

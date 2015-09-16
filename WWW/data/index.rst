@@ -10,8 +10,9 @@ Juvenile Deaths in Santa Clara County
 
 Fields:
 
-* **time**: 1, 2, or 3; corresponding to 1990-91, 1992-93, 1994-95
-* **cause**: 'maltreatment' or 'other'
+* **time**: Time of death (1, 2, or 3; corresponding to 1990-91, 1992-93, 1994-95)
+* **cause**: Cause of each juvenile's death ('maltreatment' or 'other')
+
 
 fieldsimul1.csv
 ---------------
@@ -19,6 +20,30 @@ fieldsimul1.csv
 Survey of likely voters in California
 
 :download:`Click to download data </datasets/fieldsimul1.csv>`
+
+Fields:
+
+* **age**: Age of voters surveyed (20-75 years)
+* **agecat**: Age of voters surveyed, binned into groups of 20 years
+* **party**: Political party of voters (1=Democrat, 2=Republican, 3=Other)
+* **prop54**: Whether voter reported if they would vote for Prop 54 (Racial Privacy Initiative)
+* **optmism**: Level of optimism (0-11)
+* **recall**: Do you think the governor should be recalled? (1=yes, 2=no, 3=unsure)
+* **recallq**: Do you think the governor should be recalled? (1=yes, 0=unsure, -1=no)
+
+
+dataset_scale.csv
+---------------
+
+Mocked-up data for examining the relationship between height and salary.
+
+:download:`Click to download data </datasets/dataset_scale.csv>`
+
+Fields:
+
+* **height**: Participant's height
+* **salary**: Participant's salary
+
 
 hw2data.csv
 -----------
@@ -141,6 +166,7 @@ Dataset from an educational psychologist, testing the effectiveness of 3 methods
 Fields:
 
 * **method**: method of instruction, 1 = emphasizing 'drill and practice,' 2  =
+
 emphasizing fun with math, and 3 = control method 
 
 * **satis**: student satisfaction with the method 
@@ -222,3 +248,17 @@ Fields:
 * **comclip.len**: perceived length of comedy clips
 
 * **statsclip.len**: perceived length of statistics class clips
+
+vocab0.csv
+---------------
+
+ Study of young children's vocabulary growth.
+
+:download:`Click to download data </datasets/vocab0.csv>`
+
+couples1.csv
+---------------
+
+Study of couples' interaction quality.
+
+:download:`Click to download data </datasets/couples1.csv>`

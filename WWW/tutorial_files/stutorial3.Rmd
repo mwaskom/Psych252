@@ -1,5 +1,11 @@
-Psych 252: R Tutorial Module 3
-========================================================
+---
+title: 'Psych 252: R Tutorial Module 3'
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+    toc: yes
+---
 
 Based on notes by Paul Thibodeau (2009) and revisions by the Psych 252 instructors in 2010 and 2011
 
@@ -7,25 +13,24 @@ Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas
 
 Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Steph Gagnon.
 
-2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey, Eric Miller
 
 Performing t-tests in R
 -----------------------
 
-The *t-test* allow us to test a **null hypothesis ($H_0$)** about population means. For instance, if we are interested in whether two populations are different, we can test the $H_0$ that the mean of population 1 is equal to the mean of population 2.
+The *t-test* allows us to test a **null hypothesis ($H_0$)** about population means. For instance, if we are interested in whether two populations are different, we can test the $H_0$ that the mean of population 1 is equal to the mean of population 2.
 
 As an example, we'll return to some data from Tutorial 2. This data has information about whether or not cities have right to work laws (RTWL), and their cost of living (COL). Here, we might be interested in whether the right to work law has an influence on cost of living. In this case, our null hypothesis ($H_0$) is that the mean COL is the same in cities with RTWL = 0 as in those with RTWL = 1.
 
 In this case, it is important to note that the 2 populations of cities are *independent* of each other. That is, the cities with no RTWL are different from the cities that have a RTWL.
 
-To test our $H_0$, we'll compute a "standardized difference", or **t statistic**, between the *sample mean* COL of the cities with RTWL=0 and the sample mean COL of the cities with RTWL=1. Once we compute this t, we can decide if it's "large" (e.g., -2 > t > 2) to determine if we can reject our $H_0$. For now, you don't have to worry much about these details; we'll cover them in the first few classes!
+To test our $H_0$, we'll compute a "standardized difference", or **t statistic**, between the *sample mean* COL of the cities with RTWL=0 and the *sample mean* COL of the cities with RTWL=1. Once we compute this t, we can decide if it's "large" (e.g., t < -2 or t > 2) to determine if we can reject our $H_0$. For now, you don't have to worry much about these details; we'll cover them in the first few classes!
 
 ### Exploring the data
 
 Let's start by reading in our data:
 
 ```{r load_d0}
-d0 = read.csv("http://www.ilr.cornell.edu/~hadi/RABE4/Data4/P005.txt", sep='\t')
+d0 = read.csv("http://stanford.edu/class/psych252/data/P005.txt", sep='\t')
 str(d0)
 head(d0)
 ```
@@ -71,7 +76,7 @@ res1
 
 ### Testing for equal variance
 
-Great! However, we automatically assumed that the variances were equal between the 2 groups of cities. We can use the **standard deviation** function `sd()` to approximate the variance for these 2 groups:
+Great! However, we automatically assumed that the variances were equal between the 2 groups of cities. We can use the **standard deviation** function `sd()` to estimate the standard deviation for these 2 groups:
 
 ```{r sd_subsetCOL_d0}
 c(sd0 = sd(COL0), sd1 = sd(COL1))
@@ -83,7 +88,7 @@ These numbers are pretty different; however, the two groups had different number
 var.test(COL0, COL1)
 ```
 
-Here, we cannot reject the null because the two variances are not significantly different from eachother (*p* = 0.5063).
+Here, we cannot reject the null because the two variances are not significantly different from each other (*p* = 0.5063).
 
 ### Running a Paired t-test
 

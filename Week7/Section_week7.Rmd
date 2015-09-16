@@ -62,7 +62,7 @@ gpairs(d, upper.pars = list(scatter = "lm",
        stat.pars = list(fontsize = 14, signif = 0.05, 
                         verbose = FALSE, use.color = TRUE, 
                         missing = 'missing', just = 'centre'))
-```
+w```
 
 
 ### Mediation

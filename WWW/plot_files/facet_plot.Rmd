@@ -1,0 +1,75 @@
+Plotting Data by Facets
+========================================================
+
+Sometimes you might want to split your data by one (or more) variables, and visualize the subsets of the data together. Facets allow you implement this using `ggplot`.
+
+Load in data
+-------------
+```{r fig.width = 6, fig.height = 4}
+data = ChickWeight
+```
+
+Draw basic scatter plot w/linear regression
+----------------------
+```{r fig.width = 6, fig.height = 4}
+library(ggplot2)
+
+# change background to white, increase font size
+theme_set(theme_bw(base_size = 18)) 
+
+# set up basic scatter plot, overlaid with linreg
+pl = ggplot(data, aes(x=Time, y=weight)) +
+  geom_point(shape=16, 
+             color = 'black',
+             alpha = 0.5) +
+  geom_smooth(method=lm, color = 'red')
+```
+
+Facet by a variable
+----------------------
+```{r fig.width = 6, fig.height = 4}
+pl + facet_grid(~Diet)
+```
+
+Plot a subset of the subjects by facet
+----------------------
+
+###Subset the data
+Create a function to create a smaller subset of data with fewer subjects.
+
+```{r}
+# create a function that will subset the data
+subsetData = function(data, sub_col, subset_num){
+  # data: dataset
+  # sub_col = column with subj ids
+  # sample_num = num unique subj for subset
+  
+  # list of unique subjects
+  unique_subs = unique(data[,sub_col])
+  
+  # take a subset of subjects' data
+  subs_subset = sample(unique_subs, subset_num)
+  
+  # subset the data based on the subset
+  data_subset = data[data[,sub_col] %in% subs_subset,]
+  
+  return(data_subset)
+}
+
+# number to subset
+subset_num = 6
+
+data_subset = subsetData(data, 'Chick', subset_num)
+summary(data_subset)
+```
+
+Now plot the subset of subjects with `facet_wrap()`, coloring the regression line by Diet. Note, you can limit the number of subplots per row by specifying the number of columns with `ncol`.
+
+```{r}
+pl = ggplot(data_subset, aes(x=Time, y=weight, color=Diet)) +
+  geom_point(shape=16, 
+             alpha = 0.5) +
+  geom_smooth(method=lm)
+
+pl + facet_wrap(~Chick, ncol=3)
+```

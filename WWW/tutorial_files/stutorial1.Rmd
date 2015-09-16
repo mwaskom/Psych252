@@ -1,5 +1,11 @@
-Introduction to Statistical Computing with R
-============================================
+---
+title: "Introduction to Statistical Computing with R"
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+    toc: yes
+---
 
 Based on notes by Paul Thibodeau (2009) and revisions by the Psych 252 instructors in 2010 and 2011
 
@@ -7,22 +13,21 @@ Expanded in 2012 by Mike Frank, Benoit Monin and Ewart Thomas
 
 Converted to [R Markdown](http://www.rstudio.com/ide/docs/r_markdown) format and further expanded in 2013 by Michael Waskom.
 
-2014 TAs: Rebecca Carey, Caitie Handron, Kara Weisman, Daniel Hawthorne, Steph Gagnon, Alyssa Fu, Kevin Mickey, Eric Miller
 
-*If you haven't already installed R, it is availible [here](http://www.r-project.org/).*
+*If you haven't already installed R, it is available [here](http://www.r-project.org/).*
 
 Brief notes about learning R
 ----------------------------
 
-The data analysis environment we'll be using for Psych 252 is R. R is a programming language that is specifically designed for statistical computation. It has many appealing features: it is powerful, flexible, and widely used in the statistical community. The aspects that make R so powerful and flexible, however, contribute to a learning curve that is relatively steeper than what you might find in point-and-click packages like SPSS. The aim of this tutorial is to provide a general introduction to interacting with R that will reduce the feelings of frustration and helplessness that can emerge early in ones relationship with it. Although this tutorial doesn't assume any preexisting knowledge, if you've had no experience with computer programming there may be some parts of it that are confusing or lack a particularly deep meaning. Try your best to understand them now, but you will also likely benefit from returning to the tutorial periodically as you become more comfortable.
+The data analysis environment we'll be using for Psych 252 is R. R is a programming language that is specifically designed for statistical computation. It has many appealing features: it is powerful, flexible, and widely used in the statistical community. The aspects that make R so powerful and flexible, however, contribute to a learning curve that is likely steeper than what you might find in point-and-click packages like SPSS. This tutorial provides a general introduction to R, and a preview of how R is used in the Course exercises. We hope the tutorial will reduce the feelings of frustration and helplessness that can emerge early in our attempt to learn R and statistics at the same time. Although this tutorial doesn't assume any preexisting knowledge, if you've had no experience with computer programming there may be some parts of it that are confusing or lack a particularly deep meaning. Try your best to understand them now, but you will also likely benefit from returning to the tutorial periodically as you become more comfortable.
 
-The most important skill to cultivate up front is the ability to help yourself when you are stuck. Fortunately, R is pretty helpful in this regard. R is what's known as an *interpreted langauge*, which basically means that there is a console you type commands into and get immediate feedback on them. Do this liberally as you work though the tutorial and the early class exercises, making small modifications to the examples we provide until you feel like you really understand what's going on.
+The most important skill to cultivate up front is the ability to help yourself when you are stuck. Fortunately, R is pretty helpful in this regard. R is what's known as an *interpreted language*, which basically means that there is a console you type commands into and get immediate feedback on them. Do this liberally as you work though the tutorial and the early class exercises, making small modifications to the examples we provide until you feel like you really understand what's going on.
 
-The console is also your gateway to the built-in help functionality. Almost all R functions (more later on what those are) have help files built in that will provide you with useful information about what those functions do and how to use them. You find this by typing `help(function)` (or `?function`), where I am using "function" as a stand-in for the name you actually want to know about. It's important to read these files closely the first time you encounter a function, but it's *also* (possibly more) important to refer back to them frequently. I read once that a prominent distinction between an experienced programmer and a novice is the longer latency for the novice to look up the help for something confusing (but the direction of causality is not clear!). If you have a sense for what you want to do, but don't know or can't remember the exact function that will do it, you can search through the help files for a term with two question marks (e.g. `??regression`).
+The console is also your gateway to the built-in help functionality. Almost all R functions (more later on what those are) have help files built in that will provide you with useful information about what those functions do and how to use them. You find this by typing `help(function)` (or `?function`), where I am using "function" as a stand-in for the name you actually want to know about. It's important to read these files closely the first time you encounter a function, but it's *also* (possibly more) important to refer to them frequently. I read once that a prominent distinction between an experienced programmer and a novice is the longer latency for the novice to look up the help for something confusing (but the direction of causality is not clear!). If you have a sense for what you want to do, but don't know or can't remember the exact function that will do it, you can use two question marks to search through the help files for a term (e.g. `??regression`).
 
 Of course, the internet is also a useful resource. Because of its name, it can be a little annoying to google for help with R. The [rseek](http://rseek.org/) website is intended to remedy this problem by acting as an R-specific search engine. A somewhat more useful resource, in my opinion, is the [stackoverflow](http://stackoverflow.com/) website. Because this is a general-purpose resource for programming help, it will be useful to use the R tag (`[R]`) in your queries. A related resource is the [statistics stackexchange](http://stats.stackexchange.com/), which is like Stack Overflow but focused more on the underlying statistical issues.
 
-Finally, a note on errors. Novice and expert programmers alike will frequently run into errors in their R code. When this happens, processing will halt and an error message will be printed to the console. This is usually more frustrating for the novice, as the error often occurs deep within some function and the message bears no direct correspondence to what they were trying to do. A common beginner mistake is to conclude that the error message is gibberish and resign oneself to woe and dismay. It's important to resist this urge; even if the error message is not immediately informative, it is intended to precisely convey some piece of information, and usually understanding what this information is will be the key to solving the problem.
+Finally, a note on errors. Novice and expert programmers alike will frequently run into errors in their R code. When this happens, processing will halt and an error message will be printed to the console. This is usually more frustrating for novices, as the error often occurs deep within some function and the message bears no direct correspondence to what they were trying to do. A common beginner mistake is to conclude that the error message is gibberish and resign oneself to woe and dismay. It's important to resist this urge; even if the error message is not immediately informative, it is intended to precisely convey some piece of information, and usually understanding what this information is will be the key to solving the problem.
 
 Basic interaction with the R console
 ------------------------------------
@@ -67,7 +72,7 @@ It's fine to use variable names like `x` for simple math examples like the ones 
 
 With that said, there are a few rules for variable names. You can use any alphanumeric character, although the first character must be a letter. You can't use spaces, because the computer doesn't know that you're trying to write a phrase and interprets that as two (or more) separate terms. When you want something like a phrase, the `_` and `.` characters can be employed (this can be a bit confusing as `.` is usually meaningful in programming languages, but not in R).
 
-Here's a simple example that novice coders often find confusion. Walk yourself through the code and make sure you understand what operations lead to the final return value:
+Here's a simple example that novice coders often find confusing. Walk yourself through the code and make sure you understand what operations lead to the final return value:
 
 ```{r assignment_example}
 a = 10
@@ -162,7 +167,7 @@ v[3]
 v[3:6]
 ```
 
-If your vector has names associated associated with the values, you can index with those too:
+If your vector has names associated with the values, you can index with those too:
 
 ```{r name_index}
 v = 1:3

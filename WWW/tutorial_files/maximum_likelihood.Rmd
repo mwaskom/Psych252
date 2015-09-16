@@ -9,13 +9,13 @@ Written by Ewart Thomas and Dan Yarlett; converted to R Markdown and expanded by
 ![title](http://mycoinonline.com/bmz_cache/3/3a3a2282a264c7cbaa44f8b6a630f645.image.200x100.jpg)
 </div>  
 
-Suppose we wish to estimate the parameter of a coin, $p$ = Prob (Head on a toss); we will label out estimate as $\hat{p}$. We might toss the coin $n = 100$ times and observe $r = 45$ Heads. A familiar estimate of $p$ is: $$\hat{p}=\frac{r}{n}=\frac{45}{100}=0.45$$  
+Suppose we wish to estimate the parameter of a coin, $p$ = Prob (Head on a toss); we will label our estimate as $\hat{p}$. We might toss the coin $n = 100$ times and observe $r = 45$ Heads. A familiar estimate of $p$ is: $$\hat{p}=\frac{r}{n}=\frac{45}{100}=0.45$$  
 
 In what sense is this estimate, $\hat{p}=\frac{r}{n}$, the *“best”* estimate of $p$?
 
-*    One answer that is already familiar is that $\hat{p}$ is an **unbiased estimate** of $p$. To see this, note that the average (i.e., **expected value**) of $r$, written as $E(r)$, is given by: $E(r) = np$. This implies that $p = \frac{E(r)}{n}$. Therefore, if we define our estimate, $\hat{p}$, of $p$ as $\hat{p} \frac{r}{n}$, then the expected value of $\hat{p}$ is given by: $$E(\hat{p}) = E(\frac{r}{n}) = \frac{E(r)}{n} = p$$  
+*    One answer that is already familiar is that $\hat{p}$ is an **unbiased estimate** of $p$. To see this, note that the average (i.e., **expected value**) of $r$, written as $E(r)$, is given by: $E(r) = np$. This implies that $p = \frac{E(r)}{n}$. Therefore, if we define our estimate, $\hat{p}$, of $p$ as $\hat{p} = \frac{r}{n}$, then the expected value of $\hat{p}$ is given by: $$E(\hat{p}) = E(\frac{r}{n}) = \frac{E(r)}{n} = p$$  
 
-    That is, *on average*, $\hat{p}$ is equal to $p$, and this is what is meant by saying that $\hat{p}$ is an **unbiased estimate** of $p$. To put this another way, this choice of estimate leads to a perfect fit between the *expected* number ($E$) and the observed number ($O$) of heads because when $p = \hat{p} = \frac{r}{n}$, $$E = np = n\hat{p} = n\frac{r}{n} = r = O$$
+    That is, *on average*, $\hat{p}$ is equal to $p$, and this is what is meant by saying that $\hat{p}$ is an **unbiased estimate** of $p$. To put this another way, this choice of estimate leads to a perfect fit between the *expected* number ($E$) and the observed number ($O$) of heads, because when $p = \hat{p} = \frac{r}{n}$, $$E = np = n\hat{p} = n\frac{r}{n} = r = O$$
 
 *     A second answer can be derived by applying the principle of **maximum likelihood**. The probability (or **likelihood**, $l$) of observing the *particular* sequence of $r$ Heads and $n-r$ Tails that we observed is: $$l(p)={p}^{r}{(1-p)}^{n-r}$$
 
@@ -25,7 +25,7 @@ In what sense is this estimate, $\hat{p}=\frac{r}{n}$, the *“best”* estimate
 
 As can be seen in the Figure, when the number of total tosses ($n$) = 20, for given number of Heads ($r$), $l(p)$ varies between 0 (when $p$ = 0 or $p$ = 1) and a maximum, $l*$ (when $p = \frac{r}{n}$). For instance, when $r = 10$, $l(p) = 0$ when $p$ is very small and very large, and the maximum $l*$ is at $p = \frac{r}{n} = \frac{10}{20} = 0.5$.  
 
-It is not hard to show, in general (e.g., by using Calculus), that $l(p)$ is *always* a maximum when $p = \frac{r}{n}$. Therefore, using $\hat{p} = \frac{r}{n}$ as **our estimate of $p$ maximizes the observed likelihood of the data**, and this is why we call this estimate the “**maximum likelihood (ML) estimate of p**.” It can be shown by mathematical arguments that, in general, ML estimates have very desirable properties. For example, even in cases where an ML estimate is biased, it can be shown that:
+It is not hard to show, in general (e.g., by using Calculus), that $l(p)$ is *always* a maximum when $p = \frac{r}{n}$. Therefore, using $\hat{p} = \frac{r}{n}$ as our estimate of $p$ **maximizes the observed likelihood of the data**, and this is why we call this estimate the “**maximum likelihood (ML) estimate of $p$**.” It can be shown by mathematical arguments that, in general, ML estimates have very desirable properties. For example, even in cases where an ML estimate is biased, it can be shown that:
 
 1.  As the **sample size** becomes very **large**, the **ML estimate** tends to be **unbiased**
 2.  The **variance of the ML estimate** is the **smallest** among a set of reasonable, competing estimates - e.g., the variance of the ML estimate is **no greater than that of the unbiased linear estimate**.  
@@ -33,20 +33,20 @@ It is not hard to show, in general (e.g., by using Calculus), that $l(p)$ is *al
 
 Let $l*$ denote the maximum possible value of $l$, i.e., the value obtained by substituting $\frac{r}{n}$ for $\hat{p}$: $$l*={p}^{r}{(1-p)}^{n-r}=({\frac{r}{n}})^{r}{(1-\frac{r}{n})}^{n-r}$$  
 
-We can confirm in the above Figure that this maximum ($l*$) depends on $n$ and $r$. Now suppose that, before we collect the data, we have a null hypothesis that p has the specific value, $p_0$ (e.g., $p_0$ = 0.45). After we collect the data, we can now say that the likelihood of the data, if $H_0$ were true, would be: $$l_0 = (p_0)^{r}({1-p_0})^{n-r}$$  
+We can confirm in the above Figure that this maximum ($l*$) depends on $n$ and $r$. Now suppose that, before we collect the data, we have a null hypothesis that $p$ has the specific value, $p_0$ (e.g., $p_0$ = 0.45). After we collect the data, we can now say that the likelihood of the data, if $H_0$ were true, would be: $$l_0 = (p_0)^{r}({1-p_0})^{n-r}$$  
 
 We know that $l_0$ cannot be greater than $l*$, but if $l_0$ were not significantly less than $l*$, we would agree that $H_0$ is a tenable hypothesis and retain it. However, if $l_0$ were significantly less than $l*$, we would agree that $H_0$ is an untenable hypothesis and reject it. Thus, a reasonable procedure for testing $H_0$ would be to compute the ratio, $\frac{l_0}{l*}$, and to reject $H_0$ if $\frac{l_0}{l*}$ were significantly less than 1. Such a test is called a likelihood ratio test. In this next Figure, we plot this likelihood ratio, $$LR(p) = \frac{l(p)}{l*},$$ to show the dependence of $LR(p)$ on $n$. 
 
 <iframe src="http://spark.rstudio.com/supsych/maxlik_2/" style="border: none; width: 700px; height: 600px"></iframe>
 
-We see that, when $p ≠ r/n$, $LR(p)$ *decreases* as $n$ $increases$; i.e., the ‘evidence’ that $p$ (≠ $\frac{r}{n}$) is not an acceptable value increases as $n$ increases. In other words, it is easier to **reject an incorrect null hypothesis when n is large** than when n is small.   
+We see that, when $p ≠ r/n$, $LR(p)$ *decreases* as $n$ $increases$; i.e., the ‘evidence’ that $p$ (≠ $\frac{r}{n}$) is not an acceptable value increases as $n$ increases. In other words, it is easier to **reject an incorrect null hypothesis when $n$ is large** than when $n$ is small.   
 
-A more convenient test statistic is the logarithm of $LR(p) = \frac{l(p)}{l*}$; this statistic can then compared with the logarithm of 1, which is equal to 0. Using the fact that $log(ab) = log(a) + log(b)$, which implies that $log(a^k) = klog(a)$, it can be seen that: $$L_0 = ln(\frac{l_0}{l*}) = r*ln(\frac{np_0}{r}) + (n-r) ln(\frac{n(1-p_0)}{(n-r)}),$$  
+A more convenient test statistic is the logarithm of $LR(p) = \frac{l(p)}{l*}$; this statistic can then compared with the logarithm of 1, which is equal to 0. Using the fact that $log(ab) = log(a) + log(b)$, which implies that $log(a^k) = klog(a)$, it can be seen that: $$L_0 = ln(\frac{l_0}{l*}) = (r) ln(\frac{np_0}{r}) + (n-r) ln(\frac{n(1-p_0)}{(n-r)}),$$  
 where "ln" stands for the "natural log" or "log to the base $e$". To generalize this expression for $L_0$, let us replace the observed frequencies, $r$ and $n-r$, by $O_i$, and the expected frequencies, $np_0$ and $n(1-p_0)$, by $E_i$. Then we get: $$L_0 = \Sigma{O_i ln(\frac{E_i}{O_i})}$$   
 
 The test statistic we actually use is not $L_0$, but rather $-2L_0$, because it can be shown that the distribution of $-2L_0$ is chi-square with df equal to the number of parameters that were set in $H_0$. To sum up, the test statistic, $$G^2 = -2L_0 = -2\Sigma{O_i ln(\frac{E_i}{O_i})}$$ 
 
-has the chi-square distribution under the null that $p = p0$. As it turns out, $G^2$ tends to have approximately the same value as the familiar, Pearson chi-square index,
+has the chi-square distribution under the null that $p = p_0$. As it turns out, $G^2$ tends to have approximately the same value as the familiar, Pearson chi-square index,
 $$\chi^2 = \Sigma{\frac{(O_i - E_i)^2}{E_i}}$$   
 
 Hence the results of the likelihood ratio test are generally the same as those of the Pearson chi-square test.

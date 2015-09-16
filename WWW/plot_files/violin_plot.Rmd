@@ -1,0 +1,44 @@
+Violin Plots
+========================================================
+
+Violin plots are similar to a **boxplot**, but also include information about the **probability density** of the data at different values. You can think of one violin plot as a boxplot that is overlaid with a rotated histogram.
+
+Load in data
+-------------
+```{r fig.width = 7, fig.height = 5}
+# subset the data so can visualize
+data = ChickWeight[(ChickWeight$Time < 5),]
+```
+
+Draw basic violin plot
+----------------------
+```{r fig.width = 7, fig.height = 5}
+library(ggplot2)
+
+# change background to white, increase font size
+theme_set(theme_bw(base_size = 18)) 
+
+# set up basic data, with x and y vars
+p <- ggplot(data[1:50,], aes(factor(Time), weight))
+
+p + geom_violin(fill= 'dodgerblue', color= 'darkblue') + 
+  labs(list(title = 'Plot Title', x = 'Time', y='Weight'))
+```
+
+Draw a violin plot connecting each individual
+----------------------
+```{r fig.width = 7, fig.height = 5}
+# add violin plot
+p + geom_violin(fill= 'dodgerblue', color= 'darkblue') + 
+  labs(list(title = 'Plot Title', x = 'Time', y='Weight')) +
+
+  # plot the points
+  geom_point(size=3,
+             colour="black", 
+             alpha = 0.5,
+             position=position_jitter(width=0.025)) +
+  
+  # plot the lines by "subid" (in this case "Chick")
+  geom_line(aes(group=Chick), 
+            alpha = 0.5)
+```

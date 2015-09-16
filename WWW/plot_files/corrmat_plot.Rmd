@@ -1,0 +1,31 @@
+---
+title: "Visualize a correlation matrix"
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+---
+
+Load in continuous data
+-------------
+```{r}
+data = mtcars
+str(data)
+```
+
+```{r}
+library(corrplot)
+
+# Create helper function to plot
+plot_matrix <- function(matrix_toplot){
+  corrplot.mixed(matrix_toplot,
+                 order = "original", 
+                 tl.col='black', tl.cex=.75)
+  }
+```
+
+## Plot the correlations between columns
+```{r fig.width=6, fig.height=6}
+plot_matrix(cor(data))
+```
+
