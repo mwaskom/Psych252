@@ -14,15 +14,16 @@ R Cheatsheet
 
 This PDF includes useful R functions and syntax for Psych 252. Includes info on how to
 read and explore data frames, basic statistical functions and operations, programming basics,
-and plotting with ``ggplot``. 
+and plotting with ``ggplot``.
 
 
 Math behind Chi Square tests
 ----------------------------
 
-[`PDF <http://www.stanford.edu/class/psych252/cheatsheets/ChiSquared_math.pdf>`_]
+[`html <http://www.stanford.edu/class/psych252/cheatsheets/chisquare.html>`_]
+[`Rmd <http://www.stanford.edu/class/psych252/cheatsheets/chisquare.Rmd>`_]
 
-This PDF provides the math to run chi-square tests by hand. It includes both a
+This brief tutorial provides the math to run chi-square tests by hand and with R. It includes both a
 one-way classification (i.e., a goodness-of-fit test) and 2 way classification
 (i.e., a contingency test, or test of independence).
 
